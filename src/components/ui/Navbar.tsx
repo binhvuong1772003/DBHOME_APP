@@ -68,7 +68,7 @@ export const Navbar = () => {
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
                   // ✅ Fix
-                  <AvatarImage src={avatar} alt="avatar" />{' '}
+                  <AvatarImage src={avatar} alt="avatar" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </Button>
