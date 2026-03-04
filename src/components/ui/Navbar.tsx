@@ -20,7 +20,7 @@ export const Navbar = () => {
     await logout();
     navigate('/login');
   };
-  const avatar = user?.avatar ?? mimoAvt;
+  const avatar = user?.avatarUrl ?? mimoAvt;
   return (
     <div className="absolute top-0 left-0 right-0 bg-card shadow px-6 py-1.5 flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -67,7 +67,8 @@ export const Navbar = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src={avatar} alt={user?.name ?? 'avatar'} />{' '}
+                  // ✅ Fix
+                  <AvatarImage src={avatar} alt="avatar" />{' '}
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </Button>
