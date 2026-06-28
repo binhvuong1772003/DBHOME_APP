@@ -10,32 +10,50 @@ import AuthPage from './pages/Auth';
 import EmailVerifyPage from './pages/EmailVerify';
 import SendVerifyEmailPage from './pages/SendVerifyEmailPage';
 import { PublicRoute } from './components/routes/PublicRoute';
+import { PrivateRoute } from './components/routes/PrivateRoute';
+import GoogleCallBackPage from './pages/GoogleCallback';
+import { shopRoutes } from './routes/shop.routes';
+import { Toaster } from 'sonner';
 
 export function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<div>Home Page</div>} />
-            <Route
-              path="/auth"
-              element={
-                <PublicRoute>
-                  <AuthPage />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/email/verification/resend"
-              element={<SendVerifyEmailPage />}
-            />
-            <Route path="/email/verify" element={<EmailVerifyPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AuthProvider>
-      </Router>
-    </ThemeProvider>
+    <>
+      <Toaster />
+      <ThemeProvider>
+        <Router>
+          <AuthProvider>
+            <Routes>
+              {/* Public */}
+              <Route
+                path="/auth"
+                element={
+                  <PublicRoute>
+                    <AuthPage />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/auth/google/callback"
+                element={<GoogleCallBackPage />}
+              />
+              <Route path="/email/verify" element={<EmailVerifyPage />} />
+              <Route
+                path="/email/verification/resend"
+                element={<SendVerifyEmailPage />}
+              />
+
+              {/* Protected */}
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<div>Home Page</div>} />
+                {shopRoutes()}
+              </Route>
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AuthProvider>
+        </Router>
+      </ThemeProvider>
+    </>
   );
 }
 

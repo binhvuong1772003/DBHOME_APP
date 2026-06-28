@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/card';
 import { Navbar } from '@/components/ui/Navbar';
 import { useState } from 'react';
+import { GoogleButton } from '@/components/auth/GoogleButton';
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(true);
   return (
-    <div className="flex min-h-screen min-w-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen min-w-screen items-center justify-center bg-background px-4 pt-16">
       <Navbar />
       <div className="max-w-md w-full">
         <Card className="p-6 md:p-8">
@@ -53,6 +54,12 @@ export default function AuthPage() {
           ) : (
             <SignInForm className="w-full mt-4" />
           )}
+          <div className="flex items-center my-6">
+            <div className="flex-grow h-px bg-gray-300"></div>
+            <span className="mx-4 text-gray-500 text-sm">OR CONTINUE WITH</span>
+            <div className="flex-grow h-px bg-gray-300"></div>
+          </div>
+          <GoogleButton></GoogleButton>
         </Card>
       </div>
     </div>
