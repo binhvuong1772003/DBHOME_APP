@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const initAuth = async () => {
-      const token = tokenService.getAcess();
+      const token = tokenService.getAccess();
 
       if (!token) {
         setLoading(false);
@@ -20,26 +20,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           success: boolean;
           data: User;
         }>('/auth/me');
-        console.log('me response:', data);
         setUser(data.data);
-        console.log('user set:', data.data);
-      } catch {
-        try {
-          const { data } = await axiosClient.post<{
-            success: boolean;
-            acessToken: string;
-          }>('/auth/token/refresh');
-          tokenService.setToken(data.acessToken);
-
-          const { data: meData } = await axiosClient.get<{
-            success: boolean;
-            data: User;
-          }>('/auth/me');
-          setUser(meData.data);
-        } catch {
-          tokenService.clear();
-          setUser(null);
-        }
+      } catch (err: any) {
+        console.log('initAuth eror', err.response?.status, err.response?.data);
+        tokenService.clear();
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -54,12 +39,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = useCallback(async (credentials: SignInRequest) => {
     const { data } = await axiosClient.post<{
       success: boolean;
-      acessToken: string;
+      accessToken: string;
       user: User;
     }>('/auth/login', credentials);
     if (data.success) {
       setUser(data.user);
-      tokenService.setToken(data.acessToken);
+      tokenService.setToken(data.accessToken);
     }
   }, []);
   const signup = useCallback(async (credentials: SignUpRequest) => {

@@ -1,4 +1,3 @@
-import logo from '@/assets/logo.png';
 import { ModeToggle } from '@/components/toggles/mode-toggles';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,37 +6,47 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import mimoAvt from '@/assets/mimoAvt.png';
+import { useShops } from '@/hooks/useShops'; // ← hook fetch shops
+
 export const Navbar = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const { shops } = useShops();
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
+
   const avatar = user?.avatarUrl ?? mimoAvt;
+
   return (
-    <div className="absolute top-0 left-0 right-0 bg-card shadow px-6 py-1.5 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="min-w-12 min-h-12 flex items-center justify-center">
-          <img src={logo} alt="logo" className="w-25 ml-40" />
-        </div>
-        <span className="font-extrabold text-xl text-foreground">SHN APP</span>
+    <div className="w-full bg-card shadow py-1.5 px-6 flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Button
+          className="font-extrabold text-xl"
+          onClick={() => navigate('/')}
+        >
+          SHN APP
+        </Button>
+        {/* Shop Switcher */}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 ">
         <ModeToggle />
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src={avatar} alt={user?.name ?? 'avatar'} />{' '}
+                  <AvatarImage src={avatar} alt={user?.name ?? 'avatar'} />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </Button>
@@ -56,6 +65,20 @@ export const Navbar = () => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+                <DropdownMenuLabel className="font-bold">
+                  Shop của bạn
+                </DropdownMenuLabel>
+                {shops.map((shop) => (
+                  <DropdownMenuItem
+                    key={shop.id}
+                    onClick={() => navigate(`/shops/${shop.slug}`)}
+                  >
+                    {shop.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
                 <DropdownMenuItem variant="destructive" onClick={handleLogout}>
                   Log out
                 </DropdownMenuItem>
@@ -67,7 +90,6 @@ export const Navbar = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  // ✅ Fix
                   <AvatarImage src={avatar} alt="avatar" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
