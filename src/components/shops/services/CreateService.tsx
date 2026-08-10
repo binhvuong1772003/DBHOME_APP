@@ -70,7 +70,7 @@ export function CreateServiceForm() {
                         </div>
                         <div>
                           <label className="block text-[12.5px] font-medium mb-1.5">
-                            Giá cơ bản (đ)
+                            Giá cơ bản (đ)s
                           </label>
                           <input
                             type="number"
