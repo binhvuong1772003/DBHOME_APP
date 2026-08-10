@@ -1,6 +1,7 @@
 import z from 'zod';
 export const createServiceSchema = z.object({
   name: z.string().min(1, 'Tên dịch vụ không được để trống'),
+  category: z.string().min(1, 'Danh mục không được để trống'),
   description: z.string().optional(),
   basePrice: z.number().min(0, 'Giá phải lớn hơn hoặc bằng 0'),
   durationMin: z.number().min(1, 'Thời gian phải lớn hơn 0'),

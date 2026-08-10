@@ -114,7 +114,7 @@ export const CreateShopForm = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Tên cửa hàng{' '}
+                          Tên cửa hàng
                           <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
@@ -463,15 +463,23 @@ export const CreateShopForm = () => {
               >
                 Previous
               </Button>
-              {step < totalSteps - 1 ? (
-                <Button type="button" onClick={next}>
-                  Next
-                </Button>
-              ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Đang tạo...' : 'Create Shop'}
-                </Button>
-              )}
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => {
+                  if (step < totalSteps - 1) {
+                    next();
+                  } else {
+                    form.handleSubmit(onSubmit)();
+                  }
+                }}
+              >
+                {step < totalSteps - 1
+                  ? 'Next'
+                  : isSubmitting
+                    ? 'Đang tạo'
+                    : 'Tạo Shop'}
+              </Button>
             </div>
           </form>
         </Form>
