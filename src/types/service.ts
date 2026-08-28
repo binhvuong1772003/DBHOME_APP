@@ -27,3 +27,24 @@ export interface Service {
   updatedAt: string;
   options?: ServiceOption[];
 }
+
+export interface CreateServiceInput {
+  name: string;
+  category?: string;
+  description?: string;
+  basePrice?: number;
+  durationMin: number;
+  sortOrder: number;
+  isActive: boolean;
+  imageUrl?: string;
+  options: {
+    name: string;
+    isRequired: boolean;
+    sortOrder: number;
+    values: {
+      name: string;
+      price: number;
+      duration?: number;
+    }[];
+  }[];
+}

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { ImageIcon, X } from 'lucide-react';
-import * as React from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { ImageIcon, X } from "lucide-react";
+import * as React from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   FileUpload,
   FileUploadDropzone,
   FileUploadTrigger,
-} from '@/components/ui/file-upload';
+} from "@/components/ui/file-upload";
 
 interface UploadImageProps {
   files: File[];

@@ -1,25 +1,25 @@
-import axios from 'axios';
+import axios from "axios";
 import type {
   AxiosInstance,
   InternalAxiosRequestConfig,
   AxiosResponse,
-} from 'axios';
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-console.log('BASE_URL:', BASE_URL); // ← thêm dòng này
+} from "axios";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+console.log("BASE_URL:", BASE_URL); // ← thêm dòng này
 export const tokenService = {
-  getAccess: () => localStorage.getItem('access_token') ?? '',
+  getAccess: () => localStorage.getItem("access_token") ?? "",
   setToken: (access: string) => {
-    localStorage.setItem('access_token', access);
+    localStorage.setItem("access_token", access);
   },
   clear: () => {
-    localStorage.removeItem('access_token');
+    localStorage.removeItem("access_token");
   },
 };
 const axiosClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
   timeout: 10000,
   withCredentials: true,
@@ -28,9 +28,12 @@ axiosClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access_token = tokenService.getAccess();
     config.headers.Authorization = `Bearer ${access_token}`;
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 let isRefreshing = false;
 let isRedirecting = false;
@@ -68,7 +71,7 @@ axiosClient.interceptors.response.use(
         const { data } = await axios.post(
           `${BASE_URL}/auth/token/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
         tokenService.setToken(data.accessToken);
         processQueue(null, data.accessToken);
@@ -77,9 +80,9 @@ axiosClient.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         tokenService.clear();
-        if (!isRedirecting && !window.location.pathname.startsWith('/auth')) {
+        if (!isRedirecting && !window.location.pathname.startsWith("/auth")) {
           isRedirecting = true;
-          window.location.href = '/auth';
+          window.location.href = "/auth";
         }
         return Promise.reject(refreshError);
       } finally {
@@ -87,6 +90,6 @@ axiosClient.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 export default axiosClient;

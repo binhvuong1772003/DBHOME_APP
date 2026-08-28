@@ -1,98 +1,146 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { getAppointmentByDay } from '@/services/appointmentService';
-import type { Appointment } from '@/types/appointment';
-import { socket } from '@/lib/socket';
-
-export const useGetAppointment = () => {
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { getAppointmentByDate } from "@/features/shop/admin/appointment/services/appointmentService";
+import type { Appointment } from "@/features/shop/admin/appointment/type/appointment";
+import { socket } from "@/lib/socket";
+import { useAsync } from "./useAsync";
+export const useGetAppointment = (externalDate?: string) => {
   const { shopSlug } = useParams<{ shopSlug: string }>();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const [preAppointments, setPreAppointments] = useState<Appointment[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+  const { isLoading, error, run } = useAsync<void>();
+  const [internalDate, setInternalDate] = useState<string>(() =>
+    new Date().toLocaleDateString("sv-SE"),
   );
+  const newIdsRef = useRef(newIds);
+  useEffect(() => {
+    newIdsRef.current = newIds;
+  }, [newIds]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const stopListeningRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    return () => {
+      stopListeningRef.current();
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+  const date = externalDate ?? internalDate;
+  const setDate = setInternalDate;
+
   const prevDate = useMemo(() => {
-    const currentDate = new Date(date);
+    const currentDate = new Date(`${date}T00:00:00`);
     currentDate.setDate(currentDate.getDate() - 1);
-    return currentDate.toISOString().split('T')[0];
+    return currentDate.toLocaleDateString("sv-SE");
   }, [date]);
 
-  // Tách fetch thành function riêng để dùng lại
+  const appointmentsRef = useRef(appointments);
+  useEffect(() => {
+    appointmentsRef.current = appointments;
+  }, [appointments]);
+
   const fetchAppointments = useCallback(async () => {
     if (!shopSlug) return;
-
-    try {
-      const data = await getAppointmentByDay(shopSlug, {
-        date: '2026-03-26',
-      });
-      const preData = await getAppointmentByDay(shopSlug, {
-        date: prevDate,
-      });
-      setAppointments(data);
-      setPreAppointments(preData);
-    } catch (err) {
-      console.log('lỗi:', err);
-      setError('Không tải được dữ liệu shop');
-    } finally {
-      setIsLoading(false);
-    }
+    return run(async () => {
+      const data = await getAppointmentByDate(shopSlug, { date });
+      console.log('data":', data);
+      const preData = await getAppointmentByDate(shopSlug, { date: prevDate });
+      setAppointments(data ?? []);
+      setPreAppointments(preData ?? []);
+    }, "Không tải được dữ liệu lịch hẹn");
   }, [shopSlug, date, prevDate]);
 
-  // Fetch ban đầu khi component mount
-  useEffect(() => {
-    console.log('useEffect chạy, shopSlug:', shopSlug);
-    if (!shopSlug) {
-      console.log('return vì shopSlug null');
-      return;
-    }
-    fetchAppointments();
-  }, [shopSlug, date, prevDate]);
-
-  // Listen WebSocket để tự động refetch khi có appointment mới
-  useEffect(() => {
-    socket.on('appointment_request', async () => {
-      console.log('🔔 Nhận được appointment mới, đang refetch...');
-
-      if (!shopSlug) return;
-
-      try {
-        const freshData = await getAppointmentByDay(shopSlug, {
-          date: '2026-03-26',
-        });
-
-        // Đánh dấu appointment mới (so sánh với list cũ)
-        const newAppointmentIds = freshData
-          .filter(
-            (apt: Appointment) =>
-              !appointments.find((old: Appointment) => old.id === apt.id)
-          )
-          .map((apt: Appointment) => apt.id);
-
-        const updatedData = freshData.map((apt: Appointment) => ({
-          ...apt,
-          isNew: newAppointmentIds.includes(apt.id),
-        }));
-
-        setAppointments(updatedData);
-      } catch (err) {
-        console.log('lỗi:', err);
-      }
+  const clearNew = useCallback((id: string) => {
+    setNewIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
     });
+  }, []);
 
-    return () => {
-      socket.off('appointment_request');
+  useEffect(() => {
+    if (!shopSlug) return;
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+  useEffect(() => {
+    if (!shopSlug) return;
+
+    const handleAppointmentRequest = async () => {
+      try {
+        const freshData = await getAppointmentByDate(shopSlug, { date });
+        const freshAppointments: Appointment[] = freshData ?? [];
+
+        const currentAppointments = appointmentsRef.current;
+        const newAppointmentIds = freshAppointments
+          .filter(
+            (apt) => !currentAppointments.find((old) => old.id === apt.id),
+          )
+          .map((apt) => apt.id);
+        const trulyNewIds = newAppointmentIds.filter(
+          (id) => !newIdsRef.current.has(id),
+        );
+
+        setNewIds((prev) => new Set([...prev, ...trulyNewIds]));
+        setAppointments(freshAppointments);
+        if (trulyNewIds.length > 0 && !audioRef.current) {
+          const audio = new Audio("/sounds/appointment-sound.wav");
+          audio.loop = true;
+          audio.volume = 0.5;
+          audio.play().catch(() => {
+            console.log("Không thể phát âm thanh");
+            audioRef.current = null;
+          });
+          audioRef.current = audio;
+
+          const stopAudio = () => {
+            audio.pause();
+            audioRef.current = null;
+          };
+
+          const events = ["click", "mousemove", "keydown", "touchstart"];
+          const handler = () => stopAudio();
+          events.forEach((event) =>
+            window.addEventListener(event, handler, { once: true }),
+          );
+
+          stopListeningRef.current = () => {
+            events.forEach((event) =>
+              window.removeEventListener(event, handler),
+            );
+          };
+        }
+      } catch (err) {
+        console.log("lỗi:", err);
+      }
     };
-  }, [shopSlug, appointments]);
 
+    socket.on("appointment_request", handleAppointmentRequest);
+    return () => {
+      socket.off("appointment_request", handleAppointmentRequest);
+    };
+  }, [shopSlug, date]);
+  const updateAppointment = useCallback(
+    async (appointmentId: string, changes: Partial<Appointment>) => {
+      await setAppointments((prev) =>
+        prev.map((apt) =>
+          apt.id === appointmentId ? { ...apt, ...changes } : apt,
+        ),
+      );
+    },
+    [],
+  );
   return {
     appointments,
+    newIds,
+    clearNew,
     preAppointments,
     error,
     isLoading,
     date,
     setDate,
     refetch: fetchAppointments,
+    updateAppointment,
   };
 };
