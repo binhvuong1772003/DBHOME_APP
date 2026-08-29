@@ -1,10 +1,10 @@
 import axiosClient from "@/api/axiosClient";
+import type { ServiceListQuery, ServiceListResponse } from "@/types/service";
 
-export const getListService = async (shopSlug: string) => {
-  const { data: res } = await axiosClient.get(
-    `/api/shops/${shopSlug}/services`,
-  );
-  return res.data;
+export const getListService = async (shopSlug: string, query: ServiceListQuery = {}): Promise<ServiceListResponse> => {
+  const params = Object.fromEntries(Object.entries(query).filter(([, value]) => value !== undefined && value !== ""));
+  const { data: res } = await axiosClient.get(`/api/shops/${shopSlug}/services`, { params });
+  return { items: res.data ?? [], meta: res.meta };
 };
 
 export const createService = async (shopSlug: string, formData: FormData) => {

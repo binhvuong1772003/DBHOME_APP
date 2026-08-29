@@ -7,7 +7,7 @@ import type {
   StaffStatusFilter,
 } from "../types/staff";
 
-export const PAGE_SIZE = 7;
+export const PAGE_SIZE = 5;
 
 export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
   OWNER: "Owner",

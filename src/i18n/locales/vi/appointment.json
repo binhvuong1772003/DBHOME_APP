@@ -1,0 +1,70 @@
+{
+  "searchPlaceholder": "Tìm khách hàng hoặc dịch vụ",
+  "filters": {
+    "staff": "Nhân viên",
+    "allStaff": "Tất cả nhân viên",
+    "service": "Dịch vụ",
+    "allServices": "Tất cả dịch vụ",
+    "hair": "Dịch vụ tóc",
+    "nails": "Dịch vụ móng",
+    "spa": "Chăm sóc spa",
+    "status": "Trạng thái",
+    "allStatuses": "Tất cả trạng thái"
+  },
+  "newAppointment": "Tạo lịch hẹn",
+  "staff": "Nhân viên",
+  "roles": { "seniorStylist": "Chuyên viên cao cấp", "nailArtist": "Chuyên viên làm móng" },
+  "stats": {
+    "title": "Thống kê lịch hẹn",
+    "today": "Lịch hẹn hôm nay",
+    "completed": "Hoàn thành",
+    "remaining": "Chưa hoàn thành"
+  },
+  "calendar": {
+    "selectDate": "Chọn ngày làm việc",
+    "previousMonth": "Tháng trước",
+    "nextMonth": "Tháng sau",
+    "weekdays": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
+  },
+  "status": {
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã xác nhận",
+    "inProgress": "Đang thực hiện",
+    "done": "Hoàn thành",
+    "cancelled": "Đã hủy",
+    "noShow": "Không đến",
+    "change": "Thay đổi trạng thái: {{status}}"
+  },
+  "details": {
+    "close": "Đóng chi tiết lịch hẹn",
+    "eyebrow": "Xem trước lịch hẹn",
+    "title": "Chi tiết lịch hẹn",
+    "customer": "Khách hàng",
+    "staff": "Nhân viên",
+    "unassigned": "Chưa phân công",
+    "date": "Ngày",
+    "time": "Thời gian",
+    "bookedServices": "Dịch vụ đã đặt",
+    "items": "{{count}} mục",
+    "items_one": "{{count}} mục",
+    "items_other": "{{count}} mục",
+    "minutes": "{{count}} phút",
+    "package": "Gói",
+    "noServices": "Lịch hẹn chưa có dịch vụ.",
+    "addons": "Dịch vụ thêm",
+    "additionalMinutes": "Thêm {{count}} phút",
+    "subtotal": "Tạm tính",
+    "discount": "Giảm giá",
+    "total": "Tổng cộng",
+    "note": "Ghi chú",
+    "contact": "Liên hệ",
+    "noPhone": "Chưa có số điện thoại"
+  },
+  "actions": {
+    "cancel": "Hủy lịch",
+    "processing": "Đang xử lý...",
+    "confirm": "Xác nhận",
+    "start": "Bắt đầu thực hiện",
+    "complete": "Đánh dấu hoàn thành"
+  }
+}

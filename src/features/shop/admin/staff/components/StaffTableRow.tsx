@@ -1,7 +1,6 @@
 import { Clock3, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  STAFF_ROLE_LABELS,
   getStaffAppointments,
   getStaffEmail,
   getStaffInitials,
@@ -12,6 +11,7 @@ import {
 } from "../constants/staff";
 import type { Staff } from "../types/staff";
 import { StaffActionsMenu } from "./StaffActionsMenu";
+import { useTranslation } from "react-i18next";
 
 interface StaffTableRowProps {
   staff: Staff;
@@ -30,6 +30,8 @@ export function StaffTableRow({
   onEdit,
   onDeactivate,
 }: StaffTableRowProps) {
+  const { t, i18n } = useTranslation("staff");
+  const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
   const name = getStaffName(staff);
   const email = getStaffEmail(staff);
   const status = getStaffStatus(staff);
@@ -63,26 +65,26 @@ export function StaffTableRow({
       </td>
       <td className="px-4 py-4">
         <span className="inline-flex rounded-md bg-muted px-2 py-1 text-xs font-medium">
-          {STAFF_ROLE_LABELS[staff.role]}
+          {t(`roles.${staff.role.toLowerCase()}`)}
         </span>
       </td>
       <td className="px-4 py-4">
         {status === "ACTIVE" && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
             <span className="size-1.5 rounded-full bg-emerald-500" />
-            Active
+            {t("status.active")}
           </span>
         )}
         {status === "ON_LEAVE" && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
             <span className="size-1.5 rounded-full bg-amber-500" />
-            On Leave
+            {t("status.onLeave")}
           </span>
         )}
         {status === "INACTIVE" && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
             <span className="size-1.5 rounded-full bg-muted-foreground" />
-            Inactive
+            {t("status.inactive")}
           </span>
         )}
       </td>
@@ -109,7 +111,13 @@ export function StaffTableRow({
         )}
       </td>
       <td className="px-4 py-4 text-right text-sm font-semibold tabular-nums">
-        {revenue !== null ? `$${revenue.toLocaleString("en-US")}` : "—"}
+        {revenue !== null
+          ? new Intl.NumberFormat(locale, {
+              style: "currency",
+              currency: "VND",
+              maximumFractionDigits: 0,
+            }).format(revenue)
+          : "—"}
       </td>
       <td className="px-4 py-4">
         {rating !== null ? (

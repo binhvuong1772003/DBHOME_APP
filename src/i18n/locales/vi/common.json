@@ -1,0 +1,45 @@
+{
+  "actions": {
+    "close": "Đóng",
+    "cancel": "Hủy",
+    "saveChanges": "Lưu thay đổi",
+    "done": "Hoàn tất",
+    "tryAgain": "Thử lại",
+    "submit": "Gửi",
+    "edit": "Chỉnh sửa",
+    "update": "Cập nhật",
+    "logout": "Đăng xuất"
+  },
+  "labels": {
+    "status": "Trạng thái",
+    "date": "Ngày",
+    "schedule": "Lịch làm",
+    "checkIn": "Giờ vào",
+    "checkOut": "Giờ ra",
+    "worked": "Đã làm",
+    "note": "Ghi chú",
+    "email": "Email",
+    "phone": "Số điện thoại"
+  },
+  "time": {
+    "today": "Hôm nay",
+    "tomorrow": "Ngày mai",
+    "previousDay": "Ngày trước",
+    "nextDay": "Ngày sau",
+    "calendar": "Lịch",
+    "minutes": "{{count}} phút",
+    "hours": "{{count}} giờ",
+    "hoursMinutes": "{{hours}} giờ {{minutes}} phút"
+  },
+  "status": {
+    "pending": "Đang chờ",
+    "approved": "Đã duyệt",
+    "rejected": "Từ chối",
+    "working": "Đang làm việc",
+    "completed": "Hoàn thành",
+    "late": "Đi muộn",
+    "paid": "Đã thanh toán",
+    "active": "Đang hoạt động",
+    "off": "Nghỉ"
+  }
+}

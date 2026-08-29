@@ -3,7 +3,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  STAFF_ROLE_LABELS,
   getStaffAppointments,
   getStaffEmail,
   getStaffInitials,
@@ -14,6 +13,7 @@ import {
 } from "../constants/staff";
 import type { Staff } from "../types/staff";
 import { StaffActionsMenu } from "./StaffActionsMenu";
+import { useTranslation } from "react-i18next";
 
 interface StaffCardProps {
   staff: Staff;
@@ -32,6 +32,8 @@ export function StaffCard({
   onEdit,
   onDeactivate,
 }: StaffCardProps) {
+  const { t, i18n } = useTranslation("staff");
+  const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
   const name = getStaffName(staff);
   const status = getStaffStatus(staff);
   const schedule = getStaffSchedule(staff);
@@ -54,19 +56,19 @@ export function StaffCard({
             {status === "ACTIVE" && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
-                Active
+                {t("status.active")}
               </span>
             )}
             {status === "ON_LEAVE" && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
                 <span className="size-1.5 rounded-full bg-amber-500" />
-                On Leave
+                {t("status.onLeave")}
               </span>
             )}
             {status === "INACTIVE" && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                 <span className="size-1.5 rounded-full bg-muted-foreground" />
-                Inactive
+                {t("status.inactive")}
               </span>
             )}
             <StaffActionsMenu
@@ -82,7 +84,7 @@ export function StaffCard({
         <div className="mt-4">
           <h3 className="font-semibold">{name}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {STAFF_ROLE_LABELS[staff.role]} · STF-
+            {t(`roles.${staff.role.toLowerCase()}`)} · STF-
             {staff.id.slice(-6).toUpperCase()}
           </p>
           <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
@@ -92,7 +94,7 @@ export function StaffCard({
         </div>
         <div className="mt-5 rounded-lg bg-muted/35 p-3">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Today&apos;s shift
+            {t("card.todayShift")}
           </p>
           {schedule ? (
             <div className="mt-1.5 flex items-center gap-2 text-sm font-semibold tabular-nums">
@@ -101,7 +103,7 @@ export function StaffCard({
             </div>
           ) : (
             <p className="mt-1.5 text-sm font-medium text-muted-foreground">
-              No shift scheduled
+              {t("card.noShift")}
             </p>
           )}
         </div>
@@ -116,7 +118,7 @@ export function StaffCard({
             >
               {appointments ?? "—"}
             </p>
-            <p className="text-[10px] text-muted-foreground">Appointments</p>
+            <p className="text-[10px] text-muted-foreground">{t("card.appointments")}</p>
           </div>
           <div>
             <p
@@ -126,9 +128,15 @@ export function StaffCard({
                   : "text-lg font-bold"
               }
             >
-              {revenue !== null ? `$${revenue.toLocaleString("en-US")}` : "—"}
+              {revenue !== null
+                ? new Intl.NumberFormat(locale, {
+                    style: "currency",
+                    currency: "VND",
+                    maximumFractionDigits: 0,
+                  }).format(revenue)
+                : "—"}
             </p>
-            <p className="text-[10px] text-muted-foreground">Revenue</p>
+            <p className="text-[10px] text-muted-foreground">{t("card.revenue")}</p>
           </div>
           <div>
             {rating !== null ? (
@@ -142,7 +150,7 @@ export function StaffCard({
             ) : (
               <p className="text-lg font-bold text-muted-foreground">—</p>
             )}
-            <p className="text-[10px] text-muted-foreground">Rating</p>
+            <p className="text-[10px] text-muted-foreground">{t("card.rating")}</p>
           </div>
         </div>
         <Button
@@ -151,7 +159,7 @@ export function StaffCard({
           className="mt-4 w-full rounded-lg"
           onClick={() => onView(staff)}
         >
-          View Profile
+          {t("card.viewProfile")}
         </Button>
       </CardContent>
     </Card>

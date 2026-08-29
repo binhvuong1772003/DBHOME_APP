@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "react-i18next";
 
 interface ImagesBrandingSettingProps {
   currentShop: { name?: string } | null;
@@ -19,6 +20,7 @@ export const ImagesBrandingSetting = ({
   coverUrl,
   onBackgroundChange,
 }: ImagesBrandingSettingProps) => {
+  const { t } = useTranslation("settings");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverPreview = useMemo(
     () => (background ? URL.createObjectURL(background) : coverUrl),
@@ -29,9 +31,9 @@ export const ImagesBrandingSetting = ({
     <>
       <Card id="images-branding" className="scroll-mt-6 gap-0 py-0 shadow-xs">
         <CardHeader className="border-b border-border px-5 py-5 sm:px-6">
-          <CardTitle className="text-lg">Shop Images</CardTitle>
+          <CardTitle className="text-lg">{t("images.title")}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Manage the cover image and gallery shown to customers.
+            {t("images.description")}
           </p>
         </CardHeader>
         <CardContent className="space-y-7 px-5 py-6 sm:px-6">
@@ -39,10 +41,10 @@ export const ImagesBrandingSetting = ({
             <div className="mb-3 flex items-center justify-between gap-4">
               <div>
                 <h2 id="cover-image-heading" className="text-sm font-semibold">
-                  Cover / Banner
+                  {t("images.cover")}
                 </h2>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Recommended ratio 16:5.
+                  {t("images.ratio")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -62,7 +64,7 @@ export const ImagesBrandingSetting = ({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload aria-hidden="true" />
-                  Change cover
+                  {t("images.change")}
                 </Button>
                 {background && (
                   <Button
@@ -75,7 +77,7 @@ export const ImagesBrandingSetting = ({
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                   >
-                    Remove
+                    {t("common.remove")}
                   </Button>
                 )}
               </div>
@@ -84,7 +86,7 @@ export const ImagesBrandingSetting = ({
               {coverPreview ? (
                 <img
                   src={coverPreview}
-                  alt="Cover"
+                  alt={t("images.coverAlt")}
                   className="absolute inset-0 size-full object-cover"
                 />
               ) : (
@@ -95,10 +97,12 @@ export const ImagesBrandingSetting = ({
                       <ImageIcon className="size-5" aria-hidden="true" />
                     </div>
                     <p className="mt-3 text-sm font-semibold">
-                      No cover image yet
+                      {t("images.empty")}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {currentShop?.name ?? "Your shop"} storefront
+                      {t("images.storefront", {
+                        name: currentShop?.name ?? t("images.yourShop"),
+                      })}
                     </p>
                   </div>
                 </>
@@ -183,7 +187,7 @@ export const ImagesBrandingSetting = ({
                 className="flex aspect-square flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-muted-foreground outline-none transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <Plus className="size-6" aria-hidden="true" />
-                <span className="mt-2 text-xs font-semibold">Add image</span>
+                <span className="mt-2 text-xs font-semibold">{t("images.add")}</span>
               </button>
             </div>
           </section>
@@ -192,14 +196,14 @@ export const ImagesBrandingSetting = ({
 
       <Card className="gap-0 py-0 shadow-xs">
         <CardHeader className="border-b border-border px-5 py-5 sm:px-6">
-          <CardTitle className="text-lg">Branding</CardTitle>
+          <CardTitle className="text-lg">{t("images.branding")}</CardTitle>
           <p className="text-sm text-muted-foreground">
             Customize how your shop appears across the application.
           </p>
         </CardHeader>
         <CardContent className="grid gap-6 px-5 py-6 sm:grid-cols-2 sm:px-6">
           <div className="space-y-3">
-            <Label>Favicon</Label>
+              <Label>{t("images.favicon")}</Label>
             <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/25 p-4">
               <div className="flex size-10 items-center justify-center rounded-md border border-border bg-card text-sm font-bold text-primary">
                 {currentShop?.name?.slice(0, 2).toUpperCase() ?? "SH"}
@@ -215,7 +219,7 @@ export const ImagesBrandingSetting = ({
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="display-name">Shop display name</Label>
+            <Label htmlFor="display-name">{t("images.displayName")}</Label>
             <Input
               id="display-name"
               defaultValue={currentShop?.name ?? ""}
@@ -224,17 +228,17 @@ export const ImagesBrandingSetting = ({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Primary color</Label>
+              <Label>{t("images.primaryColor")}</Label>
               <div className="flex h-10 items-center gap-2 rounded-lg border border-input bg-background px-3">
                 <span className="size-5 rounded-full bg-primary ring-1 ring-border" />
-                <span className="text-xs font-medium">Primary</span>
+                  <span className="text-xs font-medium">{t("images.primary")}</span>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Secondary color</Label>
+              <Label>{t("images.secondaryColor")}</Label>
               <div className="flex h-10 items-center gap-2 rounded-lg border border-input bg-background px-3">
                 <span className="size-5 rounded-full bg-secondary ring-1 ring-border" />
-                <span className="text-xs font-medium">Secondary</span>
+                  <span className="text-xs font-medium">{t("images.secondary")}</span>
               </div>
             </div>
           </div>

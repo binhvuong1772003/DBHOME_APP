@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ import type {
   StaffRole,
   UpdateStaffInput,
 } from "../types/staff";
+import { useTranslation } from "react-i18next";
 
 interface StaffFormSheetProps {
   mode: "CREATE" | "EDIT";
@@ -49,9 +50,26 @@ export function StaffFormSheet({
   onInvite,
   onUpdate,
 }: StaffFormSheetProps) {
+  const { t } = useTranslation("staff");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<StaffRole>(staff?.role ?? "STAFF");
   const [isActive, setIsActive] = useState(staff?.isActive ?? true);
+  useEffect(() => {
+    setEmail("");
+    setRole(mode === "CREATE" ? "STAFF" : (staff?.role ?? "STAFF"));
+    setIsActive(staff?.isActive ?? true);
+  }, [mode, open, staff]);
+
+  const roleOptions = STAFF_ROLE_FILTER_OPTIONS.filter(
+    (option) =>
+      option.value !== "ALL" &&
+      // An OWNER cannot be invited through this form. For new invitations,
+      // managers are limited to STAFF while owners can choose MANAGER/STAFF.
+      mode !== "CREATE" ||
+        (canChangeRole
+          ? option.value !== "OWNER"
+          : option.value === "STAFF"),
+  );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -69,12 +87,12 @@ export function StaffFormSheet({
       <SheetContent className="w-full sm:max-w-md">
         <SheetHeader className="border-b border-border px-6 py-5 pr-14">
           <SheetTitle>
-            {mode === "CREATE" ? "Add Staff" : "Edit Staff"}
+            {mode === "CREATE" ? t("form.addTitle") : t("form.editTitle")}
           </SheetTitle>
           <SheetDescription>
             {mode === "CREATE"
-              ? "Invite a team member to join your salon staff."
-              : "Update this staff member’s role and account status."}
+              ? t("form.addDescription")
+              : t("form.editDescription")}
           </SheetDescription>
         </SheetHeader>
         <SheetClose asChild>
@@ -83,7 +101,7 @@ export function StaffFormSheet({
             variant="ghost"
             size="icon-sm"
             className="absolute right-4 top-4 rounded-full"
-            aria-label="Close staff form"
+            aria-label={t("form.close")}
           >
             <X aria-hidden="true" />
           </Button>
@@ -93,24 +111,24 @@ export function StaffFormSheet({
           <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
             {mode === "CREATE" && (
               <div className="space-y-2">
-                <Label htmlFor="staff-email">Email address</Label>
+                <Label htmlFor="staff-email">{t("form.email")}</Label>
                 <Input
                   id="staff-email"
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="staff@salon.com"
+                  placeholder={t("form.emailPlaceholder")}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
                 <p className="text-xs leading-5 text-muted-foreground">
-                  An invitation link will be sent to this address.
+                  {t("form.emailHint")}
                 </p>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="staff-role">Role</Label>
+              <Label htmlFor="staff-role">{t("form.role")}</Label>
               <Select
                 value={role}
                 disabled={!canChangeRole}
@@ -120,24 +138,26 @@ export function StaffFormSheet({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {STAFF_ROLE_FILTER_OPTIONS.filter(
-                    (option) => option.value !== "ALL",
-                  ).map((option) => (
+                  {roleOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {t(`roles.${option.value.toLowerCase()}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {mode === "CREATE" && !canChangeRole && (
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Quản lý chỉ có thể thêm nhân viên. Chỉ owner mới được thêm quản lý.
+                </p>
+              )}
             </div>
 
             {mode === "EDIT" && (
               <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-muted/25 p-4">
                 <div>
-                  <Label htmlFor="staff-active">Active staff</Label>
+                  <Label htmlFor="staff-active">{t("form.active")}</Label>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Inactive staff remain visible but cannot receive new
-                    appointments.
+                    {t("form.activeHint")}
                   </p>
                 </div>
                 <Switch
@@ -152,15 +172,15 @@ export function StaffFormSheet({
           <SheetFooter className="border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
             <SheetClose asChild>
               <Button type="button" variant="outline" disabled={isSubmitting}>
-                Cancel
+                {t("form.cancel")}
               </Button>
             </SheetClose>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
-                ? "Saving..."
+                ? t("form.saving")
                 : mode === "CREATE"
-                  ? "Send Invitation"
-                  : "Save Changes"}
+                  ? t("form.sendInvitation")
+                  : t("form.saveChanges")}
             </Button>
           </SheetFooter>
         </form>

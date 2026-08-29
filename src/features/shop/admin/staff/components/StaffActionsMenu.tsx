@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getStaffName } from "../constants/staff";
 import type { Staff } from "../types/staff";
+import { useTranslation } from "react-i18next";
 
 interface StaffActionsMenuProps {
   staff: Staff;
@@ -35,6 +36,7 @@ export function StaffActionsMenu({
   onEdit,
   onDeactivate,
 }: StaffActionsMenuProps) {
+  const { t } = useTranslation("staff");
   const staffName = getStaffName(staff);
 
   return (
@@ -44,31 +46,31 @@ export function StaffActionsMenu({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={`Actions for ${staffName}`}
+          aria-label={t("actions.label", { name: staffName })}
         >
           <MoreHorizontal aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuLabel>Staff actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("actions.title")}</DropdownMenuLabel>
         <DropdownMenuItem onSelect={() => onView(staff)}>
           <Eye aria-hidden="true" />
-          View Profile
+          {t("actions.viewProfile")}
         </DropdownMenuItem>
         {canEdit && (
           <DropdownMenuItem onSelect={() => onEdit(staff)}>
             <Pencil aria-hidden="true" />
-            Edit Staff
+            {t("actions.edit")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onSelect={() => onView(staff)}>
           <CalendarDays aria-hidden="true" />
-          View Schedule
+          {t("actions.viewSchedule")}
         </DropdownMenuItem>
         {canEdit && (
           <DropdownMenuItem onSelect={() => onEdit(staff)}>
             <Clock3 aria-hidden="true" />
-            Manage Availability
+            {t("actions.availability")}
           </DropdownMenuItem>
         )}
         {canDeactivate && (
@@ -80,7 +82,7 @@ export function StaffActionsMenu({
               onSelect={() => onDeactivate(staff)}
             >
               <UserX aria-hidden="true" />
-              Deactivate
+              {t("actions.deactivate")}
             </DropdownMenuItem>
           </>
         )}

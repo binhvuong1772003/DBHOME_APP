@@ -1,22 +1,18 @@
 // pages/auth/VerifyEmailPage.tsx
-import { VerifyEmailBlock } from '@/components/blocks/verify-email';
-import { useEmailVerify } from '@/hooks/useEmailVerify';
-import { Navbar } from '@/components/ui/Navbar';
+import { VerifyEmailBlock } from '@/features/auth/components/VerifyEmailBlock';
+import { useEmailVerify } from '@/features/auth/hooks/useEmailVerify';
 export default function VerifyEmailPage() {
   const { email, isResending, resendSuccess, error, handleResend, handleSkip } =
     useEmailVerify();
 
   return (
-    <div className="relative">
-      <Navbar />
-      <VerifyEmailBlock
+    <VerifyEmailBlock
         email={email}
         isResending={isResending}
         resendSuccess={resendSuccess}
         error={error}
         onResend={handleResend}
         onSkip={handleSkip}
-      />
-    </div>
+    />
   );
 }

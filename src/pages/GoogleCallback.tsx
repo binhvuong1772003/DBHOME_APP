@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import axiosClient, { tokenService } from '@/api/axiosClient';
 import { Loader2 } from 'lucide-react';
 

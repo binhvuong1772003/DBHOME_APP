@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { Staff, StaffViewMode } from "../types/staff";
 import { StaffCard } from "./StaffCard";
 import { StaffTableRow } from "./StaffTableRow";
+import { useTranslation } from "react-i18next";
 
 interface StaffDirectoryProps {
   staffs: Staff[];
@@ -30,10 +31,11 @@ interface StaffDirectoryProps {
 }
 
 function StaffLoadingState() {
+  const { t } = useTranslation("staff");
   return (
     <section aria-labelledby="loading-staff-heading" aria-busy="true">
       <h2 id="loading-staff-heading" className="sr-only">
-        Loading staff
+        {t("directory.loading")}
       </h2>
       <Card className="gap-0 overflow-hidden py-0 shadow-xs">
         <CardContent className="space-y-0 p-0">
@@ -77,6 +79,7 @@ function StaffEmptyState({
   canAdd: boolean;
   onAddStaff: () => void;
 }) {
+  const { t } = useTranslation("staff");
   return (
     <section aria-labelledby="empty-staff-heading">
       <Card className="gap-0 py-0 shadow-xs">
@@ -85,10 +88,10 @@ function StaffEmptyState({
             <UserRoundPlus className="size-7" aria-hidden="true" />
           </div>
           <h2 id="empty-staff-heading" className="mt-5 text-lg font-semibold">
-            No staff members yet
+            {t("directory.emptyTitle")}
           </h2>
           <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
-            Add your first team member to start managing your salon staff.
+            {t("directory.emptyDescription")}
           </p>
           {canAdd && (
             <Button
@@ -97,7 +100,7 @@ function StaffEmptyState({
               onClick={onAddStaff}
             >
               <Plus aria-hidden="true" />
-              Add Staff
+              {t("header.add")}
             </Button>
           )}
         </CardContent>
@@ -127,13 +130,14 @@ export function StaffDirectory({
   onEdit,
   onDeactivate,
 }: StaffDirectoryProps) {
+  const { t } = useTranslation("staff");
   if (isLoading) return <StaffLoadingState />;
 
   if (error) {
     return (
       <Card className="gap-0 py-0 shadow-xs">
         <CardContent className="flex min-h-52 flex-col items-center justify-center px-6 py-10 text-center">
-          <p className="text-sm font-semibold">Unable to load staff</p>
+          <p className="text-sm font-semibold">{t("directory.loadError")}</p>
           <p className="mt-2 max-w-md text-sm text-muted-foreground">{error}</p>
           <Button
             type="button"
@@ -141,7 +145,7 @@ export function StaffDirectory({
             className="mt-5 rounded-lg"
             onClick={onRetry}
           >
-            Try again
+            {t("directory.retry")}
           </Button>
         </CardContent>
       </Card>
@@ -161,14 +165,18 @@ export function StaffDirectory({
               id="staff-directory-heading"
               className="text-lg font-semibold tracking-tight"
             >
-              Team directory
+              {t("directory.title")}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              {totalStaffs} staff members · Updated just now
+              {t("directory.summary", { count: totalStaffs })}
             </p>
           </div>
           <span className="hidden rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground sm:inline-flex">
-            Showing {rangeStart}–{rangeEnd} of {filteredCount}
+            {t("directory.showing", {
+              start: rangeStart,
+              end: rangeEnd,
+              total: filteredCount,
+            })}
           </span>
         </div>
 
@@ -181,8 +189,7 @@ export function StaffDirectory({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1120px] border-collapse text-left">
               <caption className="sr-only">
-                Staff directory with roles, status, schedules, appointments,
-                revenue, ratings, and actions
+                {t("directory.caption")}
               </caption>
               <thead className="border-b border-border bg-muted/35">
                 <tr>
@@ -190,49 +197,49 @@ export function StaffDirectory({
                     scope="col"
                     className="px-5 py-3.5 text-xs font-semibold text-muted-foreground"
                   >
-                    Staff
+                    {t("directory.columns.staff")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-3.5 text-xs font-semibold text-muted-foreground"
                   >
-                    Role
+                    {t("directory.columns.role")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-3.5 text-xs font-semibold text-muted-foreground"
                   >
-                    Status
+                    {t("directory.columns.status")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-3.5 text-xs font-semibold text-muted-foreground"
                   >
-                    Today&apos;s Schedule
+                    {t("directory.columns.schedule")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-3.5 text-center text-xs font-semibold text-muted-foreground"
                   >
-                    Appointments
+                    {t("directory.columns.appointments")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-3.5 text-right text-xs font-semibold text-muted-foreground"
                   >
-                    Revenue
+                    {t("directory.columns.revenue")}
                   </th>
                   <th
                     scope="col"
                     className="px-4 py-3.5 text-center text-xs font-semibold text-muted-foreground"
                   >
-                    Rating
+                    {t("directory.columns.rating")}
                   </th>
                   <th
                     scope="col"
                     className="w-16 px-4 py-3.5 text-right text-xs font-semibold text-muted-foreground"
                   >
-                    Actions
+                    {t("directory.columns.actions")}
                   </th>
                 </tr>
               </thead>
@@ -274,11 +281,11 @@ export function StaffDirectory({
       </section>
 
       <nav
-        aria-label="Staff pagination"
+        aria-label={t("directory.pagination")}
         className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="text-xs text-muted-foreground">
-          Page {page} of {totalPages}
+          {t("directory.page", { page, total: totalPages })}
         </p>
         <div className="flex items-center gap-1">
           <Button
@@ -286,7 +293,7 @@ export function StaffDirectory({
             variant="outline"
             size="icon-sm"
             disabled={page === 1}
-            aria-label="Previous page"
+            aria-label={t("directory.previous")}
             onClick={() => onPageChange(page - 1)}
           >
             <ChevronLeft aria-hidden="true" />
@@ -311,7 +318,7 @@ export function StaffDirectory({
             variant="outline"
             size="icon-sm"
             disabled={page === totalPages}
-            aria-label="Next page"
+            aria-label={t("directory.next")}
             onClick={() => onPageChange(page + 1)}
           >
             <ChevronRight aria-hidden="true" />

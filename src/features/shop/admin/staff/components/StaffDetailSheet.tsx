@@ -10,7 +10,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
-  STAFF_ROLE_LABELS,
   getStaffAppointments,
   getStaffEmail,
   getStaffInitials,
@@ -20,6 +19,7 @@ import {
   getStaffStatus,
 } from "../constants/staff";
 import type { Staff } from "../types/staff";
+import { useTranslation } from "react-i18next";
 
 interface StaffDetailSheetProps {
   staff: Staff | null;
@@ -36,7 +36,10 @@ export function StaffDetailSheet({
   onOpenChange,
   onEdit,
 }: StaffDetailSheetProps) {
+  const { t, i18n } = useTranslation("staff");
   if (!staff) return null;
+
+  const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
 
   const name = getStaffName(staff);
   const status = getStaffStatus(staff);
@@ -49,7 +52,7 @@ export function StaffDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-md">
         <SheetHeader className="border-b border-border px-6 py-5 pr-14">
-          <SheetTitle>Staff Profile</SheetTitle>
+          <SheetTitle>{t("details.title")}</SheetTitle>
         </SheetHeader>
         <SheetClose asChild>
           <Button
@@ -57,7 +60,7 @@ export function StaffDetailSheet({
             variant="ghost"
             size="icon-sm"
             className="absolute right-4 top-4 rounded-full"
-            aria-label="Close staff profile"
+            aria-label={t("details.closeLabel")}
           >
             <X aria-hidden="true" />
           </Button>
@@ -74,7 +77,7 @@ export function StaffDetailSheet({
             <div className="min-w-0">
               <p className="truncate text-lg font-semibold">{name}</p>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                {STAFF_ROLE_LABELS[staff.role]}
+                {t(`roles.${staff.role.toLowerCase()}`)}
               </p>
             </div>
           </div>
@@ -83,19 +86,19 @@ export function StaffDetailSheet({
             {status === "ACTIVE" && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
-                Active
+                {t("status.active")}
               </span>
             )}
             {status === "ON_LEAVE" && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
                 <span className="size-1.5 rounded-full bg-amber-500" />
-                On Leave
+                {t("status.onLeave")}
               </span>
             )}
             {status === "INACTIVE" && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                 <span className="size-1.5 rounded-full bg-muted-foreground" />
-                Inactive
+                {t("status.inactive")}
               </span>
             )}
             <span className="rounded-md bg-muted px-2 py-1 font-mono text-[10px] text-muted-foreground">
@@ -117,7 +120,9 @@ export function StaffDetailSheet({
                 aria-hidden="true"
               />
               <span>
-                Joined {new Date(staff.joinedAt).toLocaleDateString("en-US")}
+                {t("details.joined", {
+                  date: new Date(staff.joinedAt).toLocaleDateString(locale),
+                })}
               </span>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/25 p-3 text-sm">
@@ -125,7 +130,7 @@ export function StaffDetailSheet({
                 className="size-4 shrink-0 text-muted-foreground"
                 aria-hidden="true"
               />
-              <span>{schedule ?? "No shift scheduled today"}</span>
+              <span>{schedule ?? t("details.noShiftToday")}</span>
             </div>
           </div>
 
@@ -133,14 +138,22 @@ export function StaffDetailSheet({
             <div>
               <p className="text-xl font-bold">{appointments ?? "—"}</p>
               <p className="mt-1 text-[10px] text-muted-foreground">
-                Appointments
+                {t("card.appointments")}
               </p>
             </div>
             <div>
               <p className="text-xl font-bold">
-                {revenue !== null ? `$${revenue.toLocaleString("en-US")}` : "—"}
+                {revenue !== null
+                  ? new Intl.NumberFormat(locale, {
+                      style: "currency",
+                      currency: "VND",
+                      maximumFractionDigits: 0,
+                    }).format(revenue)
+                  : "—"}
               </p>
-              <p className="mt-1 text-[10px] text-muted-foreground">Revenue</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {t("card.revenue")}
+              </p>
             </div>
             <div>
               <p className="flex items-center justify-center gap-1 text-xl font-bold">
@@ -152,14 +165,16 @@ export function StaffDetailSheet({
                 )}
                 {staff.avgRating > 0 ? staff.avgRating.toFixed(1) : "—"}
               </p>
-              <p className="mt-1 text-[10px] text-muted-foreground">Rating</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {t("card.rating")}
+              </p>
             </div>
           </div>
 
           {(staff.bio || staff.notes) && (
             <div className="mt-6 rounded-lg border border-border bg-muted/25 p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Notes
+                {t("details.notes")}
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {staff.bio || staff.notes}
@@ -171,12 +186,12 @@ export function StaffDetailSheet({
         <SheetFooter className="border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
           <SheetClose asChild>
             <Button type="button" variant="outline">
-              Close
+              {t("details.close")}
             </Button>
           </SheetClose>
           {canEdit && (
             <Button type="button" onClick={() => onEdit(staff)}>
-              Edit Staff
+              {t("actions.edit")}
             </Button>
           )}
         </SheetFooter>

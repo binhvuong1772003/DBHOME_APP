@@ -1,0 +1,70 @@
+{
+  "searchPlaceholder": "Search customer or service",
+  "filters": {
+    "staff": "Staff",
+    "allStaff": "All staff",
+    "service": "Service",
+    "allServices": "All services",
+    "hair": "Hair services",
+    "nails": "Nail services",
+    "spa": "Spa treatments",
+    "status": "Status",
+    "allStatuses": "All statuses"
+  },
+  "newAppointment": "New appointment",
+  "staff": "Staff",
+  "roles": { "seniorStylist": "Senior stylist", "nailArtist": "Nail artist" },
+  "stats": {
+    "title": "Appointment overview",
+    "today": "Today's appointments",
+    "completed": "Completed",
+    "remaining": "Remaining"
+  },
+  "calendar": {
+    "selectDate": "Select a working day",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "weekdays": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "inProgress": "In progress",
+    "done": "Completed",
+    "cancelled": "Cancelled",
+    "noShow": "No show",
+    "change": "Change status: {{status}}"
+  },
+  "details": {
+    "close": "Close appointment details",
+    "eyebrow": "Appointment preview",
+    "title": "Appointment details",
+    "customer": "Customer",
+    "staff": "Staff",
+    "unassigned": "Unassigned",
+    "date": "Date",
+    "time": "Time",
+    "bookedServices": "Booked services",
+    "items": "{{count}} items",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "minutes": "{{count}} min",
+    "package": "Package",
+    "noServices": "No services have been added to this appointment.",
+    "addons": "Add-ons",
+    "additionalMinutes": "Adds {{count}} min",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "note": "Note",
+    "contact": "Contact",
+    "noPhone": "No phone number"
+  },
+  "actions": {
+    "cancel": "Cancel appointment",
+    "processing": "Processing...",
+    "confirm": "Confirm",
+    "start": "Start service",
+    "complete": "Mark completed"
+  }
+}

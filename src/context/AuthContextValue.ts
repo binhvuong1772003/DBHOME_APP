@@ -5,10 +5,10 @@ export type AuthContextType = {
   user: User | null;
   loading: boolean;
   setUser: React.Dispatch<React.SetStateAction<User | null>>; // ← thêm
-  signIn: (data: SignInRequest) => Promise<void>;
+  signIn: (data: SignInRequest) => Promise<User | null>;
   signup: (data: SignUpRequest) => Promise<void>;
   logout: () => Promise<void>;
-  sendEmailVerification: () => Promise<void>;
+  sendEmailVerification: (email: string) => Promise<void>;
   connectionError: boolean; // ← thêm
   retryAuth: () => Promise<void>; // ← thêm
 };

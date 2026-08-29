@@ -19,6 +19,7 @@ import {
   uploadShopBanner,
 } from "@/services/shopService";
 import { useShopContext } from "@/context/ShopContext";
+import { useTranslation } from "react-i18next";
 
 export const WEEK_DAYS: { value: number; label: string }[] = [
   { value: 1, label: "Thứ Hai" },
@@ -45,6 +46,7 @@ const areBusinessHoursEqual = (a: BusinessHourItem[], b: BusinessHourItem[]) =>
   JSON.stringify(sortByDayOfWeek(a)) === JSON.stringify(sortByDayOfWeek(b));
 
 export const useSetting = () => {
+  const { t } = useTranslation("settings");
   const { shopSlug } = useParams<{ shopSlug: string }>();
   const { currentShop, setCurrentShop } = useShopContext();
   const [loading, setLoading] = useState(true);
@@ -134,7 +136,7 @@ export const useSetting = () => {
         setInitialBusinessHours(mergedHours);
       } catch (error) {
         console.error("Failed to fetch settings:", error);
-        toast.error("Không tải được cài đặt shop");
+        toast.error(t("toast.loadError"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -259,14 +261,14 @@ export const useSetting = () => {
           ...(logoUploaded ? { logoUrl: newLogoUrl } : {}),
         });
       }
-      toast.success("Cập nhật cài đặt thành công");
+      toast.success(t("toast.success"));
     } catch (error) {
       if (error instanceof AxiosError) {
         toast.error(
-          error.response?.data?.message || "Cập nhật cài đặt thất bại",
+          error.response?.data?.message || t("toast.updateError"),
         );
       } else {
-        toast.error("Cập nhật cài đặt thất bại");
+        toast.error(t("toast.updateError"));
       }
     } finally {
       setIsSaving(false);
@@ -275,7 +277,7 @@ export const useSetting = () => {
 
   const handleSave = form.handleSubmit(saveSettings, (validationErrors) => {
     console.error("Settings validation failed:", validationErrors);
-    toast.error("Vui lòng kiểm tra lại các trường chưa hợp lệ");
+    toast.error(t("toast.validation"));
 
     const firstInvalidField = Object.keys(validationErrors)[0];
     if (firstInvalidField) {

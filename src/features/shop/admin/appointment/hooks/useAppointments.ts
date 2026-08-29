@@ -5,7 +5,7 @@ import type {
   AppointmentScheduleResponse,
   AppointmentSchedule,
 } from "@/features/shop/admin/appointment/type/appointmentSchedule";
-import { useAsync } from "@/hooks/useAsync";
+import { useAsync } from "@/hooks/common/useAsync";
 import { getAppointmentByDateWithSlot } from "../services/appointmentService";
 const emptySchedule: AppointmentSchedule = {
   openTime: "00:00",

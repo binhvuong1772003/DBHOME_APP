@@ -20,6 +20,22 @@ import type {
   StaffStatusFilter,
   StaffViewMode,
 } from "../types/staff";
+import { useTranslation } from "react-i18next";
+
+const optionKey = (value: string) =>
+  ({
+    ALL: "all",
+    OWNER: "owner",
+    MANAGER: "manager",
+    STAFF: "staff",
+    ACTIVE: "active",
+    INACTIVE: "inactive",
+    ON_LEAVE: "onLeave",
+    RECENT: "recent",
+    NAME_ASC: "nameAsc",
+    NAME_DESC: "nameDesc",
+    REVENUE: "revenue",
+  })[value] ?? value;
 
 interface StaffToolbarProps {
   search: string;
@@ -46,6 +62,7 @@ export function StaffToolbar({
   onSortChange,
   onViewModeChange,
 }: StaffToolbarProps) {
+  const { t } = useTranslation("staff");
   return (
     <Card className="gap-0 py-0 shadow-xs">
       <CardContent className="p-3 sm:p-4">
@@ -55,8 +72,8 @@ export function StaffToolbar({
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 type="search"
-                aria-label="Search staff"
-                placeholder="Search staff by name or email..."
+                aria-label={t("toolbar.searchLabel")}
+                placeholder={t("toolbar.searchPlaceholder")}
                 className="h-10 rounded-lg bg-background pl-9"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
@@ -64,40 +81,40 @@ export function StaffToolbar({
             </div>
 
             <Select value={status} onValueChange={(value) => onStatusChange(value as StaffStatusFilter)}>
-              <SelectTrigger className="h-10 w-full rounded-lg bg-background" aria-label="Filter by staff status">
-                <SelectValue placeholder="All Status" />
+              <SelectTrigger className="h-10 w-full rounded-lg bg-background" aria-label={t("toolbar.statusLabel")}>
+                <SelectValue placeholder={t("status.all")} />
               </SelectTrigger>
               <SelectContent>
                 {STAFF_STATUS_FILTER_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(`status.${optionKey(option.value)}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select value={role} onValueChange={(value) => onRoleChange(value as StaffRoleFilter)}>
-              <SelectTrigger className="h-10 w-full rounded-lg bg-background" aria-label="Filter by staff role">
-                <SelectValue placeholder="All Roles" />
+              <SelectTrigger className="h-10 w-full rounded-lg bg-background" aria-label={t("toolbar.roleLabel")}>
+                <SelectValue placeholder={t("roles.all")} />
               </SelectTrigger>
               <SelectContent>
                 {STAFF_ROLE_FILTER_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(`roles.${optionKey(option.value)}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select value={sort} onValueChange={(value) => onSortChange(value as StaffSort)}>
-              <SelectTrigger className="h-10 w-full rounded-lg bg-background" aria-label="Sort staff">
+              <SelectTrigger className="h-10 w-full rounded-lg bg-background" aria-label={t("toolbar.sortLabel")}>
                 <ArrowDownAZ className="size-4" aria-hidden="true" />
-                <SelectValue placeholder="Recently Added" />
+                <SelectValue placeholder={t("sort.recent")} />
               </SelectTrigger>
               <SelectContent>
                 {STAFF_SORT_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(`sort.${optionKey(option.value)}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -109,7 +126,7 @@ export function StaffToolbar({
               type="button"
               variant={viewMode === "LIST" ? "default" : "ghost"}
               size="sm"
-              aria-label="List view"
+              aria-label={t("toolbar.listView")}
               aria-pressed={viewMode === "LIST"}
               className={
                 viewMode === "LIST"
@@ -119,13 +136,13 @@ export function StaffToolbar({
               onClick={() => onViewModeChange("LIST")}
             >
               <List aria-hidden="true" />
-              <span className="hidden sm:inline">List</span>
+              <span className="hidden sm:inline">{t("toolbar.list")}</span>
             </Button>
             <Button
               type="button"
               variant={viewMode === "GRID" ? "default" : "ghost"}
               size="sm"
-              aria-label="Grid view"
+              aria-label={t("toolbar.gridView")}
               aria-pressed={viewMode === "GRID"}
               className={
                 viewMode === "GRID"
@@ -135,7 +152,7 @@ export function StaffToolbar({
               onClick={() => onViewModeChange("GRID")}
             >
               <Grid2X2 aria-hidden="true" />
-              <span className="hidden sm:inline">Grid</span>
+              <span className="hidden sm:inline">{t("toolbar.grid")}</span>
             </Button>
           </div>
         </div>

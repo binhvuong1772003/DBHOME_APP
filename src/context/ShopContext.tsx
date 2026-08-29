@@ -2,7 +2,7 @@ import {
   createContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
   useContext,
 } from "react";
 import { getShops } from "@/services/shopService";

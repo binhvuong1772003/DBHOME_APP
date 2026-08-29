@@ -1,4 +1,4 @@
-import { ManageServiceForm } from '@/components/shops/ManageService';
+import { ManageServiceForm } from '@/features/shop/admin/service/components/ManageServiceForm';
 
 export default function ManageServicePage() {
   return (

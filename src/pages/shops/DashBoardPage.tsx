@@ -1,4 +1,4 @@
-import { DashBoard } from "@/components/shops/DashBoard";
+import { DashBoard } from "@/features/shop/admin/dashboard/components/Dashboard";
 
 export default function DashboardPage() {
   return (

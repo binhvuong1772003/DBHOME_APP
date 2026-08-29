@@ -1,12 +1,14 @@
 import { CalendarClock, CalendarDays, UserCheck, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { StaffStats as StaffStatsValue } from "../types/staff";
+import { useTranslation } from "react-i18next";
 
 interface StaffStatsProps {
   stats: StaffStatsValue;
 }
 
 export function StaffStats({ stats }: StaffStatsProps) {
+  const { t } = useTranslation("staff");
   const activePercentage = stats.total
     ? Math.round((stats.active / stats.total) * 100)
     : 0;
@@ -14,7 +16,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
   return (
     <section aria-labelledby="staff-overview-heading">
       <h2 id="staff-overview-heading" className="sr-only">
-        Staff overview
+        {t("stats.overview")}
       </h2>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card className="gap-0 overflow-hidden py-0 shadow-xs">
@@ -22,7 +24,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Total Staff
+                  {t("stats.total")}
                 </p>
                 <p className="mt-2 text-3xl font-bold tracking-tight">
                   {stats.total}
@@ -35,10 +37,9 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="mt-4 flex items-center gap-2 border-t border-border/70 pt-3">
               <span className="size-1.5 rounded-full bg-primary" />
               <p className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">
-                  +{stats.joinedThisMonth}
-                </span>{" "}
-                this month
+                {t("stats.joinedThisMonth", {
+                  count: stats.joinedThisMonth,
+                })}
               </p>
             </div>
           </CardContent>
@@ -49,7 +50,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Active Staff
+                  {t("stats.active")}
                 </p>
                 <p className="mt-2 text-3xl font-bold tracking-tight">
                   {stats.active}
@@ -62,10 +63,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="mt-4 flex items-center gap-2 border-t border-border/70 pt-3">
               <span className="size-1.5 rounded-full bg-emerald-500" />
               <p className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">
-                  {activePercentage}%
-                </span>{" "}
-                of total staff
+                {t("stats.activePercent", { percent: activePercentage })}
               </p>
             </div>
           </CardContent>
@@ -76,7 +74,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Working Today
+                  {t("stats.workingToday")}
                 </p>
                 <p className="mt-2 text-3xl font-bold tracking-tight">
                   {stats.workingToday}
@@ -89,10 +87,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="mt-4 flex items-center gap-2 border-t border-border/70 pt-3">
               <span className="size-1.5 rounded-full bg-secondary" />
               <p className="text-xs text-muted-foreground">
-                Across{" "}
-                <span className="font-semibold text-foreground">
-                  {stats.shiftCount} shifts
-                </span>
+                {t("stats.acrossShifts", { count: stats.shiftCount })}
               </p>
             </div>
           </CardContent>
@@ -103,7 +98,7 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  On Leave
+                  {t("stats.onLeave")}
                 </p>
                 <p className="mt-2 text-3xl font-bold tracking-tight">
                   {stats.onLeave}
@@ -116,10 +111,9 @@ export function StaffStats({ stats }: StaffStatsProps) {
             <div className="mt-4 flex items-center gap-2 border-t border-border/70 pt-3">
               <span className="size-1.5 rounded-full bg-amber-500" />
               <p className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">
-                  {stats.returningTomorrow}
-                </span>{" "}
-                returning tomorrow
+                {t("stats.returningTomorrow", {
+                  count: stats.returningTomorrow,
+                })}
               </p>
             </div>
           </CardContent>

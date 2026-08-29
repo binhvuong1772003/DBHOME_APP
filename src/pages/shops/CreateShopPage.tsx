@@ -1,5 +1,5 @@
-import { CreateShopForm } from '@/components/shops/CreateShop';
-import { Navbar } from '@/components/ui/Navbar';
+import { CreateShopForm } from '@/features/shop/components/CreateShopForm';
+import { Navbar } from '@/components/common/Navbar';
 export default function CreateShopPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">

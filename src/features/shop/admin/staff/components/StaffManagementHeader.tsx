@@ -1,5 +1,6 @@
 import { Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface StaffManagementHeaderProps {
   canAddStaff: boolean;
@@ -10,16 +11,19 @@ export function StaffManagementHeader({
   canAddStaff,
   onAddStaff,
 }: StaffManagementHeaderProps) {
+  const { t } = useTranslation("staff");
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-1.5">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
           <Users className="size-3.5" aria-hidden="true" />
-          Team workspace
+          {t("header.eyebrow")}
         </div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Staff</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {t("header.title")}
+        </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          Manage your nail technicians, receptionists, and salon team.
+          {t("header.description")}
         </p>
       </div>
       {canAddStaff && (
@@ -29,7 +33,7 @@ export function StaffManagementHeader({
           onClick={onAddStaff}
         >
           <Plus aria-hidden="true" />
-          Add Staff
+          {t("header.add")}
         </Button>
       )}
     </header>

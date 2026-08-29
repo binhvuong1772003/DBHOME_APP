@@ -1,15 +1,19 @@
 import axiosClient from "@/api/axiosClient";
-import type { InviteStaffInput, Staff, UpdateStaffInput } from "../types/staff";
+import type { InviteStaffInput, Staff, StaffListQuery, StaffListResponse, UpdateStaffInput } from "../types/staff";
 
 interface ApiResponse<T> {
   data: T;
 }
 
-export const getStaffs = async (shopSlug: string): Promise<Staff[]> => {
-  const { data } = await axiosClient.get<ApiResponse<Staff[]>>(
-    `/api/shops/${shopSlug}/staff`,
+export const getStaffs = async (shopSlug: string, query: StaffListQuery): Promise<StaffListResponse> => {
+  const params = Object.fromEntries(
+    Object.entries(query).filter(([, value]) => value !== undefined && value !== "ALL"),
   );
-  return data.data;
+  const { data } = await axiosClient.get<StaffListResponse>(
+    `/api/shops/${shopSlug}/staff`,
+    { params },
+  );
+  return data;
 };
 
 export const inviteStaff = async (

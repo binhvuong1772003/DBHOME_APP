@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { UseFormReturn } from "react-hook-form";
 import type { UpdateShopInput } from "@/validations/shopSchema";
+import { useTranslation } from "react-i18next";
 
 interface ProfileSettingProps {
   currentShop: { name?: string; slug?: string; logoUrl?: string | null } | null;
@@ -25,6 +26,7 @@ export const ProfileSetting = ({
   logoUrl,
   onLogoChange,
 }: ProfileSettingProps) => {
+  const { t } = useTranslation("settings");
   const {
     register,
     formState: { errors },
@@ -38,7 +40,7 @@ export const ProfileSetting = ({
   return (
     <Card id="shop-profile" className="scroll-mt-6 gap-0 py-0 shadow-xs">
       <CardHeader className="border-b border-border px-5 py-5 sm:px-6">
-        <CardTitle className="text-lg">Thông tin Shop</CardTitle>
+        <CardTitle className="text-lg">{t("profile.title")}</CardTitle>
         <p className="text-sm text-muted-foreground">
           Quản lý thông tin cơ bản của cửa hàng.
         </p>
@@ -105,14 +107,14 @@ export const ProfileSetting = ({
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="shop-name">Shop name</Label>
+          <Label htmlFor="shop-name">{t("profile.name")}</Label>
             <Input id="shop-name" {...register("name")} />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="shop-slug">Shop slug</Label>
+          <Label htmlFor="shop-slug">{t("profile.slug")}</Label>
             <div className="flex rounded-lg border border-input bg-muted/40 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
               <span className="flex items-center border-r border-border px-3 text-xs text-muted-foreground">
                 /shops/
@@ -130,7 +132,7 @@ export const ProfileSetting = ({
             </p>
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="shop-description">Description</Label>
+          <Label htmlFor="shop-description">{t("profile.description")}</Label>
             <Textarea
               id="shop-description"
               className="min-h-28 resize-none"
@@ -141,7 +143,7 @@ export const ProfileSetting = ({
             </p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="shop-email">Email</Label>
+          <Label htmlFor="shop-email">{t("profile.email")}</Label>
             <div className="relative">
               <Mail
                 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -159,7 +161,7 @@ export const ProfileSetting = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="shop-phone">Phone</Label>
+          <Label htmlFor="shop-phone">{t("profile.phone")}</Label>
             <div className="relative">
               <Phone
                 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"

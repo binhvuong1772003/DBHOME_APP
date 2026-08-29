@@ -1,0 +1,45 @@
+{
+  "actions": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "saveChanges": "Save changes",
+    "done": "Done",
+    "tryAgain": "Try again",
+    "submit": "Submit",
+    "edit": "Edit",
+    "update": "Update",
+    "logout": "Log out"
+  },
+  "labels": {
+    "status": "Status",
+    "date": "Date",
+    "schedule": "Schedule",
+    "checkIn": "Check in",
+    "checkOut": "Check out",
+    "worked": "Worked",
+    "note": "Note",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "time": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "previousDay": "Previous day",
+    "nextDay": "Next day",
+    "calendar": "Calendar",
+    "minutes": "{{count}} min",
+    "hours": "{{count}}h",
+    "hoursMinutes": "{{hours}}h {{minutes}}m"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "working": "Working",
+    "completed": "Completed",
+    "late": "Late",
+    "paid": "Paid",
+    "active": "Active",
+    "off": "Off"
+  }
+}

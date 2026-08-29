@@ -8,6 +8,25 @@ export type StaffStatusFilter = "ALL" | StaffDisplayStatus;
 
 export type StaffSort = "RECENT" | "NAME_ASC" | "NAME_DESC" | "REVENUE";
 
+export interface StaffListQuery {
+  page: number;
+  limit: number;
+  search?: string;
+  role?: StaffRoleFilter;
+  status?: StaffStatusFilter;
+  sort?: StaffSort;
+}
+
+export interface StaffListResponse {
+  data: Staff[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export type StaffViewMode = "LIST" | "GRID";
 
 export interface StaffSchedule {

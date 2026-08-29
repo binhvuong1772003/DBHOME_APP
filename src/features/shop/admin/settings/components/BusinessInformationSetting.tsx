@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import type { UpdateShopInput } from "@/validations/shopSchema";
 import type { getProvinces, getDistrictsByProvinceCode } from "vn-provinces";
+import { useTranslation } from "react-i18next";
 
 type Province = ReturnType<typeof getProvinces>[number];
 type District = ReturnType<typeof getDistrictsByProvinceCode>[number];
@@ -43,6 +44,7 @@ export const BusinessInformationSetting = ({
   onProvinceChange,
   onDistrictChange,
 }: BusinessInformationSettingProps) => {
+  const { t } = useTranslation("settings");
   const {
     control,
     register,
@@ -55,26 +57,26 @@ export const BusinessInformationSetting = ({
       className="scroll-mt-6 gap-0 py-0 shadow-xs"
     >
       <CardHeader className="border-b border-border px-5 py-5 sm:px-6">
-        <CardTitle className="text-lg">Business Information</CardTitle>
+        <CardTitle className="text-lg">{t("business.title")}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Legal, contact, and location details for your shop.
+          {t("business.description")}
         </p>
       </CardHeader>
       <CardContent className="grid gap-5 px-5 py-6 sm:grid-cols-2 sm:px-6">
         <div className="space-y-2">
-          <Label htmlFor="business-type">Business type</Label>
+          <Label htmlFor="business-type">{t("business.type")}</Label>
           <Controller
             control={control}
             name="type"
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger id="business-type" className="w-full">
-                  <SelectValue placeholder="Chọn loại hình" />
+                  <SelectValue placeholder={t("business.selectType")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {SHOP_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
+                  {SHOP_TYPES.map((shopType) => (
+                    <SelectItem key={shopType.value} value={shopType.value}>
+                      {t(`business.types.${shopType.value.toLowerCase()}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -83,7 +85,7 @@ export const BusinessInformationSetting = ({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="business-phone">Phone</Label>
+          <Label htmlFor="business-phone">{t("business.phone")}</Label>
           <div className="relative">
             <Phone
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -101,7 +103,7 @@ export const BusinessInformationSetting = ({
           )}
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="business-address">Address</Label>
+          <Label htmlFor="business-address">{t("business.address")}</Label>
           <div className="relative">
             <MapPin
               className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground"
@@ -118,7 +120,7 @@ export const BusinessInformationSetting = ({
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="business-city">City / Province</Label>
+          <Label htmlFor="business-city">{t("business.province")}</Label>
           <Select
             value={provinceCode}
             onValueChange={(code) => {
@@ -127,7 +129,7 @@ export const BusinessInformationSetting = ({
             }}
           >
             <SelectTrigger id="business-city" className="w-full">
-              <SelectValue placeholder="Chọn tỉnh/thành" />
+              <SelectValue placeholder={t("business.selectProvince")} />
             </SelectTrigger>
             <SelectContent>
               {provinces.map((p) => (
@@ -142,14 +144,14 @@ export const BusinessInformationSetting = ({
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="business-district">District</Label>
+          <Label htmlFor="business-district">{t("business.district")}</Label>
           <Select
             value={districtCode}
             onValueChange={onDistrictChange}
             disabled={!provinceCode}
           >
             <SelectTrigger id="business-district" className="w-full">
-              <SelectValue placeholder="Chọn quận/huyện" />
+              <SelectValue placeholder={t("business.selectDistrict")} />
             </SelectTrigger>
             <SelectContent>
               {districts.map((d) => (

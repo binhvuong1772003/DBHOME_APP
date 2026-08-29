@@ -9,8 +9,7 @@ import { useStaffManagement } from "../hooks/useStaffManagement";
 
 export default function StaffManagement() {
   const {
-    staffs,
-    filteredStaffs,
+    pagination,
     paginatedStaffs,
     stats,
     search,
@@ -76,8 +75,8 @@ export default function StaffManagement() {
 
         <StaffDirectory
           staffs={paginatedStaffs}
-          totalStaffs={staffs.length}
-          filteredCount={filteredStaffs.length}
+          totalStaffs={pagination.total}
+          filteredCount={pagination.total}
           isLoading={isLoading}
           error={error}
           viewMode={viewMode}

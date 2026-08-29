@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { getStaffName } from "../constants/staff";
 import type { Staff } from "../types/staff";
+import { useTranslation } from "react-i18next";
 
 interface DeactivateStaffSheetProps {
   staff: Staff | null;
@@ -27,6 +28,7 @@ export function DeactivateStaffSheet({
   onOpenChange,
   onConfirm,
 }: DeactivateStaffSheetProps) {
+  const { t } = useTranslation("staff");
   if (!staff) return null;
 
   return (
@@ -36,21 +38,20 @@ export function DeactivateStaffSheet({
           <div className="mb-2 flex size-11 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
             <UserX className="size-5" aria-hidden="true" />
           </div>
-          <SheetTitle>Deactivate staff member?</SheetTitle>
+          <SheetTitle>{t("deactivate.title")}</SheetTitle>
           <SheetDescription>
-            {getStaffName(staff)} will remain in your staff history but will no
-            longer be available for new appointments.
+            {t("deactivate.description", { name: getStaffName(staff) })}
           </SheetDescription>
         </SheetHeader>
         <SheetClose asChild>
-          <Button type="button" variant="ghost" size="icon-sm" className="absolute right-4 top-4 rounded-full" aria-label="Close confirmation">
+          <Button type="button" variant="ghost" size="icon-sm" className="absolute right-4 top-4 rounded-full" aria-label={t("deactivate.close")}>
             <X aria-hidden="true" />
           </Button>
         </SheetClose>
         <SheetFooter className="border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
           <SheetClose asChild>
             <Button type="button" variant="outline" disabled={isSubmitting}>
-              Cancel
+              {t("deactivate.cancel")}
             </Button>
           </SheetClose>
           <Button
@@ -59,7 +60,9 @@ export function DeactivateStaffSheet({
             disabled={isSubmitting}
             onClick={() => void onConfirm()}
           >
-            {isSubmitting ? "Deactivating..." : "Deactivate"}
+            {isSubmitting
+              ? t("deactivate.processing")
+              : t("deactivate.confirm")}
           </Button>
         </SheetFooter>
       </SheetContent>

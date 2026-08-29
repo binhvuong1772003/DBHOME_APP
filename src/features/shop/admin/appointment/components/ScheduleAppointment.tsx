@@ -1,13 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
-import { useStaffs } from "@/hooks/shops/staff/useStaffs";
+import { useStaffs } from "@/features/shop/admin/appointment/hooks/useStaffs";
 import { useScheduleAppointment } from "../hooks/useScheduleAppointment";
 import {
-  ArrowLeft,
-  ArrowRight,
   CalendarDays,
   Check,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   Mail,
   PackageOpen,
@@ -33,8 +29,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { StaffAvatar } from "../../../../../components/common/UserAvatar";
 import { appointmentStatusConfig } from "../constants/appointmentStatus";
-import { MiniCalendar } from "./MiniCalendar.tsx";
-import { AppointmentStatusDropdown } from "@/components/common/AppointmentStatusDropdown";
+import { MiniCalendar } from "./MiniCalendar";
+import { AppointmentStatusDropdown } from "@/features/shop/admin/appointment/components/AppointmentStatusDropdown";
+import { useTranslation } from "react-i18next";
 
 function AppointmentCard({
   children,
@@ -58,34 +55,39 @@ function AppointmentCard({
   );
 }
 
-const formatVnd = (value: number) =>
-  new Intl.NumberFormat("vi-VN", {
+const formatVnd = (value: number, locale: string) =>
+  new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "VND",
     maximumFractionDigits: 0,
   }).format(value);
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat("vi-VN", {
+const formatDate = (value: string, locale: string) =>
+  new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   }).format(new Date(value));
 
+const getStaffDisplayName = (staff: {
+  nickname?: string | null;
+  user?: { name?: string | null; email?: string | null } | null;
+}) =>
+  staff.nickname?.trim() ||
+  staff.user?.name?.trim() ||
+  staff.user?.email?.split("@")[0] ||
+  "Nhân viên";
+
 function ScheduleAppointment() {
+  const { t, i18n } = useTranslation("appointment");
+  const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
   const { staffs } = useStaffs();
   const {
     appointments,
-    setAppointments,
     completedAppointments,
-    schedule,
-    setSchedule,
     slot,
     workHour,
     openHour,
-    closeHour,
-    isLoading,
-    error,
     selectedAppointment,
     setSelectedAppointment,
     handleAppointmentClick,
@@ -97,7 +99,6 @@ function ScheduleAppointment() {
     handleStatusChange,
     isChangingStatus,
   } = useScheduleAppointment();
-  console.log(appointments);
   const selectedStaff = staffs.find(
     (staff) => staff.id === selectedAppointment?.staffId,
   );
@@ -115,7 +116,7 @@ function ScheduleAppointment() {
             <div className="relative min-w-0 flex-1 md:max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search customer or service"
+                placeholder={t("searchPlaceholder")}
                 className="h-10 rounded-lg bg-background pl-9"
               />
             </div>
@@ -123,13 +124,13 @@ function ScheduleAppointment() {
               <Select defaultValue="all-staff">
                 <SelectTrigger className="h-10 w-full rounded-lg bg-background md:w-[150px]">
                   <UserRound className="size-4" />
-                  <SelectValue placeholder="Staff" />
+                  <SelectValue placeholder={t("filters.staff")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-staff">All staff</SelectItem>
+                  <SelectItem value="all-staff">{t("filters.allStaff")}</SelectItem>
                   {staffs.map((staff) => (
                     <SelectItem key={staff.id} value={staff.id}>
-                      {staff.nickname}
+                      {getStaffDisplayName(staff)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -137,31 +138,31 @@ function ScheduleAppointment() {
               <Select defaultValue="all-services">
                 <SelectTrigger className="h-10 w-full rounded-lg bg-background md:w-[160px]">
                   <Sparkles className="size-4" />
-                  <SelectValue placeholder="Service" />
+                  <SelectValue placeholder={t("filters.service")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-services">All services</SelectItem>
-                  <SelectItem value="hair">Hair services</SelectItem>
-                  <SelectItem value="nails">Nail services</SelectItem>
-                  <SelectItem value="spa">Spa treatments</SelectItem>
+                  <SelectItem value="all-services">{t("filters.allServices")}</SelectItem>
+                  <SelectItem value="hair">{t("filters.hair")}</SelectItem>
+                  <SelectItem value="nails">{t("filters.nails")}</SelectItem>
+                  <SelectItem value="spa">{t("filters.spa")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select defaultValue="all-statuses">
                 <SelectTrigger className="h-10 w-full rounded-lg bg-background md:w-[150px]">
                   <Check className="size-4" />
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("filters.status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-statuses">All statuses</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="checked-in">Checked In</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="all-statuses">{t("filters.allStatuses")}</SelectItem>
+                  <SelectItem value="confirmed">{t("status.confirmed")}</SelectItem>
+                  <SelectItem value="pending">{t("status.pending")}</SelectItem>
+                  <SelectItem value="checked-in">{t("status.inProgress")}</SelectItem>
+                  <SelectItem value="completed">{t("status.done")}</SelectItem>
                 </SelectContent>
               </Select>
               <Button className="rounded-lg shadow-sm">
                 <Plus />
-                New Appointment
+                {t("newAppointment")}
               </Button>
             </div>
           </CardContent>
@@ -178,23 +179,23 @@ function ScheduleAppointment() {
             />
             <Card className="gap-4 rounded-xl py-5 shadow-xs">
               <CardHeader className="px-5">
-                <CardTitle className="text-sm">Staff</CardTitle>
+                <CardTitle className="text-sm">{t("staff")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 px-5">
                 {staffs.map((staff) => (
                   <div key={staff.id} className="flex items-center gap-3">
                     <StaffAvatar
-                      initials={staff.nickname.charAt(0).toUpperCase()}
+                      initials={getStaffDisplayName(staff).charAt(0).toUpperCase()}
                       avatarUrl={staff.avatarUrl ?? staff.user?.avatarUrl}
-                      alt={staff.nickname}
+                      alt={getStaffDisplayName(staff)}
                       className="size-10"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">
-                        {staff.nickname}
+                        {getStaffDisplayName(staff)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Senior stylist
+                        {t("roles.seniorStylist")}
                       </p>
                     </div>
                     <span className="size-2 rounded-full bg-secondary" />
@@ -205,13 +206,13 @@ function ScheduleAppointment() {
 
             <Card className="gap-4 rounded-xl py-5 shadow-xs">
               <CardHeader className="px-5">
-                <CardTitle className="text-sm">Thống kê lịch hẹn</CardTitle>
+                <CardTitle className="text-sm">{t("stats.title")}</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-3 gap-2 px-5 md:grid-cols-1 xl:grid-cols-3 2xl:grid-cols-1">
                 <div className="rounded-xl border border-border bg-muted/35 p-3">
                   <div className="flex items-center justify-between">
                     <p className="text-[11px] text-muted-foreground">
-                      Today&apos;s Appointments
+                      {t("stats.today")}
                     </p>
                     <CalendarDays className="size-4 text-primary" />
                   </div>
@@ -222,7 +223,7 @@ function ScheduleAppointment() {
                 <div className="rounded-xl border border-secondary/25 bg-secondary/10 p-3">
                   <div className="flex items-center justify-between">
                     <p className="text-[11px] text-muted-foreground">
-                      Hoàn thành
+                      {t("stats.completed")}
                     </p>
                     <Check className="size-4 text-secondary" />
                   </div>
@@ -233,7 +234,7 @@ function ScheduleAppointment() {
                 <div className="rounded-xl border border-chart-3/25 bg-chart-3/10 p-3">
                   <div className="flex items-center justify-between">
                     <p className="text-[11px] text-muted-foreground">
-                      Chưa hoàn thành
+                      {t("stats.remaining")}
                     </p>
                     <Clock3 className="size-4 text-chart-3" />
                   </div>
@@ -263,17 +264,17 @@ function ScheduleAppointment() {
                         key={staff.id}
                       >
                         <StaffAvatar
-                          initials={staff.nickname.charAt(0).toUpperCase()}
+                          initials={getStaffDisplayName(staff).charAt(0).toUpperCase()}
                           avatarUrl={staff.avatarUrl ?? staff.user?.avatarUrl}
-                          alt={staff.nickname}
+                          alt={getStaffDisplayName(staff)}
                           className="size-10"
                         />
                         <div>
                           <p className="text-sm font-semibold">
-                            {staff.nickname}
+                          {getStaffDisplayName(staff)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Nail artist
+                            {t("roles.nailArtist")}
                           </p>
                         </div>
                       </div>
@@ -356,7 +357,7 @@ function ScheduleAppointment() {
                                   <span
                                     className={`${config.badgeClassName} rounded-full px-1.5 py-0.5 text-[9px] font-semibold`}
                                   >
-                                    {config.label}
+                                    {t(config.labelKey)}
                                   </span>
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -368,7 +369,8 @@ function ScheduleAppointment() {
                                   <p
                                     className={`font-mono font-semibold text-[12px] ${config.timeClassName}`}
                                   >
-                                    {appointment.startTime} · {duration} min
+                                    {appointment.startTime} ·{" "}
+                                    {t("details.minutes", { count: duration })}
                                   </p>
                                 </div>
                               </AppointmentCard>
@@ -394,7 +396,7 @@ function ScheduleAppointment() {
                   variant="ghost"
                   size="icon-sm"
                   className="absolute right-3 top-3 z-10 rounded-full"
-                  aria-label="Đóng chi tiết lịch hẹn"
+                  aria-label={t("details.close")}
                   onClick={() => setSelectedAppointment(null)}
                 >
                   <X className="size-4" />
@@ -402,11 +404,11 @@ function ScheduleAppointment() {
 
                 <CardHeader className="border-b border-border px-5 py-5 pr-14">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                    Xem trước lịch hẹn
+                    {t("details.eyebrow")}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     <CardTitle className="text-base">
-                      Chi tiết lịch hẹn
+                      {t("details.title")}
                     </CardTitle>
                     {selectedAppointment && (
                       <AppointmentStatusDropdown
@@ -425,7 +427,10 @@ function ScheduleAppointment() {
                         src={
                           selectedAppointment?.customer.avatarUrl ?? undefined
                         }
-                        alt={selectedAppointment?.customer.name ?? "Khách hàng"}
+                        alt={
+                          selectedAppointment?.customer.name ??
+                          t("details.customer")
+                        }
                       />
                       <AvatarFallback className="bg-primary/10 text-base font-bold text-primary">
                         {customerInitials || "KH"}
@@ -444,24 +449,28 @@ function ScheduleAppointment() {
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <div className="rounded-lg border border-border bg-muted/25 p-3">
                       <p className="text-[11px] text-muted-foreground">
-                        Nhân viên
+                        {t("details.staff")}
                       </p>
                       <p className="mt-1 truncate text-xs font-semibold">
-                        {selectedStaff?.nickname || "Chưa phân công"}
+                        {selectedStaff
+                          ? getStaffDisplayName(selectedStaff)
+                          : t("details.unassigned")}
                       </p>
                     </div>
                     <div className="rounded-lg border border-border bg-muted/25 p-3">
-                      <p className="text-[11px] text-muted-foreground">Ngày</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {t("details.date")}
+                      </p>
                       <p className="mt-1 text-xs font-semibold">
                         {selectedAppointment
-                          ? formatDate(selectedAppointment.date)
+                          ? formatDate(selectedAppointment.date, locale)
                           : "—"}
                       </p>
                     </div>
                     <div className="col-span-2 flex items-center justify-between rounded-lg border border-border bg-muted/25 p-3">
                       <div>
                         <p className="text-[11px] text-muted-foreground">
-                          Thời gian
+                          {t("details.time")}
                         </p>
                         <p className="mt-1 font-mono text-xs font-semibold">
                           {selectedAppointment?.startTime} –{" "}
@@ -477,12 +486,14 @@ function ScheduleAppointment() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Dịch vụ đã đặt
+                        {t("details.bookedServices")}
                       </p>
                       <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                        {(selectedAppointment?.services?.length ?? 0) +
-                          (selectedAppointment?.packages?.length ?? 0)}{" "}
-                        mục
+                        {t("details.items", {
+                          count:
+                            (selectedAppointment?.services?.length ?? 0) +
+                            (selectedAppointment?.packages?.length ?? 0),
+                        })}
                       </span>
                     </div>
 
@@ -501,12 +512,14 @@ function ScheduleAppointment() {
                                 {service.serviceName}
                               </p>
                               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                                {service.durationMin} phút
+                                {t("details.minutes", {
+                                  count: service.durationMin,
+                                })}
                               </p>
                             </div>
                           </div>
                           <span className="shrink-0 text-xs font-semibold tabular-nums">
-                            {formatVnd(service.priceAtBooking)}
+                            {formatVnd(service.priceAtBooking, locale)}
                           </span>
                         </div>
 
@@ -527,7 +540,11 @@ function ScheduleAppointment() {
                                 </div>
                                 {selectedValue.priceAtBooking > 0 && (
                                   <span className="shrink-0 font-medium text-primary tabular-nums">
-                                    +{formatVnd(selectedValue.priceAtBooking)}
+                                    +
+                                    {formatVnd(
+                                      selectedValue.priceAtBooking,
+                                      locale,
+                                    )}
                                   </span>
                                 )}
                               </div>
@@ -554,19 +571,24 @@ function ScheduleAppointment() {
                                     {appointmentPackage.package.name}
                                   </p>
                                   <span className="rounded-full bg-secondary/15 px-1.5 py-0.5 text-[9px] font-semibold text-secondary">
-                                    Gói
+                                    {t("details.package")}
                                   </span>
                                 </div>
                                 {appointmentPackage.package.durationMin && (
                                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                                    {appointmentPackage.package.durationMin}{" "}
-                                    phút
+                                    {t("details.minutes", {
+                                      count:
+                                        appointmentPackage.package.durationMin,
+                                    })}
                                   </p>
                                 )}
                               </div>
                             </div>
                             <span className="shrink-0 text-xs font-semibold tabular-nums">
-                              {formatVnd(appointmentPackage.priceAtBooking)}
+                              {formatVnd(
+                                appointmentPackage.priceAtBooking,
+                                locale,
+                              )}
                             </span>
                           </div>
 
@@ -593,7 +615,7 @@ function ScheduleAppointment() {
                                   + {packageAddon.addon.name}
                                 </span>
                                 <span className="font-medium text-secondary tabular-nums">
-                                  +{formatVnd(packageAddon.extraPrice)}
+                                  +{formatVnd(packageAddon.extraPrice, locale)}
                                 </span>
                               </div>
                             ))}
@@ -605,7 +627,7 @@ function ScheduleAppointment() {
                     {(selectedAppointment?.services?.length ?? 0) === 0 &&
                       (selectedAppointment?.packages?.length ?? 0) === 0 && (
                         <div className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
-                          Lịch hẹn chưa có dịch vụ.
+                          {t("details.noServices")}
                         </div>
                       )}
                   </div>
@@ -613,7 +635,7 @@ function ScheduleAppointment() {
                   {(selectedAppointment?.addons?.length ?? 0) > 0 && (
                     <div className="mt-5">
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Dịch vụ thêm
+                        {t("details.addons")}
                       </p>
                       <div className="space-y-2">
                         {selectedAppointment?.addons.map((appointmentAddon) => (
@@ -627,12 +649,18 @@ function ScheduleAppointment() {
                               </p>
                               {appointmentAddon.addon.duration && (
                                 <p className="text-[11px] text-muted-foreground">
-                                  Thêm {appointmentAddon.addon.duration} phút
+                                  {t("details.additionalMinutes", {
+                                    count: appointmentAddon.addon.duration,
+                                  })}
                                 </p>
                               )}
                             </div>
                             <span className="shrink-0 text-xs font-semibold text-primary tabular-nums">
-                              +{formatVnd(appointmentAddon.priceAtBooking)}
+                              +
+                              {formatVnd(
+                                appointmentAddon.priceAtBooking,
+                                locale,
+                              )}
                             </span>
                           </div>
                         ))}
@@ -643,27 +671,34 @@ function ScheduleAppointment() {
                   <div className="mt-5 rounded-xl bg-muted/35 p-3">
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between text-muted-foreground">
-                        <span>Tạm tính</span>
+                        <span>{t("details.subtotal")}</span>
                         <span className="tabular-nums">
-                          {formatVnd(selectedAppointment?.subtotal ?? 0)}
+                          {formatVnd(
+                            selectedAppointment?.subtotal ?? 0,
+                            locale,
+                          )}
                         </span>
                       </div>
                       {(selectedAppointment?.discountAmount ?? 0) > 0 && (
                         <div className="flex justify-between text-emerald-600">
-                          <span>Giảm giá</span>
+                          <span>{t("details.discount")}</span>
                           <span className="tabular-nums">
                             -
                             {formatVnd(
                               selectedAppointment?.discountAmount ?? 0,
+                              locale,
                             )}
                           </span>
                         </div>
                       )}
                       <Separator />
                       <div className="flex justify-between text-sm font-bold">
-                        <span>Tổng cộng</span>
+                        <span>{t("details.total")}</span>
                         <span className="text-primary tabular-nums">
-                          {formatVnd(selectedAppointment?.totalAmount ?? 0)}
+                          {formatVnd(
+                            selectedAppointment?.totalAmount ?? 0,
+                            locale,
+                          )}
                         </span>
                       </div>
                     </div>
@@ -672,7 +707,7 @@ function ScheduleAppointment() {
                   {selectedAppointment?.note && (
                     <div className="mt-5">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Ghi chú
+                        {t("details.note")}
                       </p>
                       <div className="mt-2 rounded-lg border border-border bg-muted/25 p-3 text-xs leading-5 text-muted-foreground">
                         {selectedAppointment.note}
@@ -682,14 +717,14 @@ function ScheduleAppointment() {
 
                   <div className="mt-5">
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Liên hệ
+                      {t("details.contact")}
                     </p>
                     <div className="mt-3 space-y-3 text-sm">
                       <div className="flex items-center gap-3">
                         <Phone className="size-4 shrink-0 text-muted-foreground" />
                         <span>
                           {selectedAppointment?.customer.phone ||
-                            "Chưa có số điện thoại"}
+                            t("details.noPhone")}
                         </span>
                       </div>
                       {selectedAppointment?.customer.email && (
@@ -723,7 +758,7 @@ function ScheduleAppointment() {
                           onClick={() => handleStatusChange("CANCELLED")}
                         >
                           <X aria-hidden="true" />
-                          Hủy lịch
+                          {t("actions.cancel")}
                         </Button>
                       )}
 
@@ -735,7 +770,9 @@ function ScheduleAppointment() {
                           onClick={() => handleStatusChange("CONFIRMED")}
                         >
                           <Check aria-hidden="true" />
-                          {isChangingStatus ? "Đang xử lý..." : "Xác nhận"}
+                          {isChangingStatus
+                            ? t("actions.processing")
+                            : t("actions.confirm")}
                         </Button>
                       )}
 
@@ -747,7 +784,9 @@ function ScheduleAppointment() {
                           onClick={() => handleStatusChange("IN_PROGRESS")}
                         >
                           <Clock3 aria-hidden="true" />
-                          {isChangingStatus ? "Đang xử lý..." : "Đang làm"}
+                          {isChangingStatus
+                            ? t("actions.processing")
+                            : t("actions.start")}
                         </Button>
                       )}
 
@@ -759,7 +798,9 @@ function ScheduleAppointment() {
                           onClick={() => handleStatusChange("DONE")}
                         >
                           <Check aria-hidden="true" />
-                          {isChangingStatus ? "Đang xử lý..." : "Đã hoàn thành"}
+                          {isChangingStatus
+                            ? t("actions.processing")
+                            : t("actions.complete")}
                         </Button>
                       )}
                     </div>

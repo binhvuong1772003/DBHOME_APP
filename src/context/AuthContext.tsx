@@ -56,8 +56,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, [initAuth]);
 
-  const sendEmailVerification = useCallback(async () => {
-    await axiosClient.post("/auth/email-verification");
+  const sendEmailVerification = useCallback(async (email: string) => {
+    await axiosClient.post("/auth/email/verification/resend", {
+      email,
+    });
   }, []);
 
   const signIn = useCallback(async (credentials: SignInRequest) => {
@@ -69,7 +71,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data.success) {
       setUser(data.user);
       tokenService.setToken(data.accessToken);
+      return data.user;
     }
+    return null;
   }, []);
 
   const signup = useCallback(async (credentials: SignUpRequest) => {
