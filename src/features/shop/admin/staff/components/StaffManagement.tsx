@@ -1,13 +1,16 @@
 import { DeactivateStaffSheet } from "./DeactivateStaffSheet";
-import { StaffDetailSheet } from "./StaffDetailSheet";
 import { StaffDirectory } from "./StaffDirectory";
 import { StaffFormSheet } from "./StaffFormSheet";
 import { StaffManagementHeader } from "./StaffManagementHeader";
 import { StaffStats } from "./StaffStats";
+import { StaffScheduleSheet } from "./StaffScheduleSheet";
 import { StaffToolbar } from "./StaffToolbar";
 import { useStaffManagement } from "../hooks/useStaffManagement";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function StaffManagement() {
+  const navigate = useNavigate();
+  const { shopSlug } = useParams<{ shopSlug: string }>();
   const {
     pagination,
     paginatedStaffs,
@@ -38,7 +41,7 @@ export default function StaffManagement() {
     selectedStaff,
     openCreate,
     openEdit,
-    openDetail,
+    openSchedule,
     openDeactivate,
     closeDialog,
     handleInvite,
@@ -90,7 +93,8 @@ export default function StaffManagement() {
           onPageChange={setPage}
           onAddStaff={openCreate}
           onRetry={() => void reload()}
-          onView={openDetail}
+          onView={(staff) => navigate(`/shops/${shopSlug}/admin/staff/${staff.id}`)}
+          onViewSchedule={openSchedule}
           onEdit={openEdit}
           onDeactivate={openDeactivate}
         />
@@ -109,12 +113,10 @@ export default function StaffManagement() {
         />
       )}
 
-      <StaffDetailSheet
+      <StaffScheduleSheet
         staff={selectedStaff}
-        open={mode === "DETAIL"}
-        canEdit={canEditStaff}
+        open={mode === "SCHEDULE"}
         onOpenChange={handleOpenChange}
-        onEdit={openEdit}
       />
 
       <DeactivateStaffSheet

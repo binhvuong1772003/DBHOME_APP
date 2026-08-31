@@ -27,7 +27,7 @@ export const useChangeAppointmentStatus = () => {
       return result;
     } catch (err: any) {
       const errorMsg =
-        err?.response?.data?.message || "Không thể cập nhật trạng thái";
+        err?.response?.data?.error?.message || err?.response?.data?.message || "Không thể cập nhật trạng thái";
       setError(errorMsg);
       toast.error(errorMsg);
       throw err;

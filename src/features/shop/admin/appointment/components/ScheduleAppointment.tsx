@@ -32,6 +32,9 @@ import { appointmentStatusConfig } from "../constants/appointmentStatus";
 import { MiniCalendar } from "./MiniCalendar";
 import { AppointmentStatusDropdown } from "@/features/shop/admin/appointment/components/AppointmentStatusDropdown";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import { useShopMembership } from "@/features/shop/membership/hooks/useShopMembership";
+import { AppointmentPaymentSection } from "./AppointmentPaymentSection";
 
 function AppointmentCard({
   children,
@@ -80,6 +83,8 @@ const getStaffDisplayName = (staff: {
 
 function ScheduleAppointment() {
   const { t, i18n } = useTranslation("appointment");
+  const { shopSlug = "" } = useParams<{ shopSlug: string }>();
+  const { membership } = useShopMembership();
   const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
   const { staffs } = useStaffs();
   const {
@@ -98,6 +103,7 @@ function ScheduleAppointment() {
     currentMonth,
     handleStatusChange,
     isChangingStatus,
+    refetchAppointments,
   } = useScheduleAppointment();
   const selectedStaff = staffs.find(
     (staff) => staff.id === selectedAppointment?.staffId,
@@ -703,6 +709,17 @@ function ScheduleAppointment() {
                       </div>
                     </div>
                   </div>
+
+                  {selectedAppointment ? (
+                    <AppointmentPaymentSection
+                      key={selectedAppointment.id}
+                      shopSlug={shopSlug}
+                      appointment={selectedAppointment}
+                      staffName={selectedStaff ? getStaffDisplayName(selectedStaff) : t("details.unassigned")}
+                      canManage={Boolean(membership && membership.role !== "STAFF")}
+                      onAppointmentRefresh={refetchAppointments}
+                    />
+                  ) : null}
 
                   {selectedAppointment?.note && (
                     <div className="mt-5">

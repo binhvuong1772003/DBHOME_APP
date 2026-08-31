@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import axiosClient, { tokenService } from "@/api/axiosClient";
 import type { User, SignInRequest, SignUpRequest } from "@/type/auth";
 import { AuthContext } from "@/context/AuthContextValue";
+import type { ApiSuccessResponse } from "@/api/apiResponse";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -26,11 +27,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setConnectionError(false);
 
     try {
-      const { data } = await axiosClient.get<{
-        success: boolean;
-        data: User;
-      }>("/auth/me");
-      setUser(data.data);
+      const { data: response } = await axiosClient.get<ApiSuccessResponse<User>>("/auth/me");
+      setUser(response.data);
     } catch (err) {
       const isAuthFailure =
         err instanceof AxiosError &&
@@ -63,27 +61,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signIn = useCallback(async (credentials: SignInRequest) => {
-    const { data } = await axiosClient.post<{
-      success: boolean;
-      accessToken: string;
-      user: User;
-    }>("/auth/login", credentials);
-    if (data.success) {
-      setUser(data.user);
-      tokenService.setToken(data.accessToken);
-      return data.user;
-    }
-    return null;
+    const { data: response } = await axiosClient.post<ApiSuccessResponse<{ accessToken: string; user: User }>>("/auth/login", credentials);
+    setUser(response.data.user);
+    tokenService.setToken(response.data.accessToken);
+    return response.data.user;
   }, []);
 
   const signup = useCallback(async (credentials: SignUpRequest) => {
-    const { data } = await axiosClient.post<{ success: boolean; data: User }>(
+    const { data: response } = await axiosClient.post<ApiSuccessResponse<User>>(
       "/auth/register",
       credentials,
     );
-    if (data.success) {
-      setUser(data.data);
-    }
+    setUser(response.data);
   }, []);
 
   const logout = useCallback(async () => {

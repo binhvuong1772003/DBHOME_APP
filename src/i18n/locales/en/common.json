@@ -10,6 +10,11 @@
     "update": "Update",
     "logout": "Log out"
   },
+  "access": {
+    "loadingShop": "Checking your shop access",
+    "errorTitle": "We couldn't verify your shop access.",
+    "errorDescription": "Check your connection, then try again."
+  },
   "labels": {
     "status": "Status",
     "date": "Date",

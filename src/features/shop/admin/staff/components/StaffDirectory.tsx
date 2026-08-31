@@ -26,6 +26,7 @@ interface StaffDirectoryProps {
   onAddStaff: () => void;
   onRetry: () => void;
   onView: (staff: Staff) => void;
+  onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
@@ -127,6 +128,7 @@ export function StaffDirectory({
   onAddStaff,
   onRetry,
   onView,
+  onViewSchedule,
   onEdit,
   onDeactivate,
 }: StaffDirectoryProps) {
@@ -251,6 +253,7 @@ export function StaffDirectory({
                     canEdit={canEdit}
                     canDeactivate={canDeactivate}
                     onView={onView}
+                    onViewSchedule={onViewSchedule}
                     onEdit={onEdit}
                     onDeactivate={onDeactivate}
                   />
@@ -273,6 +276,7 @@ export function StaffDirectory({
               canEdit={canEdit}
               canDeactivate={canDeactivate}
               onView={onView}
+              onViewSchedule={onViewSchedule}
               onEdit={onEdit}
               onDeactivate={onDeactivate}
             />

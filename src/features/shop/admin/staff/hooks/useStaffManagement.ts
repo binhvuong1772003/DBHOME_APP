@@ -45,6 +45,7 @@ export const useStaffManagement = () => {
     openCreate,
     openEdit,
     openDetail,
+    openSchedule,
     openDeactivate,
     closeDialog,
   } = useStaffDialog();
@@ -118,6 +119,7 @@ export const useStaffManagement = () => {
     openCreate,
     openEdit,
     openDetail,
+    openSchedule,
     openDeactivate,
     closeDialog,
     handleInvite,

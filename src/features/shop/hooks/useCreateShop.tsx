@@ -80,7 +80,7 @@ export const useCreateShop = () => {
       navigate('/');
     } catch (error) {
       if (error instanceof AxiosError) {
-        setApiError(error.response?.data?.message || 'Tạo shop thất bại');
+        setApiError(error.response?.data?.error?.message || error.response?.data?.message || 'Tạo shop thất bại');
       } else {
         setApiError('Tạo shop thất bại');
       }

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { getApiErrorMessage } from "@/lib/Getapierrormessage";
+import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 
 export function useAsync<T>() {
   const [isLoading, setIsLoading] = useState(false);

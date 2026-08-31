@@ -9,9 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateService } from "@/features/shop/admin/service/hooks/useCreateService";
-import { useFieldArray, type Control } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import type { CreateServiceInput } from "@/validations/serviceSchema";
 import { ServicePreviewPanel } from "./CreateServicePreview";
 import { OptionItem } from "./OptionItem";
 import {
@@ -24,15 +23,8 @@ import {
 import UploadImage from "@/components/common/UploadImage";
 import { useEffect, useMemo } from "react";
 export function CreateServiceForm() {
-  const {
-    form,
-    onSubmit,
-    isSubmitting,
-    apiError,
-    imageFiles,
-    setImageFiles,
-    onCancel,
-  } = useCreateService();
+  const { form, onSubmit, isSubmitting, imageFiles, setImageFiles, onCancel } =
+    useCreateService();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "options",
@@ -249,7 +241,6 @@ export function CreateServiceForm() {
                       key={field.id}
                       control={form.control}
                       index={index}
-                      onRemove={() => remove(index)}
                     />
                     <div className="flex justify-end mt-2">
                       <Button

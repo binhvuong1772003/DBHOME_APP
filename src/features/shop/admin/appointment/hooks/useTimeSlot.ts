@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 export const useTimeSlot = () => {
-  const [timeSlots, setTimeSlots] = useState<any[]>([]);
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const { shopSlug } = useParams<{ shopSlug: string }>();
@@ -36,5 +36,5 @@ export const useTimeSlot = () => {
     fetchTimeSlots();
   }, []);
 
-  return { timeSlots, isLoading };
+  return { timeSlots, isLoading, apiError, date, changeDate };
 };

@@ -36,7 +36,7 @@ export function ScheduleEmptyState() {
   );
 }
 
-export function ScheduleErrorState() {
+export function ScheduleErrorState({ onRetry }: { onRetry?: () => void }) {
   const { t } = useTranslation(["workspace", "common"]);
   return (
     <Card className="border-destructive/25 shadow-none">
@@ -44,7 +44,7 @@ export function ScheduleErrorState() {
         <AlertCircle className="mb-3 size-6 text-destructive" aria-hidden="true" />
         <h3 className="font-semibold">{t("schedule.errorTitle")}</h3>
         <p className="mt-1 text-sm text-muted-foreground">{t("schedule.errorDescription")}</p>
-        <Button type="button" variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+        <Button type="button" variant="outline" className="mt-4" onClick={onRetry ?? (() => window.location.reload())}>
           <RefreshCw aria-hidden="true" />
           {t("common:actions.tryAgain")}
         </Button>

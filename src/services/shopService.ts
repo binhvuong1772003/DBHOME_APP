@@ -1,11 +1,15 @@
 import axiosClient from "@/api/axiosClient";
+import type { ApiSuccessResponse } from "@/api/apiResponse";
+import type { Shop } from "@/type/shop";
 import type {
   CreateShopInput,
   UpdateShopInput,
   BusinessHoursInput,
 } from "@/validations/shopSchema";
 
-const buildJsonData = (data: CreateShopInput | UpdateShopInput) => {
+const buildJsonData = (
+  data: CreateShopInput | UpdateShopInput | Partial<UpdateShopInput>,
+) => {
   const result: Record<string, unknown> = {};
 
   Object.entries(data).forEach(([key, value]) => {
@@ -22,76 +26,78 @@ export const createShop = async (
   logo?: File | null,
   background?: File | null,
 ) => {
-  const { data: res } = await axiosClient.post(
+  const { data: response } = await axiosClient.post<ApiSuccessResponse<Shop>>(
     "/api/shops",
     buildJsonData(data),
   );
-  if (logo) await uploadShopLogo(res.data.slug, logo);
-  if (background) await uploadShopBanner(res.data.slug, background);
-  return res;
+  if (logo) await uploadShopLogo(response.data.slug, logo);
+  if (background) await uploadShopBanner(response.data.slug, background);
+  return response.data;
 };
 
 export const updateShop = async (
   shopSlug: string,
-  data: UpdateShopInput,
+  data: Partial<UpdateShopInput>,
   logo?: File | null,
   background?: File | null,
 ) => {
-  const { data: res } = await axiosClient.patch(
+  const { data: response } = await axiosClient.patch<ApiSuccessResponse<Shop>>(
     `/api/shops/${shopSlug}`,
     buildJsonData(data),
   );
   if (logo) await uploadShopLogo(shopSlug, logo);
   if (background) await uploadShopBanner(shopSlug, background);
-  return res;
+  return response.data;
 };
 
 export const uploadShopLogo = async (shopSlug: string, file: File) => {
   const formData = new FormData();
   formData.append("logo", file);
-  const { data: res } = await axiosClient.patch(
+  const { data: response } = await axiosClient.patch<ApiSuccessResponse<Shop>>(
     `/api/shops/${shopSlug}/logo`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-  return res;
+  return response.data;
 };
 
 export const uploadShopBanner = async (shopSlug: string, file: File) => {
   const formData = new FormData();
   formData.append("banner", file);
-  const { data: res } = await axiosClient.patch(
+  const { data: response } = await axiosClient.patch<ApiSuccessResponse<Shop>>(
     `/api/shops/${shopSlug}/banner`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-  return res;
+  return response.data;
 };
 
 export const getShops = async () => {
-  const { data: res } = await axiosClient.get("/api/shops");
-  return res.data;
+  const { data: response } =
+    await axiosClient.get<ApiSuccessResponse<Shop[]>>("/api/shops");
+  return response.data;
 };
 
 export const getShopDetail = async (shopSlug: string) => {
-  const { data: res } = await axiosClient.get(`/api/shops/${shopSlug}`);
-  return res.data;
+  const { data: response } = await axiosClient.get<ApiSuccessResponse<Shop>>(
+    `/api/shops/${shopSlug}`,
+  );
+  return response.data;
 };
 
 export const getBusinessHours = async (shopSlug: string) => {
-  const { data: res } = await axiosClient.get(
-    `/api/shops/${shopSlug}/business-hours`,
-  );
-  return res.data;
+  const { data: response } = await axiosClient.get<
+    ApiSuccessResponse<BusinessHoursInput>
+  >(`/api/shops/${shopSlug}/business-hours`);
+  return response.data;
 };
 
 export const updateBusinessHours = async (
   shopSlug: string,
   data: BusinessHoursInput,
 ) => {
-  const { data: res } = await axiosClient.patch(
-    `/api/shops/${shopSlug}/business-hours`,
-    data,
-  );
-  return res.data;
+  const { data: response } = await axiosClient.patch<
+    ApiSuccessResponse<BusinessHoursInput>
+  >(`/api/shops/${shopSlug}/business-hours`, data);
+  return response.data;
 };

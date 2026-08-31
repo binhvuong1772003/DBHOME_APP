@@ -1,26 +1,42 @@
-import { useState } from "react";
 import { CalendarCheck, Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AvailabilitySheet } from "@/features/shop/workspace/components/AvailabilitySheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { WorkspaceHeader } from "@/features/shop/workspace/components/WorkspaceHeader";
-import { initialWorkWeek } from "@/features/shop/workspace/mock/staff.mock";
+import { ScheduleErrorState } from "@/features/shop/workspace/components/WorkspaceStates";
+import { useWorkSchedule } from "@/features/shop/workspace/hooks/useWorkSchedule";
 import { useTranslation } from "react-i18next";
+
+function getScheduledMinutes(startTime: string, endTime: string): number {
+  const [startHour = 0, startMinute = 0] = startTime.split(":").map(Number);
+  const [endHour = 0, endMinute = 0] = endTime.split(":").map(Number);
+  return Math.max(0, endHour * 60 + endMinute - (startHour * 60 + startMinute));
+}
 
 export function WorkSchedulePage() {
   const { t, i18n } = useTranslation(["workspace", "common"]);
-  const [days, setDays] = useState(initialWorkWeek);
+  const { days, isLoading, error, refetch } = useWorkSchedule();
   const scheduledDays = days.filter((day) => day.available).length;
   const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
+  const scheduledHours = days.reduce(
+    (total, day) =>
+      total + (day.available ? getScheduledMinutes(day.startTime, day.endTime) : 0),
+    0,
+  ) / 60;
+  const formattedHours = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 1,
+  }).format(scheduledHours);
 
   return (
     <div className="min-h-dvh">
       <WorkspaceHeader
         title={t("workSchedule.pageTitle")}
         description={t("workSchedule.pageDescription")}
-        actions={<AvailabilitySheet days={days} onSave={setDays} />}
       />
       <div className="mx-auto max-w-5xl space-y-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+        {error ? (
+          <ScheduleErrorState onRetry={() => void refetch()} />
+        ) : (
         <Card className="gap-4 py-5 shadow-xs">
           <CardHeader className="px-5 sm:px-6">
             <div className="flex items-start gap-3">
@@ -29,12 +45,20 @@ export function WorkSchedulePage() {
               </span>
               <div>
                 <CardTitle>{t("workSchedule.thisWeek")}</CardTitle>
-                <CardDescription className="mt-1">{t("workSchedule.weekSummary", { days: scheduledDays, hours: 36 })}</CardDescription>
+                <CardDescription className="mt-1">{t("workSchedule.weekSummary", { days: scheduledDays, hours: formattedHours })}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="grid gap-3 px-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 xl:grid-cols-7">
-            {days.map((day) => (
+            {isLoading
+              ? Array.from({ length: 7 }, (_, index) => (
+                <div key={index} className="space-y-3 rounded-xl border p-4">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-3 w-14" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+              ))
+              : days.map((day) => (
               <div key={day.id} className={`rounded-xl border p-4 ${day.available ? "bg-card" : "bg-muted/40"}`}>
                 <div className="flex items-start justify-between gap-2 lg:block">
                   <div>
@@ -55,6 +79,7 @@ export function WorkSchedulePage() {
             ))}
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   );

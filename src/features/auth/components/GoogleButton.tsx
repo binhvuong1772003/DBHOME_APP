@@ -1,6 +1,8 @@
+import { env } from "@/config/env";
+
 export const GoogleButton = () => {
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/auth/google';
+    window.location.href = `${env.apiUrl}/auth/google`;
   };
 
   return (

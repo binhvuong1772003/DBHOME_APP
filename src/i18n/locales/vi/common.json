@@ -10,6 +10,11 @@
     "update": "Cập nhật",
     "logout": "Đăng xuất"
   },
+  "access": {
+    "loadingShop": "Đang kiểm tra quyền truy cập cửa hàng",
+    "errorTitle": "Không thể xác minh quyền truy cập cửa hàng.",
+    "errorDescription": "Hãy kiểm tra kết nối rồi thử lại."
+  },
   "labels": {
     "status": "Trạng thái",
     "date": "Ngày",

@@ -35,5 +35,6 @@ export const useWeeklyIncomeByDay = () => {
     weekRange,
     today,
     date,
+    setDate,
   };
 };

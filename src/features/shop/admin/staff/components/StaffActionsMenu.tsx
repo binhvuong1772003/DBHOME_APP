@@ -24,6 +24,7 @@ interface StaffActionsMenuProps {
   canEdit: boolean;
   canDeactivate: boolean;
   onView: (staff: Staff) => void;
+  onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
@@ -33,6 +34,7 @@ export function StaffActionsMenu({
   canEdit,
   canDeactivate,
   onView,
+  onViewSchedule,
   onEdit,
   onDeactivate,
 }: StaffActionsMenuProps) {
@@ -63,7 +65,7 @@ export function StaffActionsMenu({
             {t("actions.edit")}
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={() => onView(staff)}>
+        <DropdownMenuItem onSelect={() => onViewSchedule(staff)}>
           <CalendarDays aria-hidden="true" />
           {t("actions.viewSchedule")}
         </DropdownMenuItem>

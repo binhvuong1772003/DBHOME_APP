@@ -2,35 +2,10 @@ import { useStaffList } from "@/features/shop/admin/appointment/hooks/useStaffLi
 import { useTimeSlot } from "@/features/shop/admin/appointment/hooks/useTimeSlot";
 import { useGetAppointment } from "@/features/shop/admin/appointment/hooks/useGetAppointment";
 import { statusColors } from "@/constants/statusColor";
-const TIME_SLOTS = [
-  "8:00 AM",
-  "9:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "1:00 PM",
-  "2:00 PM",
-  "3:00 PM",
-  "4:00 PM",
-  "5:00 PM",
-];
-
 export function Scheduler() {
-  const {
-    staff,
-    isLoading: staffLoading,
-    apiError: staffError,
-  } = useStaffList();
-  const { timeSlots, isLoading: timeSlotLoading } = useTimeSlot();
-  const {
-    appointments,
-    preAppointments,
-    error,
-    isLoading,
-    date,
-    setDate,
-    refetch: fetchAppointments,
-  } = useGetAppointment();
+  const { staff } = useStaffList();
+  const { timeSlots } = useTimeSlot();
+  const { appointments } = useGetAppointment();
   console.log(appointments);
   console.log(staff);
   return (
@@ -41,7 +16,7 @@ export function Scheduler() {
       >
         {/* header row */}
         <div className="sticky top-0 z-[3] bg-card border-b border-[#e2d9c7] border-r border-[#e2d9c7] p-2.5 px-3 flex items-center gap-2" />
-        {staff.map((member, index) => (
+        {staff.map((member) => (
           <div
             key={member.id}
             className="sticky top-0 z-[2] bg-card border-b border-[#e2d9c7] border-r border-[#e2d9c7] p-2.5 px-3 flex items-center gap-2"
@@ -111,7 +86,7 @@ export function Scheduler() {
                     </span>
                     <span className="whitespace-nowrap overflow-hidden text-ellipsis mt-0.5 opacity-90">
                       {appointment.services
-                        .map((service: any) => service.serviceName)
+                        .map((service) => service.serviceName)
                         .join(", ")}
                     </span>
                     {appointment.customer.phone && (

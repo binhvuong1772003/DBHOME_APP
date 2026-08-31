@@ -19,16 +19,14 @@ export const useAppointments = (externalDate?: string) => {
   const fetchAppointmentsSchedule = useCallback(async () => {
     if (!shopSlug || !externalDate) return;
     return run(async () => {
-      const data = (await getAppointmentByDateWithSlot(shopSlug, {
-        date: externalDate || "",
-      })) as AppointmentScheduleResponse;
+      const data: AppointmentScheduleResponse =
+        await getAppointmentByDateWithSlot(shopSlug, { date: externalDate });
       setAppointments(data.appointments ?? []);
       setSchedule(data.schedule ?? emptySchedule);
     });
   }, [shopSlug, externalDate, run]);
   useEffect(() => {
-    if (!shopSlug) return;
-    fetchAppointmentsSchedule();
+    void fetchAppointmentsSchedule();
   }, [fetchAppointmentsSchedule]);
   return {
     appointments,
@@ -37,5 +35,6 @@ export const useAppointments = (externalDate?: string) => {
     setSchedule,
     isLoading,
     error,
+    refetch: fetchAppointmentsSchedule,
   };
 };

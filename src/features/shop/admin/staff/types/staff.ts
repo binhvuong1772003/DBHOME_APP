@@ -30,9 +30,41 @@ export interface StaffListResponse {
 export type StaffViewMode = "LIST" | "GRID";
 
 export interface StaffSchedule {
+  id?: string;
+  shopStaffId?: string;
+  dayOfWeek?: number;
   startTime: string;
   endTime: string;
+  isOff?: boolean;
   shift?: string;
+}
+
+export interface StaffScheduleDay {
+  id: string;
+  shopStaffId: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isOff: boolean;
+}
+
+export interface StaffScheduleOffDay {
+  id: string;
+  shopStaffId: string;
+  offDate: string;
+  offDateEnd?: string | null;
+  reason?: string | null;
+  rejectReason?: string | null;
+  approvedBy?: string | null;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+}
+
+export interface StaffScheduleResponse {
+  shopId: string;
+  staffId: string;
+  schedule: StaffScheduleDay[];
+  offDays: StaffScheduleOffDay[];
 }
 
 export interface StaffUser {
@@ -60,7 +92,7 @@ export interface Staff {
   createdAt: string;
   updatedAt: string;
   user?: StaffUser;
-  schedule?: StaffSchedule;
+  schedule?: StaffSchedule | null;
   isOnLeave?: boolean;
   appointmentsToday?: number;
   revenueToday?: number;
@@ -94,5 +126,6 @@ export type StaffDialogMode =
   | "CREATE"
   | "EDIT"
   | "DETAIL"
+  | "SCHEDULE"
   | "DEACTIVATE"
   | null;

@@ -26,6 +26,7 @@ export const useScheduleAppointment = () => {
     setSchedule,
     isLoading,
     error,
+    refetch: refetchAppointments,
   } = useAppointments(selectedDate);
   const { changeAppointmentStatus, isLoading: isChangingStatus } =
     useChangeAppointmentStatus();
@@ -87,5 +88,6 @@ export const useScheduleAppointment = () => {
     currentMonth,
     handleStatusChange,
     isChangingStatus,
+    refetchAppointments,
   };
 };

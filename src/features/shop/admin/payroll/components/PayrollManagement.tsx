@@ -1,0 +1,61 @@
+import { useEffect, useMemo, useState } from "react";
+import { CalendarRange, ChevronRight, Plus, ReceiptText, Settings2 } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getStaffs } from "../../staff/services/staffService";
+import { getStaffName } from "../../staff/constants/staff";
+import type { Staff } from "../../staff/types/staff";
+import { generatePayrolls } from "../services/payrollService";
+import type { Payroll, PayrollFilters, PayrollStatus } from "../types/payroll";
+import { getApiError, payrollStatusClass } from "../utils/payroll";
+import { usePayrolls } from "../hooks/usePayrolls";
+import { useShopMembership } from "@/features/shop/membership/hooks/useShopMembership";
+import { SalaryConfigSheet } from "./SalaryConfigSheet";
+
+const emptyDraft: PayrollFilters = {};
+const money = (value: number, locale: string) => new Intl.NumberFormat(locale, { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(value);
+
+export default function PayrollManagement() {
+  const { t, i18n } = useTranslation(["payroll", "common"]); const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
+  const { shopSlug = "" } = useParams<{ shopSlug: string }>(); const navigate = useNavigate();
+  const { membership } = useShopMembership(); const isOwner = membership?.role === "OWNER";
+  const [filters, setFilters] = useState<PayrollFilters>(emptyDraft); const [draft, setDraft] = useState<PayrollFilters>(emptyDraft);
+  const [staff, setStaff] = useState<Staff[]>([]); const [open, setOpen] = useState(false); const [generating, setGenerating] = useState(false);
+  const [periodStart, setPeriodStart] = useState(""); const [periodEnd, setPeriodEnd] = useState(""); const [generateStaff, setGenerateStaff] = useState("ALL");
+  const [periodError, setPeriodError] = useState("");
+  const [salaryOpen, setSalaryOpen] = useState(false);
+  const { items, isLoading, error, refetch } = usePayrolls(filters);
+  useEffect(() => { if (!shopSlug) return; getStaffs(shopSlug, { page: 1, limit: 100, status: "ACTIVE" }).then((r) => setStaff(r.data)).catch(() => setStaff([])); }, [shopSlug]);
+  const summary = useMemo(() => ({ records: items.length, draft: items.filter((p) => p.status === "DRAFT").length, confirmed: items.filter((p) => p.status === "CONFIRMED").length, paid: items.filter((p) => p.status === "PAID").length, net: items.reduce((sum, p) => sum + p.netAmount, 0) }), [items]);
+  const openDetail = (item: Payroll) => navigate(`/shops/${shopSlug}/admin/payroll/${item.id}`);
+  const submitGenerate = async () => { if (!periodStart || !periodEnd || periodStart > periodEnd) { setPeriodError(t("invalidPeriod")); return; } setPeriodError(""); setGenerating(true); try { const result = await generatePayrolls(shopSlug, { periodStart, periodEnd, staffIds: generateStaff === "ALL" ? undefined : [generateStaff] }); toast.success(t("generated", { count: result.created.length })); if (result.skipped.length) toast.warning(t("skipped", { count: result.skipped.length }), { description: result.skipped.map((x) => x.reason).join(" · ") }); setOpen(false); await refetch(); } catch (e) { toast.error(t("errors.action"), { description: getApiError(e) }); } finally { setGenerating(false); } };
+  const period = (p: Payroll) => `${new Date(p.periodStart).toLocaleDateString(locale)} – ${new Date(p.periodEnd).toLocaleDateString(locale)}`;
+  return <main className="min-h-full bg-background text-foreground"><div className="mx-auto w-full max-w-[1500px] space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{t("nav")}</p><h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{t("title")}</h1><p className="mt-1.5 text-sm text-muted-foreground">{t("description")}</p></div><div className="flex flex-col gap-2 sm:flex-row">{isOwner && <Button variant="outline" className="min-h-11" onClick={() => setSalaryOpen(true)}><Settings2 aria-hidden="true" />{t("config.action")}</Button>}<Button className="min-h-11" onClick={() => setOpen(true)}><Plus aria-hidden="true" />{t("generate")}</Button></div></header>
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" aria-label={t("title")}>{(["records", "draft", "confirmed", "paid", "net"] as const).map((key) => <Card key={key} className="gap-0 py-0 shadow-xs"><CardContent className="p-4"><p className="text-xs font-medium text-muted-foreground">{t(`summary.${key}`)}</p><p className="mt-2 text-xl font-bold tabular-nums">{key === "net" ? money(summary[key], locale) : summary[key]}</p></CardContent></Card>)}</section>
+    <form className="grid gap-3 rounded-xl border bg-card p-3 shadow-xs sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1fr_auto] xl:items-end" onSubmit={(e) => { e.preventDefault(); setFilters(draft); }}>
+      <div className="space-y-1.5"><Label htmlFor="payroll-start">{t("periodStart")}</Label><Input id="payroll-start" type="date" value={draft.periodStart ?? ""} onChange={(e) => setDraft((v) => ({ ...v, periodStart: e.target.value || undefined }))} /></div>
+      <div className="space-y-1.5"><Label htmlFor="payroll-end">{t("periodEnd")}</Label><Input id="payroll-end" type="date" value={draft.periodEnd ?? ""} onChange={(e) => setDraft((v) => ({ ...v, periodEnd: e.target.value || undefined }))} /></div>
+      <div className="space-y-1.5"><Label>{t("statusFilter")}</Label><Select value={draft.status ?? "ALL"} onValueChange={(v) => setDraft((x) => ({ ...x, status: v === "ALL" ? undefined : v as PayrollStatus }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allStatuses")}</SelectItem>{(["DRAFT", "CONFIRMED", "PAID"] as const).map((v) => <SelectItem key={v} value={v}>{t(`statuses.${v.toLowerCase()}`)}</SelectItem>)}</SelectContent></Select></div>
+      <div className="space-y-1.5"><Label>{t("staff")}</Label><Select value={draft.staffId ?? "ALL"} onValueChange={(v) => setDraft((x) => ({ ...x, staffId: v === "ALL" ? undefined : v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allStaff")}</SelectItem>{staff.map((s) => <SelectItem key={s.id} value={s.id}>{getStaffName(s)}</SelectItem>)}</SelectContent></Select></div>
+      <div className="flex gap-2"><Button type="submit" className="flex-1">{t("applyFilters")}</Button><Button type="button" variant="ghost" onClick={() => { setDraft({}); setFilters({}); }}>{t("clearFilters")}</Button></div>
+    </form>
+    {isLoading && <Card className="py-0"><CardContent className="space-y-1 p-1">{Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-20" />)}</CardContent></Card>}
+    {!isLoading && error && <Card><CardContent className="flex min-h-52 flex-col items-center justify-center text-center"><p className="font-semibold">{t("loadError")}</p><p className="mt-2 text-sm text-muted-foreground" role="alert">{error}</p><Button variant="outline" className="mt-4" onClick={() => void refetch()}>{t("common:actions.tryAgain")}</Button></CardContent></Card>}
+    {!isLoading && !error && items.length === 0 && <Card><CardContent className="flex min-h-64 flex-col items-center justify-center text-center"><ReceiptText className="size-10 text-muted-foreground" aria-hidden="true" /><h2 className="mt-4 font-semibold">{t("emptyTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("emptyDescription")}</p></CardContent></Card>}
+    {!isLoading && !error && items.length > 0 && <><div className="hidden overflow-hidden rounded-xl border bg-card shadow-xs lg:block"><table className="w-full text-left"><thead className="border-b bg-muted/35"><tr>{(["employee","period","status","gross","deductions","net","actions"] as const).map((c) => <th key={c} className="px-4 py-3 text-xs font-semibold text-muted-foreground">{t(`columns.${c}`)}</th>)}</tr></thead><tbody className="divide-y">{items.map((p) => <tr key={p.id} className="hover:bg-muted/25"><td className="px-4 py-4"><p className="font-semibold">{p.user?.name ?? p.user?.email ?? p.userId}</p><p className="text-xs text-muted-foreground">{p.user?.email}</p></td><td className="px-4 py-4 text-sm tabular-nums">{period(p)}</td><td className="px-4 py-4"><Badge className={payrollStatusClass(p.status)}>{t(`statuses.${p.status.toLowerCase()}`)}</Badge></td><td className="px-4 py-4 text-sm tabular-nums">{money(p.grossAmount, locale)}</td><td className="px-4 py-4 text-sm tabular-nums">{money(p.penaltyTotal + p.otherDeductions, locale)}</td><td className="px-4 py-4 font-semibold tabular-nums">{money(p.netAmount, locale)}</td><td className="px-4 py-4 text-right"><Button variant="ghost" size="sm" onClick={() => openDetail(p)}>{t("viewDetails")}<ChevronRight aria-hidden="true" /></Button></td></tr>)}</tbody></table></div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:hidden">{items.map((p) => <Card key={p.id} className="gap-0 py-0 shadow-xs"><CardContent className="p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate font-semibold">{p.user?.name ?? p.user?.email ?? p.userId}</p><p className="mt-1 text-xs tabular-nums text-muted-foreground">{period(p)}</p></div><Badge className={payrollStatusClass(p.status)}>{t(`statuses.${p.status.toLowerCase()}`)}</Badge></div><div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-muted/35 p-3"><div><p className="text-xs text-muted-foreground">{t("columns.gross")}</p><p className="mt-1 text-sm tabular-nums">{money(p.grossAmount, locale)}</p></div><div><p className="text-xs text-muted-foreground">{t("columns.net")}</p><p className="mt-1 font-semibold tabular-nums">{money(p.netAmount, locale)}</p></div></div><Button variant="outline" className="mt-4 min-h-11 w-full" onClick={() => openDetail(p)}>{t("viewDetails")}<ChevronRight aria-hidden="true" /></Button></CardContent></Card>)}</div></>}
+  </div>
+  <Sheet open={open} onOpenChange={setOpen}><SheetContent className="w-full overflow-y-auto sm:max-w-md"><SheetHeader><SheetTitle>{t("generateTitle")}</SheetTitle><SheetDescription>{t("generateDescription")}</SheetDescription></SheetHeader><div className="space-y-4 px-4"><div className="space-y-1.5"><Label htmlFor="generate-start">{t("periodStart")}</Label><Input id="generate-start" type="date" value={periodStart} aria-describedby={periodError ? "generate-period-error" : undefined} onChange={(e) => { setPeriodStart(e.target.value); setPeriodError(""); }} /></div><div className="space-y-1.5"><Label htmlFor="generate-end">{t("periodEnd")}</Label><Input id="generate-end" type="date" value={periodEnd} aria-describedby={periodError ? "generate-period-error" : undefined} onChange={(e) => { setPeriodEnd(e.target.value); setPeriodError(""); }} /></div>{periodError && <p id="generate-period-error" role="alert" className="text-sm text-destructive">{periodError}</p>}<div className="space-y-1.5"><Label>{t("staff")}</Label><Select value={generateStaff} onValueChange={setGenerateStaff}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allStaff")}</SelectItem>{staff.map((s) => <SelectItem key={s.id} value={s.id}>{getStaffName(s)}</SelectItem>)}</SelectContent></Select></div></div><SheetFooter><Button variant="outline" onClick={() => setOpen(false)}>{t("common:actions.cancel")}</Button><Button disabled={generating} onClick={() => void submitGenerate()}><CalendarRange aria-hidden="true" />{generating ? t("generating") : t("generate")}</Button></SheetFooter></SheetContent></Sheet>
+  {isOwner && <SalaryConfigSheet open={salaryOpen} shopSlug={shopSlug} staff={staff} onOpenChange={setSalaryOpen} />}
+  </main>;
+}

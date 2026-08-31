@@ -231,7 +231,7 @@ export const useSetting = () => {
         tasks.push(
           uploadShopLogo(shopSlug, logo).then((res) => {
             newLogoUrl =
-              (res?.data?.logoUrl as string | null | undefined) ?? null;
+              res.logoUrl ?? null;
             logoUploaded = true;
             setLogoUrl(newLogoUrl);
           }),
@@ -242,7 +242,7 @@ export const useSetting = () => {
         tasks.push(
           uploadShopBanner(shopSlug, background).then((res) => {
             const uploadedCoverUrl =
-              (res?.data?.coverUrl as string | null | undefined) ?? null;
+              res.coverUrl ?? null;
             setCoverUrl(uploadedCoverUrl);
           }),
         );
@@ -265,7 +265,7 @@ export const useSetting = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         toast.error(
-          error.response?.data?.message || t("toast.updateError"),
+          error.response?.data?.error?.message || error.response?.data?.message || t("toast.updateError"),
         );
       } else {
         toast.error(t("toast.updateError"));

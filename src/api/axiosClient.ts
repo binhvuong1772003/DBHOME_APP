@@ -4,8 +4,8 @@ import type {
   InternalAxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-console.log("BASE_URL:", BASE_URL); // ← thêm dòng này
+import type { ApiSuccessResponse } from "./apiResponse";
+import { env } from "@/config/env";
 export const tokenService = {
   getAccess: () => localStorage.getItem("access_token") ?? "",
   setToken: (access: string) => {
@@ -16,7 +16,7 @@ export const tokenService = {
   },
 };
 const axiosClient: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: env.apiUrl,
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
@@ -68,14 +68,15 @@ axiosClient.interceptors.response.use(
       }
       isRefreshing = true;
       try {
-        const { data } = await axios.post(
-          `${BASE_URL}/auth/token/refresh`,
+        const { data: response } = await axios.post<ApiSuccessResponse<{ accessToken: string }>>(
+          `${env.apiUrl}/auth/token/refresh`,
           {},
           { withCredentials: true },
         );
-        tokenService.setToken(data.accessToken);
-        processQueue(null, data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        const { accessToken } = response.data;
+        tokenService.setToken(accessToken);
+        processQueue(null, accessToken);
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);

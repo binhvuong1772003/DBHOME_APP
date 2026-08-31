@@ -20,6 +20,7 @@ interface StaffCardProps {
   canEdit: boolean;
   canDeactivate: boolean;
   onView: (staff: Staff) => void;
+  onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
@@ -29,6 +30,7 @@ export function StaffCard({
   canEdit,
   canDeactivate,
   onView,
+  onViewSchedule,
   onEdit,
   onDeactivate,
 }: StaffCardProps) {
@@ -76,6 +78,7 @@ export function StaffCard({
               canEdit={canEdit}
               canDeactivate={canDeactivate}
               onView={onView}
+              onViewSchedule={onViewSchedule}
               onEdit={onEdit}
               onDeactivate={onDeactivate}
             />

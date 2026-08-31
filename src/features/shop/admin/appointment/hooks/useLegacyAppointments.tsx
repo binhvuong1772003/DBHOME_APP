@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { getAppointmentByDay } from "@/features/shop/admin/appointment/services/appointmentService";
+import { getAppointmentByDate } from "@/features/shop/admin/appointment/services/appointmentService";
+import type { Appointment } from "@/features/shop/admin/appointment/type/appointment";
 import { AxiosError } from "axios";
 import { useParams } from "react-router-dom";
 export const useAppointments = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { shopSlug } = useParams<{ shopSlug: string }>();
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Ho_Chi_Minh",
@@ -18,13 +19,15 @@ export const useAppointments = () => {
       setApiError(null);
 
       try {
-        const data = await getAppointmentByDay(shopSlug, { date: today });
+        const data = await getAppointmentByDate(shopSlug, { date: today });
         console.log("response:", data); // xem field thật tên gì
         setAppointments(data ?? []);
       } catch (error) {
         setApiError(
           error instanceof AxiosError
-            ? error.response?.data?.message || "Lấy dữ liệu thất bại"
+            ? error.response?.data?.error?.message ||
+                error.response?.data?.message ||
+                "Lấy dữ liệu thất bại"
             : "Đã xảy ra lỗi không xác định",
         );
       } finally {

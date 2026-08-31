@@ -19,7 +19,7 @@ export const useSignUp = () => {
       navigate('/email/verification/resend');
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        setApiError(error.response?.data?.message || 'Đăng ký thất bại');
+        setApiError(error.response?.data?.error?.message || error.response?.data?.message || 'Đăng ký thất bại');
       } else {
         setApiError('Có lỗi xảy ra');
       }

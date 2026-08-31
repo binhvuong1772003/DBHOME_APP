@@ -44,7 +44,7 @@ export default function StaffInviteAcceptPage() {
       .catch((requestError: any) => {
         accepted.current = false;
         setError(
-          requestError?.response?.data?.message ??
+          requestError?.response?.data?.error?.message ?? requestError?.response?.data?.message ??
             "Không thể xác thực lời mời. Link có thể đã hết hạn hoặc đã được sử dụng.",
         );
       });

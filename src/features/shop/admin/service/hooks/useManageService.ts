@@ -96,4 +96,21 @@ export const ManageServiceForm = () => {
 
     return sorted;
   }, [serviceList, activeTab, sortColumn, sortOrder]);
+
+  return {
+    navigate,
+    serviceList,
+    isLoading,
+    error,
+    activeTab,
+    setActiveTab,
+    handleSort,
+    handleStatusChange,
+    sortColumn,
+    sortOrder,
+    tabs,
+    sortedServiceList,
+    expandedServiceIds,
+    setExpandedServiceIds,
+  };
 };

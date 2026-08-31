@@ -48,7 +48,7 @@ export const useCreateService = () => {
       navigate(`/shops/${shopSlug}/services`);
     } catch (error) {
       if (error instanceof AxiosError) {
-        setApiError(error.response?.data?.message || "Tạo dịch vụ thất bại");
+        setApiError(error.response?.data?.error?.message || error.response?.data?.message || "Tạo dịch vụ thất bại");
       } else {
         setApiError("Tạo dịch vụ thất bại");
       }

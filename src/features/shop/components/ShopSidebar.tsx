@@ -19,9 +19,18 @@ import {
   Settings,
   LogOut,
   Wallet,
+  CreditCard,
+  CalendarClock,
+  CalendarOff,
+  Store,
+  WalletCards,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useShops } from "@/features/shop/hooks/useShops";
 import {
   DropdownMenuContent,
@@ -34,6 +43,8 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ModeToggle } from "@/components/common/ModeToggle";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { NotificationBell } from "@/features/shop/components/NotificationBell";
+import { useTranslation } from "react-i18next";
+import { useShopMembership } from "@/features/shop/membership/hooks/useShopMembership";
 
 const items = [
   { title: "Dashboard", icon: LayoutDashboard, path: "" },
@@ -44,8 +55,19 @@ const items = [
 ];
 
 const financeItems = [
-  { title: "Thanh toán", icon: Wallet, path: "/payments" },
   { title: "Lương & Hoa hồng", icon: Wallet, path: "/wage" },
+];
+
+const workforceItems = [
+  { labelKey: "nav.schedule", icon: CalendarClock, path: "/staff-schedule" },
+  { labelKey: "nav.timeOff", icon: CalendarOff, path: "/time-off" },
+  { labelKey: "payroll:nav", icon: WalletCards, path: "/payroll" },
+  {
+    labelKey: "nav.financialReport",
+    icon: ChartNoAxesCombined,
+    path: "/financial-report",
+  },
+  { labelKey: "payments:nav", icon: CreditCard, path: "/payments" },
 ];
 
 // Nút menu: chữ xám mảnh khi thường, hồng đậm + nền hồng nhạt + thanh trái
@@ -63,6 +85,8 @@ const menuButtonClass =
 const iconClass = "text-foreground shrink-0";
 
 export const ShopSideBar = () => {
+  const { t } = useTranslation(["workforce", "payroll", "payments"]);
+  const { membership } = useShopMembership();
   const { shopSlug } = useParams<{ shopSlug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -102,8 +126,8 @@ export const ShopSideBar = () => {
                     className="w-full"
                     tooltip={currentShop?.name}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center text-base flex-shrink-0">
-                      💅
+                    <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center text-secondary flex-shrink-0">
+                      <Store className="size-4" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
                       <p className="text-sm font-medium truncate">
@@ -164,6 +188,41 @@ export const ShopSideBar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {membership?.role !== "STAFF" && (
+            <>
+              <SidebarSeparator className="my-3.5 mx-1" />
+              <SidebarGroup>
+                <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground group-data-[collapsible=icon]:hidden">
+                  {t("nav.group")}
+                </p>
+                <SidebarGroupContent>
+                  <SidebarMenu className="gap-0.5">
+                    {workforceItems.map((item) => {
+                      const fullPath = `/shops/${shopSlug}/admin${item.path}`;
+                      const isActive = location.pathname === fullPath;
+                      return (
+                        <SidebarMenuItem key={item.labelKey}>
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            tooltip={t(item.labelKey)}
+                            className={menuButtonClass}
+                            onClick={() => navigate(fullPath)}
+                          >
+                            <item.icon
+                              strokeWidth={2.25}
+                              className={iconClass}
+                            />
+                            <span className="truncate">{t(item.labelKey)}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </>
+          )}
 
           <SidebarSeparator className="my-3.5 mx-1" />
 

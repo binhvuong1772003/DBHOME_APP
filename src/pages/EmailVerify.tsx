@@ -5,6 +5,7 @@ import axiosClient, { tokenService } from "@/api/axiosClient";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import type { User } from "@/type/auth";
+import type { ApiSuccessResponse } from "@/api/apiResponse";
 export default function EmailVerifyPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -19,14 +20,13 @@ export default function EmailVerifyPage() {
     let cancelled = false;
     const verify = async () => {
       try {
-        const { data } = await axiosClient.post<{
-          success: boolean;
+        const { data: response } = await axiosClient.post<ApiSuccessResponse<{
           accessToken: string;
           user: User;
-        }>(`/auth/email/verify?token=${token}`);
+        }>>(`/auth/email/verify?token=${token}`);
 
-        tokenService.setToken(data.accessToken);
-        setUser(data.user);
+        tokenService.setToken(response.data.accessToken);
+        setUser(response.data.user);
 
         if (!cancelled) {
           setStatus("success");

@@ -18,6 +18,7 @@ interface StaffTableRowProps {
   canEdit: boolean;
   canDeactivate: boolean;
   onView: (staff: Staff) => void;
+  onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
@@ -27,6 +28,7 @@ export function StaffTableRow({
   canEdit,
   canDeactivate,
   onView,
+  onViewSchedule,
   onEdit,
   onDeactivate,
 }: StaffTableRowProps) {
@@ -138,6 +140,7 @@ export function StaffTableRow({
           canEdit={canEdit}
           canDeactivate={canDeactivate}
           onView={onView}
+          onViewSchedule={onViewSchedule}
           onEdit={onEdit}
           onDeactivate={onDeactivate}
         />

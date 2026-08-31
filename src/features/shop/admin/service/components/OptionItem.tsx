@@ -13,11 +13,9 @@ import type { CreateServiceInput } from "@/validations/serviceSchema";
 export function OptionItem({
   control,
   index,
-  onRemove,
 }: {
   control: Control<CreateServiceInput>;
   index: number;
-  onRemove: () => void;
 }) {
   const {
     fields: valueFields,
@@ -117,7 +115,7 @@ export function OptionItem({
               variant="ghost"
               size="sm"
               onClick={() => removeValue(valueIndex)}
-              className="flex-shrink-0"
+              className="shrink-0"
             >
               Xóa
             </Button>

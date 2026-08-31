@@ -26,7 +26,7 @@ export const useSignIn = () => {
       navigate(pendingInvite || (staffShop ? `/shops/${staffShop.slug}/workspace` : '/'));
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        setApiError(error.response?.data?.message || 'Đăng ký thất bại');
+        setApiError(error.response?.data?.error?.message || error.response?.data?.message || 'Đăng nhập thất bại');
       } else {
         setApiError('Có lỗi xảy ra');
       }

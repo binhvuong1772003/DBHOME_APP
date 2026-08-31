@@ -21,6 +21,34 @@ export interface WorkDay {
   endTime: string;
 }
 
+export interface StaffScheduleItem {
+  id: string;
+  shopStaffId: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isOff: boolean;
+}
+
+export interface StaffScheduleOffDay {
+  id: string;
+  shopStaffId: string;
+  offDate: string;
+  offDateEnd?: string | null;
+  reason?: string | null;
+  rejectReason?: string | null;
+  approvedBy?: string | null;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+}
+
+export interface StaffWorkScheduleResponse {
+  shopId: string;
+  staffId: string;
+  schedule: StaffScheduleItem[];
+  offDays: StaffScheduleOffDay[];
+}
+
 export interface AttendanceRecord {
   id: string;
   date: string;
@@ -33,11 +61,14 @@ export interface AttendanceRecord {
 
 export interface TimeOffRequest {
   id: string;
-  from: string;
-  to?: string;
-  reasonKey: string;
-  note?: string;
-  status: "Pending" | "Approved" | "Rejected";
+  shopStaffId: string;
+  offDate: string;
+  offDateEnd?: string | null;
+  reason?: string | null;
+  rejectReason?: string | null;
+  approvedBy?: string | null;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
 }
 
 export interface StaffProfile {

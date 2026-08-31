@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import axiosClient, { tokenService } from '@/api/axiosClient';
 import { Loader2 } from 'lucide-react';
+import type { ApiSuccessResponse } from '@/api/apiResponse';
+import type { User } from '@/type/auth';
 
 export default function GoogleCallBackPage() {
   const navigate = useNavigate();
@@ -42,13 +44,13 @@ export default function GoogleCallBackPage() {
     window.history.replaceState({}, '', '/auth/google/callback'); // xóa token khỏi URL
 
     axiosClient
-      .get('/auth/me')
-      .then(({ data }) => {
-        setUser(data.data);
+      .get<ApiSuccessResponse<User>>('/auth/me')
+      .then(({ data: response }) => {
+        setUser(response.data);
         navigate('/');
       })
       .catch(() => navigate('/auth'));
-  }, []);
+  }, [navigate, setUser]);
   return (
     <div className="flex min-h-screen items-center justify-center flex-col gap-4">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
