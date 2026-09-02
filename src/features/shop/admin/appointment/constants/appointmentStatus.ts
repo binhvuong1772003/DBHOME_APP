@@ -2,9 +2,31 @@ export type AppointmentStatus =
   | "PENDING"
   | "CONFIRMED"
   | "IN_PROGRESS"
-  | "DONE"
+  | "COMPLETED"
   | "CANCELLED"
   | "NO_SHOW";
+
+export type AppointmentTransitionStatus = Exclude<AppointmentStatus, "PENDING">;
+
+export interface AppointmentStatusUpdate {
+  status: AppointmentTransitionStatus;
+  staffId?: string;
+  cancelReason?: string;
+  reason?: string;
+  internalNote?: string;
+}
+
+export const appointmentTransitions: Record<
+  AppointmentStatus,
+  AppointmentTransitionStatus[]
+> = {
+  PENDING: ["CONFIRMED", "CANCELLED"],
+  CONFIRMED: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  IN_PROGRESS: ["COMPLETED"],
+  COMPLETED: [],
+  CANCELLED: [],
+  NO_SHOW: [],
+};
 
 export interface AppointmentStatusConfig {
   labelKey: string;
@@ -35,8 +57,8 @@ export const appointmentStatusConfig: Record<
     badgeClassName: "bg-secondary/20 text-secondary",
     timeClassName: "text-secondary",
   },
-  DONE: {
-    labelKey: "status.done",
+  COMPLETED: {
+    labelKey: "status.completed",
     cardClassName: "border-chart-4/25 bg-chart-4/10 text-foreground",
     badgeClassName: "bg-chart-4/15 text-chart-4",
     timeClassName: "text-chart-4",

@@ -23,7 +23,11 @@ export function WorkspacePage() {
   const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
   const { appointments, schedule, isLoading, error } = useStaffSchedule(selectedDate);
   const nextAppointment = useMemo(
-    () => appointments.find((item) => !["DONE", "CANCELLED", "NO_SHOW"].includes(item.status)),
+    () =>
+      appointments.find(
+        (item) =>
+          !["COMPLETED", "CANCELLED", "NO_SHOW"].includes(item.status),
+      ),
     [appointments],
   );
   const firstName = user?.name?.split(" ")[0] ?? t("overview.greeting.fallbackName");

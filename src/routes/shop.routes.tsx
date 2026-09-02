@@ -1,4 +1,4 @@
-import { Outlet, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
 import CreateShopPage from "@/pages/shops/CreateShopPage";
 import UpdateShopPage from "@/pages/shops/UpdateShopPage";
 import DashboardPage from "@/pages/shops/DashBoardPage";
@@ -31,6 +31,7 @@ import PayrollDetailPage from "@/pages/shops/admin/payroll/PayrollDetailPage";
 import FinancialReportPage from "@/features/shop/admin/financial-report/pages/FinancialReportPage";
 import StaffDetailPage from "@/pages/shops/admin/staff/StaffDetailPage";
 import PaymentsPage from "@/pages/shops/admin/payments/PaymentsPage";
+import { AiAssistantScope } from "@/features/ai-assistant/components/AiAssistantScope";
 export const shopRoutes = () => [
   <Route key="create-shop" path="/shops/create" element={<CreateShopPage />} />,
   <Route
@@ -38,7 +39,7 @@ export const shopRoutes = () => [
     path="/shops/:shopSlug"
     element={
       <ShopMembershipProvider>
-        <Outlet />
+        <AiAssistantScope />
       </ShopMembershipProvider>
     }
   >

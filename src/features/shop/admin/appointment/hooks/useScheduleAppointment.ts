@@ -3,6 +3,7 @@ import { useAppointments } from "./useAppointments";
 import type { Appointment } from "../type/appointment";
 import { useMiniCalendar } from "./useMiniCalendar";
 import { useChangeAppointmentStatus } from "../hooks/useChangeAppointmentStatus";
+import type { AppointmentStatusUpdate } from "../constants/appointmentStatus";
 
 export const useScheduleAppointment = () => {
   const [selectedAppointment, setSelectedAppointment] =
@@ -31,26 +32,27 @@ export const useScheduleAppointment = () => {
   const { changeAppointmentStatus, isLoading: isChangingStatus } =
     useChangeAppointmentStatus();
   const handleStatusChange = async (
-    status: "CONFIRMED" | "CANCELLED" | "IN_PROGRESS" | "DONE" | "NO_SHOW",
+    input: AppointmentStatusUpdate,
   ) => {
-    if (!selectedAppointment) return;
+    if (!selectedAppointment) return false;
 
     try {
-      await changeAppointmentStatus(selectedAppointment.id, status);
+      await changeAppointmentStatus(selectedAppointment.id, input);
 
       setAppointments((current) =>
         current.map((appointment) =>
           appointment.id === selectedAppointment.id
-            ? { ...appointment, status }
+            ? { ...appointment, status: input.status }
             : appointment,
         ),
       );
 
       setSelectedAppointment((current) =>
-        current ? { ...current, status } : current,
+        current ? { ...current, status: input.status } : current,
       );
+      return true;
     } catch {
-      return;
+      return false;
     }
   };
   const openHour = Number(schedule.openTime.split(":")[0]);
@@ -61,7 +63,7 @@ export const useScheduleAppointment = () => {
   );
   const workHour = closeHour - openHour;
   const completedAppointments = appointments.filter(
-    (appointment) => appointment.status === "CONFIRMED",
+    (appointment) => appointment.status === "COMPLETED",
   );
   const handleAppointmentClick = (appointment: Appointment) => {
     setSelectedAppointment(appointment);

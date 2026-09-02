@@ -3,15 +3,22 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { changeStatus } from "@/features/shop/admin/appointment/services/appointmentService";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
+import {
+  appointmentStatusConfig,
+  type AppointmentStatusUpdate,
+} from "../constants/appointmentStatus";
 
 export const useChangeAppointmentStatus = () => {
   const { shopSlug } = useParams<{ shopSlug: string }>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation("appointment");
 
   const changeAppointmentStatus = async (
     appointmentId: string,
-    status: "CONFIRMED" | "CANCELLED" | "IN_PROGRESS" | "DONE" | "NO_SHOW",
+    input: AppointmentStatusUpdate,
   ) => {
     if (!shopSlug) {
       toast.error("Shop không tồn tại");
@@ -22,15 +29,18 @@ export const useChangeAppointmentStatus = () => {
     setError(null);
 
     try {
-      const result = await changeStatus(shopSlug, appointmentId, status);
-      toast.success(`Đã cập nhật trạng thái thành ${status}`);
+      const result = await changeStatus(shopSlug, appointmentId, input);
+      toast.success(
+        t("status.updated", {
+          status: t(appointmentStatusConfig[input.status].labelKey),
+        }),
+      );
       return result;
-    } catch (err: any) {
-      const errorMsg =
-        err?.response?.data?.error?.message || err?.response?.data?.message || "Không thể cập nhật trạng thái";
+    } catch (requestError: unknown) {
+      const errorMsg = getApiErrorMessage(requestError, t("status.updateError"));
       setError(errorMsg);
       toast.error(errorMsg);
-      throw err;
+      throw requestError;
     } finally {
       setIsLoading(false);
     }

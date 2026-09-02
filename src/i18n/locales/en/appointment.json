@@ -30,10 +30,22 @@
     "pending": "Pending",
     "confirmed": "Confirmed",
     "inProgress": "In progress",
-    "done": "Completed",
+    "completed": "Completed",
     "cancelled": "Cancelled",
     "noShow": "No show",
-    "change": "Change status: {{status}}"
+    "change": "Change status: {{status}}",
+    "updated": "Status updated to {{status}}.",
+    "updateError": "Unable to update appointment status."
+  },
+  "cancelDialog": {
+    "title": "Cancel appointment?",
+    "description": "This action changes the appointment to cancelled. Add a reason so the team has the correct context.",
+    "reason": "Cancellation reason",
+    "placeholder": "Enter the reason for cancelling this appointment",
+    "required": "A cancellation reason is required.",
+    "keep": "Keep appointment",
+    "confirm": "Cancel appointment",
+    "processing": "Cancelling..."
   },
   "details": {
     "close": "Close appointment details",

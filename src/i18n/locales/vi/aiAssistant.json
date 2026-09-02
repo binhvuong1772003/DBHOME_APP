@@ -1,0 +1,39 @@
+{
+  "title": "Trợ lý AI",
+  "description": "Hỏi về lịch hẹn, nhân viên, thanh toán hoặc cửa hàng của bạn.",
+  "ready": "Sẵn sàng hỗ trợ",
+  "launcher": "Mở Trợ lý AI",
+  "conversation": "Cuộc trò chuyện với Trợ lý AI",
+  "jumpToLatest": "Đến tin nhắn mới nhất",
+  "thinking": "Trợ lý AI đang suy nghĩ...",
+  "actions": {
+    "minimize": "Thu nhỏ Trợ lý AI",
+    "expand": "Phóng to Trợ lý AI",
+    "restore": "Trở về chế độ thu gọn",
+    "close": "Đóng Trợ lý AI"
+  },
+  "empty": {
+    "title": "Hôm nay tôi có thể giúp gì cho bạn?",
+    "description": "Hỏi về lịch hẹn, nhân viên, thanh toán hoặc cửa hàng của bạn."
+  },
+  "suggestions": {
+    "todaysAppointments": "Hiển thị lịch hẹn hôm nay",
+    "unpaidAppointments": "Tìm các lịch hẹn chưa thanh toán",
+    "workingToday": "Hôm nay có những nhân viên nào làm việc?",
+    "businessSummary": "Tóm tắt hoạt động kinh doanh hôm nay"
+  },
+  "composer": {
+    "label": "Nhắn tin cho Trợ lý AI",
+    "placeholder": "Hỏi Trợ lý AI...",
+    "send": "Gửi tin nhắn",
+    "keyboardHint": "Nhấn Enter để gửi. Nhấn Shift và Enter để xuống dòng."
+  },
+  "message": {
+    "user": "Tin nhắn của bạn",
+    "assistant": "Phản hồi của Trợ lý AI"
+  },
+  "error": {
+    "fallback": "Tôi chưa thể hoàn thành yêu cầu này. Vui lòng thử lại.",
+    "retry": "Thử lại"
+  }
+}

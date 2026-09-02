@@ -4,7 +4,7 @@ import { useChangeAppointmentStatus } from "@/features/shop/admin/appointment/ho
 import { useTopCustomer } from "@/features/shop/admin/dashboard/hooks/useTopCustomer";
 import { useCountService } from "@/features/shop/admin/dashboard/hooks/useCountService";
 import { useWeeklyIncomeByDay } from "@/features/shop/admin/dashboard/hooks/useWeeklyIncomeByDay";
-import type { AppointmentStatus } from "@/features/shop/admin/appointment/constants/appointmentStatus";
+import type { AppointmentStatusUpdate } from "@/features/shop/admin/appointment/constants/appointmentStatus";
 export const useShopDashBoard = () => {
   const navigate = useNavigate();
   const {
@@ -41,25 +41,32 @@ export const useShopDashBoard = () => {
   };
 
   const handleConfirm = (appointmentId: string) => async () => {
-    await changeAppointmentStatus(appointmentId, "CONFIRMED");
+    await changeAppointmentStatus(appointmentId, { status: "CONFIRMED" });
     clearNew(appointmentId);
-    refetch();
+    await refetch();
+    return true;
   };
 
-  const handleReject = (appointmentId: string) => async () => {
-    await changeAppointmentStatus(appointmentId, "CANCELLED");
-    clearNew(appointmentId);
-    refetch();
-  };
+  const handleReject =
+    (appointmentId: string, cancelReason: string) => async () => {
+      await changeAppointmentStatus(appointmentId, {
+        status: "CANCELLED",
+        cancelReason,
+      });
+      clearNew(appointmentId);
+      await refetch();
+      return true;
+    };
   const handleChangeStatus = async (
     appointmentId: string,
-    status: Exclude<AppointmentStatus, "PENDING">,
+    input: AppointmentStatusUpdate,
   ) => {
-    await changeAppointmentStatus(appointmentId, status);
-    updateAppointment(appointmentId, { status });
+    await changeAppointmentStatus(appointmentId, input);
+    updateAppointment(appointmentId, { status: input.status });
+    return true;
   };
-  const done = appointments
-    .filter((a) => a.status === "DONE")
+  const completed = appointments
+    .filter((a) => a.status === "COMPLETED")
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
   const pending = appointments
     .filter((a) => a.status === "PENDING")
@@ -71,11 +78,11 @@ export const useShopDashBoard = () => {
     .filter(
       (a) =>
         a.status !== "PENDING" &&
-        a.status !== "DONE" &&
+        a.status !== "COMPLETED" &&
         a.status !== "CANCELLED",
     )
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  const sortApointments = [...pending, ...others, ...done, ...canceled];
+  const sortApointments = [...pending, ...others, ...completed, ...canceled];
 
   return {
     newIds,

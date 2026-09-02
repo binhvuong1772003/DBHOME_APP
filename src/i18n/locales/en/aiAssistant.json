@@ -1,0 +1,39 @@
+{
+  "title": "AI Assistant",
+  "description": "Ask about appointments, staff, payments, or your shop.",
+  "ready": "Ready to help",
+  "launcher": "Open AI Assistant",
+  "conversation": "AI Assistant conversation",
+  "jumpToLatest": "Jump to latest",
+  "thinking": "AI Assistant is thinking...",
+  "actions": {
+    "minimize": "Minimize AI Assistant",
+    "expand": "Expand AI Assistant",
+    "restore": "Restore compact view",
+    "close": "Close AI Assistant"
+  },
+  "empty": {
+    "title": "How can I help you today?",
+    "description": "Ask about appointments, staff, payments, or your shop."
+  },
+  "suggestions": {
+    "todaysAppointments": "Show today's appointments",
+    "unpaidAppointments": "Find unpaid appointments",
+    "workingToday": "Who is working today?",
+    "businessSummary": "Summarize today's business"
+  },
+  "composer": {
+    "label": "Message AI Assistant",
+    "placeholder": "Ask AI anything...",
+    "send": "Send message",
+    "keyboardHint": "Press Enter to send. Press Shift and Enter for a new line."
+  },
+  "message": {
+    "user": "Your message",
+    "assistant": "AI Assistant response"
+  },
+  "error": {
+    "fallback": "I couldn't complete that request. Please try again.",
+    "retry": "Try again"
+  }
+}

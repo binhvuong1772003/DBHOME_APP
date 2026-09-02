@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CalendarDays,
   CheckCircle2,
@@ -33,6 +33,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { AppointmentStatusDropdown } from "@/features/shop/admin/appointment/components/AppointmentStatusDropdown";
+import { CancelAppointmentDialog } from "@/features/shop/admin/appointment/components/CancelAppointmentDialog";
 import { useShopDashBoard } from "@/features/shop/admin/dashboard/hooks/useDashboard";
 
 const todayMetrics = [
@@ -135,6 +136,9 @@ function SummaryCard({
 }
 
 export const DashBoard = () => {
+  const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(
+    null,
+  );
   const {
     newIds,
     clearNew,
@@ -167,8 +171,9 @@ export const DashBoard = () => {
       confirmed: appointments.filter(
         (appointment) => appointment.status === "CONFIRMED",
       ).length,
-      done: appointments.filter((appointment) => appointment.status === "DONE")
-        .length,
+      completed: appointments.filter(
+        (appointment) => appointment.status === "COMPLETED",
+      ).length,
     }),
     [appointments],
   );
@@ -209,7 +214,7 @@ export const DashBoard = () => {
             <SummaryCard
               title="Lịch hẹn hôm nay"
               value={appointments.length.toLocaleString("vi-VN")}
-              description={`${appointmentSummary.confirmed} đã xác nhận · ${appointmentSummary.done} đã hoàn tất`}
+              description={`${appointmentSummary.confirmed} đã xác nhận · ${appointmentSummary.completed} đã hoàn tất`}
               icon={CalendarDays}
               iconClassName="bg-secondary/15 text-secondary"
             />
@@ -578,8 +583,7 @@ export const DashBoard = () => {
                                 className="text-xs"
                                 disabled={isChanging}
                                 onClick={() => {
-                                  clearNew(appointment.id);
-                                  void handleReject(appointment.id)();
+                                  setCancelAppointmentId(appointment.id);
                                 }}
                               >
                                 Từ chối
@@ -614,6 +618,18 @@ export const DashBoard = () => {
             </CardContent>
           </Card>
         </section>
+        {cancelAppointmentId ? (
+          <CancelAppointmentDialog
+            open
+            isSubmitting={isChanging}
+            onOpenChange={(open) => {
+              if (!open) setCancelAppointmentId(null);
+            }}
+            onConfirm={(cancelReason) =>
+              handleReject(cancelAppointmentId, cancelReason)()
+            }
+          />
+        ) : null}
       </div>
     </main>
   );

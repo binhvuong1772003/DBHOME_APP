@@ -12,7 +12,7 @@ import { useAppointmentPayment } from "../../payments/hooks/useAppointmentPaymen
 import { AppointmentPaymentSheet } from "../../payments/components/AppointmentPaymentSheet";
 import { PaymentMethodBadge } from "../../payments/components/PaymentMethodBadge";
 import { PaymentStatusBadge } from "../../payments/components/PaymentStatusBadge";
-import type { PaymentMethod } from "../../payments/types/payment";
+import type { AppointmentPayment } from "../../payments/types/payment";
 import { formatPaymentDate } from "../../payments/utils/paymentFormatters";
 
 interface Props {
@@ -31,11 +31,11 @@ export function AppointmentPaymentSection({ shopSlug, appointment, staffName, ca
   const isEligible = !["CANCELLED", "NO_SHOW"].includes(appointment.status) && appointment.totalAmount > 0;
   const canComplete = !payment || payment.status === "PENDING" || payment.status === "PARTIAL";
 
-  const handleSuccess = async (method: PaymentMethod) => {
+  const handleSuccess = async (confirmedPayment: AppointmentPayment) => {
     await Promise.all([paymentState.refetch(), onAppointmentRefresh()]);
     toast.success(t("appointmentFlow.success", {
-      amount: formatCurrency(appointment.totalAmount, i18n.language),
-      method: t(`methods.${method.toLowerCase()}`),
+      amount: formatCurrency(confirmedPayment.paidAmount, i18n.language),
+      method: t(`methods.${confirmedPayment.method.toLowerCase()}`),
     }));
   };
 
@@ -66,6 +66,7 @@ export function AppointmentPaymentSection({ shopSlug, appointment, staffName, ca
         <>
           <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
             <Info label={t("detail.amount")} value={formatCurrency(payment?.amount ?? appointment.totalAmount, i18n.language)} />
+            {payment ? <Info label={t("detail.paidAmount")} value={formatCurrency(payment.paidAmount, i18n.language)} /> : null}
             <Info label={t("detail.method")} value={payment ? <PaymentMethodBadge method={payment.method} label={t(`methods.${payment.method.toLowerCase()}`)} /> : "—"} />
             {payment?.paidAt ? <Info label={t("detail.paidAt")} value={formatTimestamp(payment.paidAt, i18n.language)} full /> : null}
           </dl>

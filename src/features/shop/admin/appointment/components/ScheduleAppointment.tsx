@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { useStaffs } from "@/features/shop/admin/appointment/hooks/useStaffs";
 import { useScheduleAppointment } from "../hooks/useScheduleAppointment";
 import {
@@ -35,6 +35,7 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useShopMembership } from "@/features/shop/membership/hooks/useShopMembership";
 import { AppointmentPaymentSection } from "./AppointmentPaymentSection";
+import { CancelAppointmentDialog } from "./CancelAppointmentDialog";
 
 function AppointmentCard({
   children,
@@ -85,6 +86,7 @@ function ScheduleAppointment() {
   const { t, i18n } = useTranslation("appointment");
   const { shopSlug = "" } = useParams<{ shopSlug: string }>();
   const { membership } = useShopMembership();
+  const [cancelOpen, setCancelOpen] = useState(false);
   const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
   const { staffs } = useStaffs();
   const {
@@ -163,7 +165,7 @@ function ScheduleAppointment() {
                   <SelectItem value="confirmed">{t("status.confirmed")}</SelectItem>
                   <SelectItem value="pending">{t("status.pending")}</SelectItem>
                   <SelectItem value="checked-in">{t("status.inProgress")}</SelectItem>
-                  <SelectItem value="completed">{t("status.done")}</SelectItem>
+                  <SelectItem value="completed">{t("status.completed")}</SelectItem>
                 </SelectContent>
               </Select>
               <Button className="rounded-lg shadow-sm">
@@ -772,7 +774,7 @@ function ScheduleAppointment() {
                           variant="outline"
                           className="h-10 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
                           disabled={isChangingStatus}
-                          onClick={() => handleStatusChange("CANCELLED")}
+                          onClick={() => setCancelOpen(true)}
                         >
                           <X aria-hidden="true" />
                           {t("actions.cancel")}
@@ -784,7 +786,9 @@ function ScheduleAppointment() {
                           type="button"
                           className="h-10"
                           disabled={isChangingStatus}
-                          onClick={() => handleStatusChange("CONFIRMED")}
+                          onClick={() =>
+                            handleStatusChange({ status: "CONFIRMED" })
+                          }
                         >
                           <Check aria-hidden="true" />
                           {isChangingStatus
@@ -798,7 +802,9 @@ function ScheduleAppointment() {
                           type="button"
                           className="h-10"
                           disabled={isChangingStatus}
-                          onClick={() => handleStatusChange("IN_PROGRESS")}
+                          onClick={() =>
+                            handleStatusChange({ status: "IN_PROGRESS" })
+                          }
                         >
                           <Clock3 aria-hidden="true" />
                           {isChangingStatus
@@ -812,7 +818,9 @@ function ScheduleAppointment() {
                           type="button"
                           className="h-10 w-full"
                           disabled={isChangingStatus}
-                          onClick={() => handleStatusChange("DONE")}
+                          onClick={() =>
+                            handleStatusChange({ status: "COMPLETED" })
+                          }
                         >
                           <Check aria-hidden="true" />
                           {isChangingStatus
@@ -827,6 +835,16 @@ function ScheduleAppointment() {
           </div>
         </div>
       </div>
+      {selectedAppointment && cancelOpen ? (
+        <CancelAppointmentDialog
+          open={cancelOpen}
+          isSubmitting={isChangingStatus}
+          onOpenChange={setCancelOpen}
+          onConfirm={(cancelReason) =>
+            handleStatusChange({ status: "CANCELLED", cancelReason })
+          }
+        />
+      ) : null}
     </main>
   );
 }

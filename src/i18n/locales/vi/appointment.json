@@ -30,10 +30,22 @@
     "pending": "Chờ xác nhận",
     "confirmed": "Đã xác nhận",
     "inProgress": "Đang thực hiện",
-    "done": "Hoàn thành",
+    "completed": "Hoàn thành",
     "cancelled": "Đã hủy",
     "noShow": "Không đến",
-    "change": "Thay đổi trạng thái: {{status}}"
+    "change": "Thay đổi trạng thái: {{status}}",
+    "updated": "Đã cập nhật trạng thái thành {{status}}.",
+    "updateError": "Không thể cập nhật trạng thái lịch hẹn."
+  },
+  "cancelDialog": {
+    "title": "Hủy lịch hẹn?",
+    "description": "Lịch hẹn sẽ được chuyển sang trạng thái đã hủy. Hãy thêm lý do để nhân viên nắm đúng thông tin.",
+    "reason": "Lý do hủy",
+    "placeholder": "Nhập lý do hủy lịch hẹn này",
+    "required": "Vui lòng nhập lý do hủy.",
+    "keep": "Giữ lịch hẹn",
+    "confirm": "Hủy lịch hẹn",
+    "processing": "Đang hủy..."
   },
   "details": {
     "close": "Đóng chi tiết lịch hẹn",

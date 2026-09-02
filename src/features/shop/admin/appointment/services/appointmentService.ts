@@ -2,6 +2,7 @@ import axiosClient from "@/api/axiosClient";
 import type { ApiSuccessResponse } from "@/api/apiResponse";
 import type { Appointment } from "../type/appointment";
 import type { AppointmentScheduleResponse } from "../type/appointmentSchedule";
+import type { AppointmentStatusUpdate } from "../constants/appointmentStatus";
 export const getAppointmentByDateWithSlot = async (
   shopSlug: string,
   params: { date: string },
@@ -25,10 +26,10 @@ export const getAppointmentByDate = async (
 export const changeStatus = async (
   shopSlug: string,
   appointmentId: string,
-  status: string,
+  input: AppointmentStatusUpdate,
 ) => {
   const { data: response } = await axiosClient.put<
     ApiSuccessResponse<Appointment>
-  >(`/api/shops/${shopSlug}/appointments/${appointmentId}`, { status });
+  >(`/api/shops/${shopSlug}/appointments/${appointmentId}`, input);
   return response.data;
 };

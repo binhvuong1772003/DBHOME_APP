@@ -1,55 +1,55 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import axiosClient, { tokenService } from '@/api/axiosClient';
-import { Loader2 } from 'lucide-react';
-import type { ApiSuccessResponse } from '@/api/apiResponse';
-import type { User } from '@/type/auth';
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import axiosClient, { tokenService } from "@/api/axiosClient";
+import { Loader2 } from "lucide-react";
+import type { ApiSuccessResponse } from "@/api/apiResponse";
+import type { User } from "@/type/auth";
 
 export default function GoogleCallBackPage() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const hasCalled = useRef(false);
 
-  //   useEffect(() => {
-  //     if (hasCalled.current) return;
-  //     hasCalled.current = true;
+  useEffect(() => {
+    if (hasCalled.current) return;
+    hasCalled.current = true;
 
-  //     axiosClient
-  //       .post('/auth/token/refresh')
-  //       .then(({ data }) => {
-  //         tokenService.setToken(data.acessToken);
-  //         return axiosClient.get('/auth/me');
-  //       })
-  //       .then(({ data }) => {
-  //         setUser(data.data);
-  //         navigate('/');
-  //       })
-  //       .catch(() => navigate('/auth'));
-  //   }, []);
+    axiosClient
+      .post("/auth/token/refresh")
+      .then(({ data }) => {
+        tokenService.setToken(data.acessToken);
+        return axiosClient.get("/auth/me");
+      })
+      .then(({ data }) => {
+        setUser(data.data);
+        navigate("/");
+      })
+      .catch(() => navigate("/auth"));
+  }, []);
   useEffect(() => {
     if (hasCalled.current) return;
     hasCalled.current = true;
 
     const accessToken = new URLSearchParams(window.location.search).get(
-      'accessToken'
+      "accessToken",
     );
 
     if (!accessToken) {
-      navigate('/auth');
+      navigate("/auth");
       return;
     }
 
     tokenService.setToken(accessToken);
-    window.history.replaceState({}, '', '/auth/google/callback'); // xóa token khỏi URL
+    window.history.replaceState({}, "", "/auth/google/callback"); // xóa token khỏi URL
 
     axiosClient
-      .get<ApiSuccessResponse<User>>('/auth/me')
+      .get<ApiSuccessResponse<User>>("/auth/me")
       .then(({ data: response }) => {
         setUser(response.data);
-        navigate('/');
+        navigate("/");
       })
-      .catch(() => navigate('/auth'));
+      .catch(() => navigate("/auth"));
   }, [navigate, setUser]);
   return (
     <div className="flex min-h-screen items-center justify-center flex-col gap-4">
