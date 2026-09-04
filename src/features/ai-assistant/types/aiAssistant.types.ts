@@ -13,5 +13,6 @@ export interface AiChatMessage {
 }
 
 export interface AiChatResponse {
+  conversationId: string;
   message: string;
 }

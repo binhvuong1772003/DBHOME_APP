@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,12 +17,35 @@ export function AiAssistant({ shopSlug }: { shopSlug: string }) {
   const [displayMode, setDisplayMode] =
     useState<AiAssistantDisplayMode>("closed");
   const [draft, setDraft] = useState("");
+  const launcherRef = useRef<HTMLButtonElement>(null);
+  const shouldRestoreLauncherFocusRef = useRef(false);
   const chat = useAiChat(shopSlug, t("error.fallback"));
+
+  const dismiss = useCallback(() => {
+    shouldRestoreLauncherFocusRef.current = true;
+    setDisplayMode("closed");
+  }, []);
+
+  useEffect(() => {
+    if (
+      displayMode !== "closed" ||
+      !shouldRestoreLauncherFocusRef.current
+    ) {
+      return;
+    }
+
+    shouldRestoreLauncherFocusRef.current = false;
+    const frame = window.requestAnimationFrame(() => launcherRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [displayMode]);
 
   return (
     <TooltipProvider delayDuration={300}>
       {displayMode === "closed" ? (
-        <AiAssistantLauncher onOpen={() => setDisplayMode("compact")} />
+        <AiAssistantLauncher
+          buttonRef={launcherRef}
+          onOpen={() => setDisplayMode("compact")}
+        />
       ) : (
         <Suspense fallback={<AiChatFallback />}>
           <AiChatWindow
@@ -30,9 +53,9 @@ export function AiAssistant({ shopSlug }: { shopSlug: string }) {
             draft={draft}
             messages={chat.messages}
             isSending={chat.isSending}
-            onClose={() => setDisplayMode("closed")}
+            onClose={dismiss}
             onDraftChange={setDraft}
-            onMinimize={() => setDisplayMode("closed")}
+            onMinimize={dismiss}
             onRetry={(message) => void chat.retryMessage(message)}
             onSend={(prompt) => void chat.sendMessage(prompt)}
             onToggleExpanded={() =>

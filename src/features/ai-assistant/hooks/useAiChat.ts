@@ -11,6 +11,9 @@ interface RequestOptions {
 
 export function useAiChat(shopSlug: string, errorFallback: string) {
   const [messages, setMessages] = useState<AiChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | undefined>(() =>
+    readConversationId(shopSlug),
+  );
   const [isSending, setIsSending] = useState(false);
   const requestInFlightRef = useRef(false);
   const requestControllerRef = useRef<AbortController | null>(null);
@@ -51,24 +54,36 @@ export function useAiChat(shopSlug: string, errorFallback: string) {
       requestControllerRef.current = controller;
 
       try {
-        const answer = await sendAiMessage(
+        const response = await sendAiMessage(
           shopSlug,
           normalizedPrompt,
+          conversationId,
           controller.signal,
         );
         if (controller.signal.aborted) return;
 
+        setConversationId(response.conversationId);
+        persistConversationId(shopSlug, response.conversationId);
         setMessages((current) => [
           ...current,
           {
             id: createMessageId(),
             role: "assistant",
-            content: answer.trim(),
+            content: response.message.trim(),
             state: "sent",
           },
         ]);
       } catch (error) {
         if (controller.signal.aborted) return;
+
+        if (
+          conversationId &&
+          error instanceof AxiosError &&
+          error.response?.status === 404
+        ) {
+          setConversationId(undefined);
+          clearConversationId(shopSlug);
+        }
 
         setMessages((current) => [
           ...current,
@@ -88,7 +103,7 @@ export function useAiChat(shopSlug: string, errorFallback: string) {
         }
       }
     },
-    [createMessageId, errorFallback, shopSlug],
+    [conversationId, createMessageId, errorFallback, shopSlug],
   );
 
   const sendMessage = useCallback(
@@ -110,6 +125,16 @@ export function useAiChat(shopSlug: string, errorFallback: string) {
     [request],
   );
 
+  useEffect(() => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    requestInFlightRef.current = false;
+    setMessages([]);
+    setConversationId(readConversationId(shopSlug));
+    setIsSending(false);
+    messageSequenceRef.current = 0;
+  }, [shopSlug]);
+
   useEffect(
     () => () => {
       requestControllerRef.current?.abort();
@@ -118,7 +143,56 @@ export function useAiChat(shopSlug: string, errorFallback: string) {
     [],
   );
 
-  return { messages, isSending, sendMessage, retryMessage };
+  return {
+    messages,
+    conversationId,
+    isSending,
+    sendMessage,
+    retryMessage,
+  };
+}
+
+const conversationStorageKey = (shopSlug: string) =>
+  `shn-ai-conversation:${shopSlug}`;
+
+function readConversationId(shopSlug: string) {
+  if (typeof window === "undefined") return undefined;
+
+  try {
+    const conversationId = window.sessionStorage.getItem(
+      conversationStorageKey(shopSlug),
+    );
+    if (!conversationId) return undefined;
+    if (/^[0-9a-fA-F]{24}$/.test(conversationId)) return conversationId;
+
+    clearConversationId(shopSlug);
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function persistConversationId(shopSlug: string, conversationId: string) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.setItem(
+      conversationStorageKey(shopSlug),
+      conversationId,
+    );
+  } catch {
+    // The in-memory conversation still works when session storage is blocked.
+  }
+}
+
+function clearConversationId(shopSlug: string) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.removeItem(conversationStorageKey(shopSlug));
+  } catch {
+    // Nothing to clear when session storage is unavailable.
+  }
 }
 
 function getAiErrorMessage(error: unknown, fallback: string) {
