@@ -11,19 +11,19 @@
   --card-foreground: #252824;
   --popover: #ffffff;
   --popover-foreground: #252824;
-  --primary: #5f7768;
+  --primary: #a9566a;
   --primary-foreground: #ffffff;
-  --secondary: #c4d3c2;
+  --secondary: #d8b6ac;
   --secondary-foreground: #2f4131;
   --muted: #f5f7f4;
   --muted-foreground: #5f655e;
-  --accent: #e7efe8;
-  --accent-foreground: #30483a;
+  --accent: #f3dfe2;
+  --accent-foreground: #713347;
   --destructive: #b83c46;
   --destructive-foreground: #ffffff;
   --border: #dfe5df;
   --input: #cbd5ce;
-  --ring: #5f7768;
+  --ring: #a9566a;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -43,8 +43,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --shn-sage-surface: #e5eee4;
-  --shn-blush-surface: #fbf0f1;
+  --shn-sage-surface: #f7ebe9;
+  --shn-blush-surface: #fbefef;
   --shn-line: #dfe5df;
   --shn-ink-soft: #5f655e;
   --shn-shadow: 0 16px 36px rgba(39, 49, 42, 0.08);
@@ -74,21 +74,21 @@
   --card-foreground: #f1eee7;
   --popover: #2c2e2a;
   --popover-foreground: #f1eee7;
-  --primary: #a8c5ae;
-  --primary-foreground: #1f2d24;
+  --primary: #e0a0ad;
+  --primary-foreground: #3a2229;
   --secondary: #9fb19a;
   --secondary-foreground: #202d22;
   --muted: #30322e;
   --muted-foreground: #c0beb6;
-  --accent: #344438;
-  --accent-foreground: #d1e2d1;
+  --accent: #4a3037;
+  --accent-foreground: #f1cbd1;
   --destructive: #e17479;
   --destructive-foreground: #351d20;
   --border: #494843;
   --input: #5a5650;
-  --ring: #a8c5ae;
-  --shn-sage-surface: #2d382f;
-  --shn-blush-surface: #3d2d32;
+  --ring: #e0a0ad;
+  --shn-sage-surface: #3b2b2f;
+  --shn-blush-surface: #402d32;
   --shn-line: #494843;
   --shn-ink-soft: #c0beb6;
   --shn-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
@@ -507,71 +507,6 @@
   font-size: 0.84rem;
   font-weight: 600;
   line-height: 1.5;
-}
-
-.shn-home__intent {
-  border-block: 1px solid #bdcfbf;
-  background-color: var(--shn-sage-surface);
-}
-
-.shn-home__intent-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding-block: 0.85rem;
-}
-
-.shn-home__intent h2 {
-  margin-top: 0.3rem;
-  color: var(--foreground);
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.shn-home__intent-actions {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(8rem, 1fr));
-  gap: 0.55rem;
-  width: min(100%, 49rem);
-}
-
-.shn-home__intent-button {
-  display: inline-flex;
-  min-height: 3.15rem;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 0.8rem;
-  border: 1px solid #cbd8ca;
-  border-radius: 0.85rem;
-  background-color: var(--card);
-  box-shadow: 0 4px 12px rgba(39, 49, 42, 0.05);
-  color: var(--foreground);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-align: left;
-  transition:
-    border-color 180ms ease,
-    background-color 180ms ease,
-    transform 180ms ease;
-}
-
-.shn-home__intent-button:hover {
-  border-color: var(--primary);
-  background-color: var(--accent);
-  transform: translateY(-1px);
-}
-
-.shn-home__intent-button svg:first-child {
-  flex: 0 0 auto;
-  color: var(--primary);
-}
-
-.shn-home__intent-button svg:last-child {
-  flex: 0 0 auto;
-  margin-left: auto;
-  color: var(--muted-foreground);
 }
 
 .shn-home__summary {
@@ -1477,15 +1412,6 @@
     min-height: 24rem;
   }
 
-  .shn-home__intent-inner {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .shn-home__intent-actions {
-    width: 100%;
-  }
-
   .shn-home__service-grid,
   .shn-home__salon-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1675,10 +1601,6 @@
     font-size: 0.74rem;
   }
 
-  .shn-home__intent-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .shn-home__before-after-meta {
     align-items: flex-start;
     flex-direction: column;
@@ -1689,12 +1611,7 @@
   .shn-home__hero-image img,
   .shn-home__service-image img,
   .shn-home__salon-card-image img,
-  .shn-home__collection img,
-  .shn-home__intent-button {
+  .shn-home__collection img {
     transition: none;
-  }
-
-  .shn-home__intent-button:hover {
-    transform: none;
   }
 }

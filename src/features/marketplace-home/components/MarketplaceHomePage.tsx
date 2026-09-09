@@ -5,7 +5,6 @@ import {
   CalendarCheck2,
   CalendarDays,
   Check,
-  ChevronRight,
   Clock3,
   Images,
   MapPin,
@@ -684,34 +683,6 @@ export default function MarketplaceHomePage() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </section>
-
-          <section
-            className="shn-home__intent"
-            aria-labelledby="intent-heading"
-          >
-            <div className="shn-home__shell shn-home__intent-inner">
-              <div>
-                <p className="shn-home__eyebrow">{t("explore.eyebrow")}</p>
-                <h2 id="intent-heading">{t("explore.title")}</h2>
-              </div>
-              <div className="shn-home__intent-actions">
-                {(["nails", "spa", "wellness", "studios"] as const).map(
-                  (category) => (
-                    <button
-                      key={category}
-                      type="button"
-                      onClick={() => scrollToSection("services")}
-                      className="shn-home__intent-button"
-                    >
-                      <Sparkles className="size-4" aria-hidden="true" />
-                      <span>{t(`categories.${category}`)}</span>
-                      <ChevronRight className="size-4" aria-hidden="true" />
-                    </button>
-                  ),
-                )}
               </div>
             </div>
           </section>
