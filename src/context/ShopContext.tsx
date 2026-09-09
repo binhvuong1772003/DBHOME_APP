@@ -62,6 +62,9 @@ export const ShopProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// Context hooks intentionally live next to their provider so consumers keep a
+// single import path; the refresh rule is only relevant to component exports.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useShopContext = () => {
   const context = useContext(ShopContext);
   if (!context) {
@@ -69,3 +72,6 @@ export const useShopContext = () => {
   }
   return context;
 };
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useOptionalShopContext = () => useContext(ShopContext);

@@ -47,6 +47,7 @@ export const useStaffManagement = () => {
     openDetail,
     openSchedule,
     openDeactivate,
+    openServices,
     closeDialog,
   } = useStaffDialog();
   const currentUserRole: StaffRole =
@@ -121,6 +122,7 @@ export const useStaffManagement = () => {
     openDetail,
     openSchedule,
     openDeactivate,
+    openServices,
     closeDialog,
     handleInvite,
     handleEdit,

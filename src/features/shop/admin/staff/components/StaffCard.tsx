@@ -22,6 +22,7 @@ interface StaffCardProps {
   onView: (staff: Staff) => void;
   onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
+  onManageServices: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
 
@@ -32,6 +33,7 @@ export function StaffCard({
   onView,
   onViewSchedule,
   onEdit,
+  onManageServices,
   onDeactivate,
 }: StaffCardProps) {
   const { t, i18n } = useTranslation("staff");
@@ -80,6 +82,7 @@ export function StaffCard({
               onView={onView}
               onViewSchedule={onViewSchedule}
               onEdit={onEdit}
+              onManageServices={onManageServices}
               onDeactivate={onDeactivate}
             />
           </div>

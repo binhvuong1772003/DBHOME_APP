@@ -20,6 +20,7 @@ interface StaffTableRowProps {
   onView: (staff: Staff) => void;
   onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
+  onManageServices: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
 
@@ -30,6 +31,7 @@ export function StaffTableRow({
   onView,
   onViewSchedule,
   onEdit,
+  onManageServices,
   onDeactivate,
 }: StaffTableRowProps) {
   const { t, i18n } = useTranslation("staff");
@@ -142,6 +144,7 @@ export function StaffTableRow({
           onView={onView}
           onViewSchedule={onViewSchedule}
           onEdit={onEdit}
+          onManageServices={onManageServices}
           onDeactivate={onDeactivate}
         />
       </td>

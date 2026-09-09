@@ -20,6 +20,12 @@ export const markNotificationRead = async (shopSlug: string, id: string) => {
   );
   return response.data;
 };
+export const markAllNotificationsRead = async (shopSlug: string) => {
+  const { data: response } = await axiosClient.patch<ApiSuccessResponse<{ success: boolean }>>(
+    `/api/shops/${shopSlug}/notifications/read-all`,
+  );
+  return response.data;
+};
 export const deleteNotification = async (shopSlug: string, id: string) => {
   const { data: response } = await axiosClient.delete<ApiSuccessResponse<NotificationItem>>(
     `/api/shops/${shopSlug}/notifications/${id}`

@@ -12,6 +12,17 @@
     "restore": "Restore compact view",
     "close": "Close AI Assistant"
   },
+  "history": {
+    "title": "Conversation history",
+    "newConversation": "New conversation",
+    "empty": "No previous conversations",
+    "loading": "Loading conversations...",
+    "loadMore": "Load more",
+    "loadingOlder": "Loading older messages...",
+    "loadOlder": "Load older messages",
+    "untitled": "Untitled conversation",
+    "error": "Unable to load conversation history."
+  },
   "empty": {
     "title": "How can I help you today?",
     "description": "Ask about appointments, staff, payments, or your shop."

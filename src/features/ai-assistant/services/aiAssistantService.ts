@@ -1,6 +1,51 @@
 import axiosClient from "@/api/axiosClient";
 import type { ApiSuccessResponse } from "@/api/apiResponse";
-import type { AiChatResponse } from "../types/aiAssistant.types";
+import type {
+  AiChatResponse,
+  AiConversationListResponse,
+  AiConversationMessagesResponse,
+} from "../types/aiAssistant.types";
+
+interface CursorParams {
+  cursor?: string;
+  limit?: number;
+}
+
+export async function listAiConversations(
+  shopSlug: string,
+  params: CursorParams = {},
+  signal?: AbortSignal,
+) {
+  const { data: response } = await axiosClient.get<
+    ApiSuccessResponse<AiConversationListResponse>
+  >(`/api/ai/shops/${shopSlug}/conversations`, {
+    params: { limit: params.limit ?? 20, ...(params.cursor ? { cursor: params.cursor } : {}) },
+    signal,
+    timeout: 15_000,
+  });
+
+  return response.data;
+}
+
+export async function listAiConversationMessages(
+  shopSlug: string,
+  conversationId: string,
+  params: CursorParams = {},
+  signal?: AbortSignal,
+) {
+  const { data: response } = await axiosClient.get<
+    ApiSuccessResponse<AiConversationMessagesResponse>
+  >(
+    `/api/ai/shops/${shopSlug}/conversations/${conversationId}/messages`,
+    {
+      params: { limit: params.limit ?? 50, ...(params.cursor ? { cursor: params.cursor } : {}) },
+      signal,
+      timeout: 15_000,
+    },
+  );
+
+  return response.data;
+}
 
 export async function sendAiMessage(
   shopSlug: string,

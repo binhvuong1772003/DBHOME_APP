@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useFieldArray, type Control } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { CreateServiceInput } from "@/validations/serviceSchema";
 
 export function OptionItem({
@@ -17,6 +18,7 @@ export function OptionItem({
   control: Control<CreateServiceInput>;
   index: number;
 }) {
+  const { t } = useTranslation("service");
   const {
     fields: valueFields,
     append: appendValue,
@@ -37,12 +39,12 @@ export function OptionItem({
         name={`options.${index}.name`}
         render={({ field }) => (
           <FormItem className="mb-3">
-            <FormLabel>Tuỳ chọn dịch vụ</FormLabel>
+            <FormLabel>{t("editor.option")}</FormLabel>
             <FormControl>
               <Input
                 {...field}
                 className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus:border-primary"
-                placeholder="Tên tuỳ chọn (vd: Kiểu dáng, Kích thước)"
+                placeholder={t("editor.optionPlaceholder")}
               />
             </FormControl>
           </FormItem>
@@ -64,7 +66,7 @@ export function OptionItem({
                     <Input
                       {...field}
                       className="rounded-lg border border-input bg-card px-2.5 py-1.5 text-[13px] outline-none focus:border-primary"
-                      placeholder="Tên lựa chọn"
+                      placeholder={t("editor.valuePlaceholder")}
                     />
                   </FormControl>
                 </FormItem>
@@ -84,7 +86,7 @@ export function OptionItem({
                       }}
                       type="number"
                       className="rounded-lg border border-input bg-card px-2.5 py-1.5 text-[13px] outline-none focus:border-primary"
-                      placeholder="Giá"
+                      placeholder={t("editor.pricePlaceholder")}
                     />
                   </FormControl>
                 </FormItem>
@@ -104,7 +106,7 @@ export function OptionItem({
                       }}
                       type="number"
                       className="rounded-lg border border-input bg-card px-2.5 py-1.5 text-[13px] outline-none focus:border-primary"
-                      placeholder="Phút"
+                      placeholder={t("editor.minutesPlaceholder")}
                     />
                   </FormControl>
                 </FormItem>
@@ -117,7 +119,7 @@ export function OptionItem({
               onClick={() => removeValue(valueIndex)}
               className="shrink-0"
             >
-              Xóa
+              {t("editor.remove")}
             </Button>
           </div>
         </div>
@@ -128,7 +130,7 @@ export function OptionItem({
         onClick={addValue}
         className="text-[12.5px] font-medium text-foreground mb-3"
       >
-        + Thêm lựa chọn
+        <span className="inline-flex items-center gap-2"><span aria-hidden="true">+</span>{t("editor.addValue")}</span>
       </Button>
 
       <FormField
@@ -137,7 +139,7 @@ export function OptionItem({
         render={({ field }) => (
           <FormItem className="flex items-center justify-between">
             <FormLabel className="text-[13px] font-medium mb-0">
-              Bắt buộc
+              {t("editor.required")}
             </FormLabel>
             <FormControl>
               <Switch checked={field.value} onCheckedChange={field.onChange} />

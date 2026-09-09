@@ -7,7 +7,9 @@ import { GoogleButton } from '@/features/auth/components/GoogleButton';
 import { AuthLayout } from '@/features/auth/components/AuthLayout';
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
-  const [isSignUp, setIsSignUp] = useState(!searchParams.has('invite'));
+  const inviteMode = searchParams.has('invite');
+  const requestedMode = searchParams.get('mode');
+  const [isSignUp, setIsSignUp] = useState(() => !inviteMode && requestedMode !== 'signin');
   return (
     <AuthLayout>
       <div>

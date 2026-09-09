@@ -30,6 +30,11 @@ export const useStaffDialog = () => {
     setMode("DEACTIVATE");
   }, []);
 
+  const openServices = useCallback((staff: Staff) => {
+    setSelectedStaff(staff);
+    setMode("SERVICES");
+  }, []);
+
   const closeDialog = useCallback(() => {
     setMode(null);
     setSelectedStaff(null);
@@ -43,6 +48,7 @@ export const useStaffDialog = () => {
     openDetail,
     openSchedule,
     openDeactivate,
+    openServices,
     closeDialog,
   };
 };

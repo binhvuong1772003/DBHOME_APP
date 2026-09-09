@@ -17,7 +17,7 @@ const supportedLanguages = [
 ] as const;
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation('common');
   const currentLanguage = i18n.resolvedLanguage?.split("-")[0] ?? "vi";
 
   const handleLanguageChange = (language: string) => {
@@ -31,14 +31,14 @@ export function LanguageSwitcher() {
         <Button
           variant="outline"
           size="icon"
-          aria-label="Change language"
-          title="Change language"
+          aria-label={t('language.change')}
+          title={t('language.change')}
         >
           <Languages aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
-        <DropdownMenuLabel>Language</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('language.label')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup
           value={currentLanguage}

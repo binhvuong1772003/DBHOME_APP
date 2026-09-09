@@ -1,0 +1,37 @@
+{
+  "brandSubtitle": "Vận hành làm đẹp trong một workspace gọn gàng",
+  "primaryNavigation": "Điều hướng chính",
+  "nav": {
+    "discover": "Khám phá",
+    "services": "Dịch vụ",
+    "salons": "Salon",
+    "book": "Đặt lịch"
+  },
+  "auth": { "signIn": "Đăng nhập", "signUp": "Đăng ký" },
+  "account": {
+    "menuLabel": "Tài khoản",
+    "manage": "Quản lý tài khoản",
+    "shops": "Salon của bạn",
+    "noShops": "Chưa có salon",
+    "logout": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất…",
+    "logoutError": "Không thể đăng xuất. Vui lòng thử lại."
+  },
+  "notifications": {
+    "label": "Thông báo",
+    "title": "Thông báo",
+    "description": "Cập nhật từ các salon",
+    "close": "Đóng thông báo",
+    "all": "Tất cả",
+    "unread": "Chưa đọc",
+    "markAll": "Đánh dấu tất cả đã đọc",
+    "empty": "Chưa có thông báo",
+    "emptyUnread": "Bạn đã xem hết thông báo",
+    "loadError": "Không thể tải thông báo",
+    "retry": "Thử lại",
+    "markRead": "Đánh dấu đã đọc",
+    "delete": "Xóa thông báo",
+    "open": "Mở thông báo",
+    "justNow": "Vừa xong"
+  }
+}

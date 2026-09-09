@@ -12,10 +12,45 @@ export interface OptionValue {
   price: number;
   duration: number;
 }
+
+export interface ServiceCategory {
+  id: string;
+  shopId?: string;
+  name: string;
+  icon?: string | null;
+  color?: string | null;
+  sortOrder?: number;
+  isActive?: boolean;
+  serviceCount?: number;
+}
+
+export interface ServiceCategoryListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: "ACTIVE" | "INACTIVE";
+  sort?: "RECENT" | "NAME_ASC" | "NAME_DESC" | "ORDER_ASC";
+}
+
+export interface ServiceCategoryListMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface ServiceCategoryListResponse {
+  items: ServiceCategory[];
+  meta: ServiceCategoryListMeta;
+}
+
 export interface Service {
   id: string;
   shopId: string;
   categoryId?: string;
+  category?: ServiceCategory | null;
   name: string;
   description?: string;
   basePrice?: number;
@@ -41,7 +76,7 @@ export interface ServiceListResponse { items: Service[]; meta: ServiceListMeta }
 
 export interface CreateServiceInput {
   name: string;
-  category?: string;
+  categoryId?: string;
   description?: string;
   basePrice?: number;
   durationMin: number;
@@ -49,10 +84,12 @@ export interface CreateServiceInput {
   isActive: boolean;
   imageUrl?: string;
   options: {
+    id?: string;
     name: string;
     isRequired: boolean;
     sortOrder: number;
     values: {
+      id?: string;
       name: string;
       price: number;
       duration?: number;

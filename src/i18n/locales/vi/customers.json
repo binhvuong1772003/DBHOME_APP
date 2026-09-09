@@ -1,0 +1,18 @@
+{
+  "nav": "Khách hàng",
+  "header": { "eyebrow": "Quan hệ khách hàng", "title": "Khách hàng", "description": "Theo dõi giá trị, lượt quay lại và hoạt động của khách hàng." },
+  "summary": { "title": "Tổng quan khách hàng", "total": "Tổng khách hàng", "returning": "Khách quay lại", "new": "Khách mới", "neverVisited": "Chưa có lượt ghé" },
+  "segments": { "all": "Chi tiêu cao nhất", "mostVisits": "Nhiều lượt nhất", "longestInactive": "Lâu chưa ghé nhất", "returning": "Quay lại", "new": "Mới" },
+  "filters": { "title": "Bộ lọc khách hàng", "searchLabel": "Tìm khách hàng", "searchPlaceholder": "Tìm theo tên hoặc email...", "retention": "Mẫu ghé thăm", "upcoming": "Lịch hẹn sắp tới", "upcomingYes": "Có lịch hẹn", "upcomingNo": "Chưa có lịch hẹn", "lastVisitBefore": "Lần ghé trước ngày", "sort": "Sắp xếp", "all": "Tất cả", "reset": "Đặt lại" },
+  "sort": { "spend": "Chi tiêu cao nhất", "visits": "Nhiều lượt nhất", "recent": "Ghé gần đây", "longestInactive": "Lâu chưa ghé nhất", "newest": "Khách mới nhất" },
+  "columns": { "customer": "Khách hàng", "lastVisit": "Lần ghé gần nhất", "visits": "Lượt ghé", "lifetimeSpend": "Tổng chi tiêu", "averageSpend": "Trung bình/lượt", "nextAppointment": "Lịch hẹn tới", "retention": "Mẫu ghé thăm", "actions": "Thao tác" },
+  "retention": { "new": "Mới", "returning": "Quay lại" },
+  "lastVisit": { "daysAgo": "{{count}} ngày trước", "daysAgo_one": "{{count}} ngày trước" },
+  "nextAppointment": { "none": "Chưa có" },
+  "actions": { "view": "Xem {{name}}" },
+  "empty": { "title": "Không tìm thấy khách hàng", "description": "Không có khách hàng phù hợp với tìm kiếm hoặc bộ lọc hiện tại." },
+  "pagination": { "page": "Trang {{page}} trên {{total}}", "previous": "Trang trước", "next": "Trang sau" },
+  "loadError": "Không thể tải khách hàng.", "retry": "Thử lại",
+  "detail": { "back": "Quay lại khách hàng", "loadError": "Không thể tải chi tiết khách hàng.", "noEmail": "Chưa có email", "customerSince": "Khách hàng từ {{date}}", "valueTitle": "Giá trị khách hàng", "metrics": { "lifetimeSpend": "Tổng chi tiêu", "visits": "Lượt ghé", "averageSpend": "Trung bình/lượt", "lastVisit": "Lần ghé gần nhất" }, "upcomingTitle": "Lịch hẹn sắp tới", "noUpcoming": "Chưa có lịch hẹn sắp tới.", "noServices": "Chưa có dịch vụ", "unassigned": "Chưa phân công", "retentionTitle": "Theo dõi quay lại", "lastVisit": "Lần ghé gần nhất", "daysSinceLastVisit": "Thời gian từ lần ghé cuối", "noVisit": "Chưa có lượt hoàn tất", "relationshipTitle": "Mối quan hệ khách hàng", "servicesTitle": "Dịch vụ thường đặt", "staffTitle": "Nhân viên phục vụ nhiều nhất", "visitsCount": "{{count}} lượt", "visitsCount_one": "{{count}} lượt", "noStaff": "Chưa có lịch sử nhân viên", "historyTitle": "Lịch sử ghé thăm", "noHistory": "Chưa có lịch sử lịch hẹn" },
+  "paymentStatus": { "pending": "Đang chờ thanh toán", "partial": "Đã thanh toán một phần", "paid": "Đã thanh toán", "refunded": "Đã hoàn tiền" }
+}

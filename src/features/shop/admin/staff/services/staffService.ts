@@ -1,6 +1,6 @@
 import axiosClient from "@/api/axiosClient";
 import type { ApiSuccessResponse, PaginatedApiResponse } from "@/api/apiResponse";
-import type { InviteStaffInput, Staff, StaffListQuery, StaffListResponse, StaffScheduleResponse, UpdateStaffInput } from "../types/staff";
+import type { InviteStaffInput, Staff, StaffListQuery, StaffListResponse, StaffScheduleResponse, StaffServiceAssignment, UpdateStaffInput } from "../types/staff";
 import type { StaffAttendance, StaffTimeOffPage } from "../types/staffOperations";
 
 export const getStaffs = async (shopSlug: string, query: StaffListQuery): Promise<StaffListResponse> => {
@@ -63,6 +63,25 @@ export const updateStaffSchedule = async (
 
 export const getStaffDetail = async (shopSlug: string, staffId: string): Promise<Staff> => {
   const { data: response } = await axiosClient.get<ApiSuccessResponse<Staff>>(`/api/shops/${shopSlug}/staff/${staffId}/info`);
+  return response.data;
+};
+
+export const getStaffServices = async (shopSlug: string, staffId: string): Promise<StaffServiceAssignment[]> => {
+  const { data: response } = await axiosClient.get<ApiSuccessResponse<StaffServiceAssignment[]>>(
+    `/api/shops/${shopSlug}/staff/${staffId}/services`,
+  );
+  return response.data;
+};
+
+export const updateStaffServices = async (
+  shopSlug: string,
+  staffId: string,
+  serviceIds: string[],
+): Promise<StaffServiceAssignment[]> => {
+  const { data: response } = await axiosClient.put<ApiSuccessResponse<StaffServiceAssignment[]>>(
+    `/api/shops/${shopSlug}/staff/${staffId}/services`,
+    { serviceIds },
+  );
   return response.data;
 };
 

@@ -4,6 +4,7 @@ import {
   Eye,
   MoreHorizontal,
   Pencil,
+  Scissors,
   UserX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ interface StaffActionsMenuProps {
   onView: (staff: Staff) => void;
   onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
+  onManageServices: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
 
@@ -36,6 +38,7 @@ export function StaffActionsMenu({
   onView,
   onViewSchedule,
   onEdit,
+  onManageServices,
   onDeactivate,
 }: StaffActionsMenuProps) {
   const { t } = useTranslation("staff");
@@ -63,6 +66,12 @@ export function StaffActionsMenu({
           <DropdownMenuItem onSelect={() => onEdit(staff)}>
             <Pencil aria-hidden="true" />
             {t("actions.edit")}
+          </DropdownMenuItem>
+        )}
+        {canEdit && staff.isActive && (
+          <DropdownMenuItem onSelect={() => onManageServices(staff)}>
+            <Scissors aria-hidden="true" />
+            {t("actions.manageServices")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onSelect={() => onViewSchedule(staff)}>

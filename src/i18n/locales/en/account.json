@@ -1,0 +1,9 @@
+{
+  "eyebrow": "Account settings",
+  "title": "Your account",
+  "description": "Keep your profile details current across SHN.",
+  "fields": { "name": "Full name", "email": "Email address", "emailReadOnly": "Email is managed by your sign-in method." },
+  "profile": { "title": "Profile", "description": "This information appears in your account menu and workspace.", "changeAvatar": "Change avatar", "uploading": "Uploading…", "avatarHint": "PNG, JPG or WEBP up to 5 MB.", "avatarSuccess": "Avatar updated.", "avatarError": "Unable to update avatar.", "save": "Save changes", "saving": "Saving…", "saveSuccess": "Profile updated.", "saveError": "Unable to update your profile." },
+  "validation": { "nameRequired": "Enter your name." },
+  "security": { "title": "Security", "description": "Account security follows your sign-in provider.", "passwordUnavailable": "Password changes are not available in this workspace yet." }
+}

@@ -18,12 +18,38 @@ import GoogleCallBackPage from "./pages/GoogleCallback";
 import { shopRoutes } from "./routes/shop.routes";
 import { Toaster } from "sonner";
 import StaffInviteAcceptPage from "./pages/StaffInviteAccept";
+import HomePage from "./pages/HomePage";
+import AccountPage from "./pages/AccountPage";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import PublicShopPage from "@/features/public-shop/components/PublicShopPage";
 
 function AuthenticatedProviders() {
   return (
     <ShopProvider>
       <Outlet />
     </ShopProvider>
+  );
+}
+
+function HomeRoute() {
+  const { user } = useAuth();
+  return user ? (
+    <ShopProvider>
+      <HomePage />
+    </ShopProvider>
+  ) : (
+    <HomePage />
+  );
+}
+
+function PublicShopRoute() {
+  const { user } = useAuth();
+  return user ? (
+    <ShopProvider>
+      <PublicShopPage />
+    </ShopProvider>
+  ) : (
+    <PublicShopPage />
   );
 }
 
@@ -57,11 +83,14 @@ export function App() {
                   element={<SendVerifyEmailPage />}
                 />
 
+                <Route path="/" element={<HomeRoute />} />
+                <Route path="/shops/:shopSlug" element={<PublicShopRoute />} />
+
                 {/* Protected */}
                 <Route element={<PrivateRoute />}>
                   <Route element={<AuthenticatedProviders />}>
-                    <Route path="/" element={<div>Home Page</div>} />
                     {shopRoutesList}
+                    <Route path="/account" element={<AccountPage />} />
                   </Route>
                 </Route>
 

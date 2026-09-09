@@ -46,5 +46,23 @@
     "paid": "Đã thanh toán",
     "active": "Đang hoạt động",
     "off": "Nghỉ"
+  },
+  "theme": {
+    "toggle": "Đổi giao diện sáng tối",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Theo hệ thống"
+  },
+  "language": {
+    "change": "Đổi ngôn ngữ",
+    "label": "Ngôn ngữ"
+  },
+  "upload": {
+    "rejected": "\"{{name}}\" không được chấp nhận",
+    "previewAlt": "Xem trước hình ảnh",
+    "remove": "Xoá hình ảnh",
+    "dragDrop": "Kéo thả hình ảnh để tải lên",
+    "formats": "PNG, JPG hoặc WebP tối đa 5 MB",
+    "select": "Chọn hình ảnh"
   }
 }

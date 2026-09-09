@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type {
   AiAssistantDisplayMode,
   AiChatMessage,
+  AiConversationSummary,
 } from "../types/aiAssistant.types";
 import { AiChatHeader } from "./AiChatHeader";
 import { AiComposer } from "./AiComposer";
@@ -16,12 +17,25 @@ interface Props {
   draft: string;
   messages: AiChatMessage[];
   isSending: boolean;
+  isLoadingHistory: boolean;
+  isLoadingOlderMessages: boolean;
+  hasOlderMessages: boolean;
+  historyError: string | null;
+  conversations: AiConversationSummary[];
+  activeConversationId?: string;
+  isLoadingConversations: boolean;
+  hasMoreConversations: boolean;
   onClose: () => void;
   onDraftChange: (draft: string) => void;
   onMinimize: () => void;
   onRetry: (message: AiChatMessage) => void;
   onSend: (prompt: string) => void;
   onToggleExpanded: () => void;
+  onSelectConversation: (id: string) => void;
+  onLoadMoreConversations: () => void;
+  onLoadOlderMessages: () => void;
+  onRetryHistory: () => void;
+  onNewConversation: () => void;
 }
 
 export function AiChatWindow(props: Props) {
@@ -60,32 +74,61 @@ export function AiChatWindow(props: Props) {
 }
 
 function ChatPanel({
+  activeConversationId,
+  conversations,
   displayMode,
   draft,
+  hasMoreConversations,
+  hasOlderMessages,
+  historyError,
+  isLoadingConversations,
+  isLoadingHistory,
+  isLoadingOlderMessages,
   messages,
   isSending,
   mobile,
   onClose,
   onDraftChange,
+  onLoadMoreConversations,
+  onLoadOlderMessages,
   onMinimize,
+  onNewConversation,
   onRetry,
+  onRetryHistory,
+  onSelectConversation,
   onSend,
   onToggleExpanded,
 }: Props & { mobile: boolean }) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-card">
       <AiChatHeader
+        activeConversationId={activeConversationId}
+        conversations={conversations}
         displayMode={displayMode}
+        disabledHistory={
+          isSending || isLoadingHistory || isLoadingOlderMessages
+        }
+        hasMoreConversations={hasMoreConversations}
+        isLoadingConversations={isLoadingConversations}
         mobile={mobile}
         onClose={onClose}
+        onLoadMoreConversations={onLoadMoreConversations}
         onMinimize={onMinimize}
+        onNewConversation={onNewConversation}
+        onSelectConversation={onSelectConversation}
         onToggleExpanded={onToggleExpanded}
       />
       <AiMessageList
+        hasOlderMessages={hasOlderMessages}
+        historyError={historyError}
+        isLoadingHistory={isLoadingHistory}
+        isLoadingOlderMessages={isLoadingOlderMessages}
         messages={messages}
         isSending={isSending}
+        onLoadOlderMessages={onLoadOlderMessages}
         onPromptSelect={onSend}
         onRetry={onRetry}
+        onRetryHistory={onRetryHistory}
       />
       <AiComposer
         autoFocus={!mobile}

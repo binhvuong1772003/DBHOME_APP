@@ -1,8 +1,9 @@
 import z from 'zod';
 export const createServiceSchema = z.object({
   name: z.string().min(1, 'Tên dịch vụ không được để trống'),
-  category: z.string().min(1, 'Danh mục không được để trống'),
+  categoryId: z.string().optional(),
   description: z.string().optional(),
+  imageUrl: z.string().url().optional(),
   basePrice: z.number().min(0, 'Giá phải lớn hơn hoặc bằng 0'),
   durationMin: z.number().min(1, 'Thời gian phải lớn hơn 0'),
   isActive: z.boolean(),
@@ -10,12 +11,14 @@ export const createServiceSchema = z.object({
   options: z
     .array(
       z.object({
+        id: z.string().optional(),
         name: z.string().min(1, 'Tên tùy chọn không được để trống'),
         isRequired: z.boolean(),
         sortOrder: z.number(),
         values: z
           .array(
             z.object({
+              id: z.string().optional(),
               name: z.string().min(1, 'Tên giá trị không được để trống'),
               price: z.number().min(0, 'Giá phải lớn hơn hoặc bằng 0'),
               duration: z.number().min(0, 'Thời gian phải lớn hơn hoặc bằng 0'),

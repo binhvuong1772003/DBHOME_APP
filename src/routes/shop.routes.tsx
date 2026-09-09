@@ -5,6 +5,7 @@ import DashboardPage from "@/pages/shops/DashBoardPage";
 import ShopLayout from "@/features/shop/components/ShopLayout";
 import ManageServicePage from "@/pages/shops/services/ManageServicePage";
 import CreateServicePage from "@/pages/shops/services/CreateServicePage";
+import EditServicePage from "@/pages/shops/services/EditServicePage";
 import ManageAppointmentsPage from "@/pages/shops/admin/appointments/ManageApointments";
 import StaffManagement from "@/features/shop/admin/staff/components/StaffManagement";
 import SettingsPage from "@/pages/shops/admin/settings/SettingsPage";
@@ -31,6 +32,8 @@ import PayrollDetailPage from "@/pages/shops/admin/payroll/PayrollDetailPage";
 import FinancialReportPage from "@/features/shop/admin/financial-report/pages/FinancialReportPage";
 import StaffDetailPage from "@/pages/shops/admin/staff/StaffDetailPage";
 import PaymentsPage from "@/pages/shops/admin/payments/PaymentsPage";
+import CustomersPage from "@/pages/shops/admin/customers/CustomersPage";
+import CustomerDetailPage from "@/pages/shops/admin/customers/CustomerDetailPage";
 import { AiAssistantScope } from "@/features/ai-assistant/components/AiAssistantScope";
 export const shopRoutes = () => [
   <Route key="create-shop" path="/shops/create" element={<CreateShopPage />} />,
@@ -50,6 +53,7 @@ export const shopRoutes = () => [
           <Route index element={<DashboardPage />} />
           <Route path="services" element={<ManageServicePage />} />
           <Route path="services/create" element={<CreateServicePage />} />
+          <Route path="services/:serviceId/edit" element={<EditServicePage />} />
           <Route path="appointments" element={<ManageAppointmentsPage />} />
           <Route path="staff" element={<StaffManagement />} />
           <Route element={<ShopManagerRoute />}>
@@ -60,6 +64,8 @@ export const shopRoutes = () => [
             <Route path="payroll/:payrollId" element={<PayrollDetailPage />} />
             <Route path="financial-report" element={<FinancialReportPage />} />
             <Route path="payments" element={<PaymentsPage />} />
+            <Route path="customers" element={<CustomersPage />} />
+            <Route path="customers/:customerId" element={<CustomerDetailPage />} />
           </Route>
           <Route path="settings" element={<SettingsPage />} />
         </Route>

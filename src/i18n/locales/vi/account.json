@@ -1,0 +1,9 @@
+{
+  "eyebrow": "Cài đặt tài khoản",
+  "title": "Tài khoản của bạn",
+  "description": "Cập nhật thông tin hồ sơ trên SHN.",
+  "fields": { "name": "Họ và tên", "email": "Địa chỉ email", "emailReadOnly": "Email được quản lý theo phương thức đăng nhập." },
+  "profile": { "title": "Hồ sơ", "description": "Thông tin này hiển thị trong menu tài khoản và workspace.", "changeAvatar": "Đổi ảnh đại diện", "uploading": "Đang tải lên…", "avatarHint": "PNG, JPG hoặc WEBP tối đa 5 MB.", "avatarSuccess": "Đã cập nhật ảnh đại diện.", "avatarError": "Không thể cập nhật ảnh đại diện.", "save": "Lưu thay đổi", "saving": "Đang lưu…", "saveSuccess": "Đã cập nhật hồ sơ.", "saveError": "Không thể cập nhật hồ sơ." },
+  "validation": { "nameRequired": "Vui lòng nhập họ tên." },
+  "security": { "title": "Bảo mật", "description": "Bảo mật tài khoản tuân theo phương thức đăng nhập.", "passwordUnavailable": "Chức năng đổi mật khẩu chưa có trong workspace này." }
+}

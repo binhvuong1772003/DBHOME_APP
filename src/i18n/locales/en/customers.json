@@ -1,0 +1,18 @@
+{
+  "nav": "Customers",
+  "header": { "eyebrow": "Customer relationship", "title": "Customers", "description": "Understand customer value, retention and visit activity." },
+  "summary": { "title": "Customer overview", "total": "Total customers", "returning": "Returning customers", "new": "New customers", "neverVisited": "No recorded visit" },
+  "segments": { "all": "Highest spend", "mostVisits": "Most visits", "longestInactive": "Longest since visit", "returning": "Returning", "new": "New" },
+  "filters": { "title": "Customer filters", "searchLabel": "Search customers", "searchPlaceholder": "Search by name or email...", "retention": "Visit pattern", "upcoming": "Upcoming appointment", "upcomingYes": "Has appointment", "upcomingNo": "No appointment", "lastVisitBefore": "Last visit before", "sort": "Sort", "all": "All", "reset": "Reset" },
+  "sort": { "spend": "Highest spend", "visits": "Most visits", "recent": "Recently visited", "longestInactive": "Longest since visit", "newest": "Newest customers" },
+  "columns": { "customer": "Customer", "lastVisit": "Last visit", "visits": "Visits", "lifetimeSpend": "Lifetime spend", "averageSpend": "Average visit", "nextAppointment": "Next appointment", "retention": "Visit pattern", "actions": "Actions" },
+  "retention": { "new": "New", "returning": "Returning" },
+  "lastVisit": { "daysAgo": "{{count}} days ago", "daysAgo_one": "{{count}} day ago" },
+  "nextAppointment": { "none": "None scheduled" },
+  "actions": { "view": "View {{name}}" },
+  "empty": { "title": "No customers found", "description": "No customers match the current search or filters." },
+  "pagination": { "page": "Page {{page}} of {{total}}", "previous": "Previous page", "next": "Next page" },
+  "loadError": "Unable to load customers.", "retry": "Try again",
+  "detail": { "back": "Back to customers", "loadError": "Unable to load customer details.", "noEmail": "No email", "customerSince": "Customer since {{date}}", "valueTitle": "Customer value", "metrics": { "lifetimeSpend": "Lifetime spend", "visits": "Visits", "averageSpend": "Average visit", "lastVisit": "Last visit" }, "upcomingTitle": "Upcoming appointments", "noUpcoming": "No upcoming appointments scheduled.", "noServices": "No services recorded", "unassigned": "Unassigned", "retentionTitle": "Retention", "lastVisit": "Last visit", "daysSinceLastVisit": "Time since last visit", "noVisit": "No completed visit", "relationshipTitle": "Customer relationships", "servicesTitle": "Most booked services", "staffTitle": "Most visited staff", "visitsCount": "{{count}} visits", "visitsCount_one": "{{count}} visit", "noStaff": "No staff history yet", "historyTitle": "Visit history", "noHistory": "No appointment history yet" },
+  "paymentStatus": { "pending": "Payment pending", "partial": "Partially paid", "paid": "Paid", "refunded": "Refunded" }
+}

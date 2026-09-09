@@ -28,6 +28,7 @@ interface StaffDirectoryProps {
   onView: (staff: Staff) => void;
   onViewSchedule: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
+  onManageServices: (staff: Staff) => void;
   onDeactivate: (staff: Staff) => void;
 }
 
@@ -130,6 +131,7 @@ export function StaffDirectory({
   onView,
   onViewSchedule,
   onEdit,
+  onManageServices,
   onDeactivate,
 }: StaffDirectoryProps) {
   const { t } = useTranslation("staff");
@@ -255,6 +257,7 @@ export function StaffDirectory({
                     onView={onView}
                     onViewSchedule={onViewSchedule}
                     onEdit={onEdit}
+                    onManageServices={onManageServices}
                     onDeactivate={onDeactivate}
                   />
                 ))}
@@ -278,6 +281,7 @@ export function StaffDirectory({
               onView={onView}
               onViewSchedule={onViewSchedule}
               onEdit={onEdit}
+              onManageServices={onManageServices}
               onDeactivate={onDeactivate}
             />
           ))}

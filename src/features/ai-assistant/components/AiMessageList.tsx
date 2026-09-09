@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { AiChatMessage } from "../types/aiAssistant.types";
 import { AiEmptyState } from "./AiEmptyState";
 import { AiMessage } from "./AiMessage";
@@ -9,15 +10,27 @@ import { AiMessage } from "./AiMessage";
 interface Props {
   messages: AiChatMessage[];
   isSending: boolean;
+  isLoadingHistory: boolean;
+  isLoadingOlderMessages: boolean;
+  hasOlderMessages: boolean;
+  historyError: string | null;
   onPromptSelect: (prompt: string) => void;
   onRetry: (message: AiChatMessage) => void;
+  onLoadOlderMessages: () => void;
+  onRetryHistory: () => void;
 }
 
 export function AiMessageList({
   messages,
   isSending,
+  isLoadingHistory,
+  isLoadingOlderMessages,
+  hasOlderMessages,
+  historyError,
   onPromptSelect,
   onRetry,
+  onLoadOlderMessages,
+  onRetryHistory,
 }: Props) {
   const { t } = useTranslation("aiAssistant");
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -48,6 +61,7 @@ export function AiMessageList({
         role="log"
         aria-live="polite"
         aria-relevant="additions"
+        aria-busy={isLoadingHistory || isLoadingOlderMessages}
         aria-label={t("conversation")}
         className="h-full overscroll-contain overflow-y-auto px-4 py-4"
         onScroll={(event) => {
@@ -57,10 +71,44 @@ export function AiMessageList({
           setIsNearBottom(distanceFromBottom < 80);
         }}
       >
-        {messages.length === 0 && !isSending ? (
+        {historyError ? (
+          <div
+            className="mb-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+            role="alert"
+          >
+            <p>{historyError}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={onRetryHistory}
+            >
+              {t("error.retry")}
+            </Button>
+          </div>
+        ) : null}
+        {isLoadingHistory ? (
+          <HistorySkeleton />
+        ) : messages.length === 0 && !isSending ? (
           <AiEmptyState disabled={isSending} onSelect={onPromptSelect} />
         ) : (
           <div className="space-y-3">
+            {hasOlderMessages ? (
+              <div className="flex justify-center pb-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={isLoadingOlderMessages}
+                  onClick={onLoadOlderMessages}
+                >
+                  {isLoadingOlderMessages
+                    ? t("history.loadingOlder")
+                    : t("history.loadOlder")}
+                </Button>
+              </div>
+            ) : null}
             {messages.map((message) => (
               <AiMessage
                 key={message.id}
@@ -85,6 +133,16 @@ export function AiMessageList({
           {t("jumpToLatest")}
         </Button>
       ) : null}
+    </div>
+  );
+}
+
+function HistorySkeleton() {
+  return (
+    <div className="space-y-4 py-2" aria-hidden="true">
+      <Skeleton className="h-16 w-[78%] rounded-xl" />
+      <Skeleton className="ml-auto h-12 w-[65%] rounded-xl" />
+      <Skeleton className="h-20 w-[82%] rounded-xl" />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { SignInRequest } from '@/type/auth';
 import { AxiosError } from 'axios';
 import { getShops } from '@/services/shopService';
@@ -9,6 +9,7 @@ export const useSignIn = () => {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
   const onSubmit = async (payload: SignInRequest) => {
     try {
       setLoading(true);
@@ -23,7 +24,8 @@ export const useSignIn = () => {
           staffShop = undefined;
         }
       }
-      navigate(pendingInvite || (staffShop ? `/shops/${staffShop.slug}/workspace` : '/'));
+      const returnTo = (location.state as { from?: string } | null)?.from;
+      navigate(returnTo || pendingInvite || (staffShop ? `/shops/${staffShop.slug}/workspace` : '/'), { replace: true });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         setApiError(error.response?.data?.error?.message || error.response?.data?.message || 'Đăng nhập thất bại');

@@ -12,6 +12,17 @@
     "restore": "Trở về chế độ thu gọn",
     "close": "Đóng Trợ lý AI"
   },
+  "history": {
+    "title": "Lịch sử hội thoại",
+    "newConversation": "Cuộc hội thoại mới",
+    "empty": "Chưa có hội thoại trước đây",
+    "loading": "Đang tải hội thoại...",
+    "loadMore": "Tải thêm",
+    "loadingOlder": "Đang tải tin nhắn cũ...",
+    "loadOlder": "Tải tin nhắn cũ hơn",
+    "untitled": "Hội thoại chưa có tiêu đề",
+    "error": "Không thể tải lịch sử hội thoại."
+  },
   "empty": {
     "title": "Hôm nay tôi có thể giúp gì cho bạn?",
     "description": "Hỏi về lịch hẹn, nhân viên, thanh toán hoặc cửa hàng của bạn."

@@ -46,5 +46,23 @@
     "paid": "Paid",
     "active": "Active",
     "off": "Off"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "change": "Change language",
+    "label": "Language"
+  },
+  "upload": {
+    "rejected": "\"{{name}}\" was rejected",
+    "previewAlt": "Image preview",
+    "remove": "Remove image",
+    "dragDrop": "Drag and drop to upload",
+    "formats": "PNG, JPG or WebP up to 5 MB",
+    "select": "Select image"
   }
 }

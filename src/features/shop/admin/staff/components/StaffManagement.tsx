@@ -5,6 +5,7 @@ import { StaffManagementHeader } from "./StaffManagementHeader";
 import { StaffStats } from "./StaffStats";
 import { StaffScheduleSheet } from "./StaffScheduleSheet";
 import { StaffToolbar } from "./StaffToolbar";
+import { StaffServicesSheet } from "./StaffServicesSheet";
 import { useStaffManagement } from "../hooks/useStaffManagement";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -43,6 +44,7 @@ export default function StaffManagement() {
     openEdit,
     openSchedule,
     openDeactivate,
+    openServices,
     closeDialog,
     handleInvite,
     handleEdit,
@@ -96,6 +98,7 @@ export default function StaffManagement() {
           onView={(staff) => navigate(`/shops/${shopSlug}/admin/staff/${staff.id}`)}
           onViewSchedule={openSchedule}
           onEdit={openEdit}
+          onManageServices={openServices}
           onDeactivate={openDeactivate}
         />
       </div>
@@ -116,6 +119,12 @@ export default function StaffManagement() {
       <StaffScheduleSheet
         staff={selectedStaff}
         open={mode === "SCHEDULE"}
+        onOpenChange={handleOpenChange}
+      />
+
+      <StaffServicesSheet
+        staff={selectedStaff}
+        open={mode === "SERVICES"}
         onOpenChange={handleOpenChange}
       />
 

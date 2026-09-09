@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowDown,
@@ -7,8 +7,10 @@ import {
   ChevronDown,
   Clock3,
   Ellipsis,
+  FolderPlus,
   ImageOff,
   Layers3,
+  Pencil,
   Plus,
   Search,
   SlidersHorizontal,
@@ -26,6 +28,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useServiceManagement } from "@/features/shop/admin/service/hooks/useServiceManagement";
+import { useServiceCategories } from "@/features/shop/admin/service/hooks/useServiceCategories";
+import { CreateServiceCategorySheet } from "./CreateServiceCategorySheet";
+import { ServiceCategoriesPanel } from "./ServiceCategoriesPanel";
 import type { Service } from "@/types/service";
 
 type StatusTab = "all" | "active" | "inactive";
@@ -54,7 +59,7 @@ function StatusBadge({ isActive, label }: { isActive: boolean; label: string }) 
   );
 }
 
-function ServiceOptions({ service, requiredLabel, optionGroupLabel, pricePrefix }: { service: Service; requiredLabel: string; optionGroupLabel: string; pricePrefix: string }) {
+function ServiceOptions({ service, requiredLabel, optionGroupLabel, pricePrefix, locale, minutesLabel }: { service: Service; requiredLabel: string; optionGroupLabel: string; pricePrefix: string; locale: string; minutesLabel: string }) {
   if (!service.options?.length) return null;
   return (
     <div className="space-y-3 border-t border-border/60 bg-muted/20 px-4 py-4 sm:px-5">
@@ -69,8 +74,8 @@ function ServiceOptions({ service, requiredLabel, optionGroupLabel, pricePrefix 
               <div key={value.id} className="flex items-center justify-between gap-4 px-3 py-2 text-sm">
                 <span className="min-w-0 truncate">{value.name}</span>
                 <span className="shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                  {value.price > 0 ? `${pricePrefix}${formatCurrency(value.price, "vi-VN")}` : formatCurrency(value.price, "vi-VN")}
-                  <span className="mx-1.5 text-border">·</span>{value.duration} min
+                  {value.price > 0 ? `${pricePrefix}${formatCurrency(value.price, locale)}` : formatCurrency(value.price, locale)}
+                  <span className="mx-1.5 text-border">·</span>{value.duration} {minutesLabel}
                 </span>
               </div>
             ))}
@@ -95,8 +100,10 @@ function StatCard({ label, value, icon, accent }: { label: string; value: number
 
 export const ManageServiceForm = () => {
   const navigate = useNavigate();
+  const [categorySheetOpen, setCategorySheetOpen] = useState(false);
   const { t, i18n } = useTranslation("service");
-  const { isLoading, error, sortedServiceList, activeTab, setActiveTab, search, setSearch, handleSort, handleStatusChange, sortColumn, sortOrder, counts, expandedServiceIds, setExpandedServiceIds, totalPages, rangeStart, rangeEnd, page, setPage } = useServiceManagement();
+  const { isLoading, error, sortedServiceList, activeTab, setActiveTab, search, setSearch, handleSort, handleStatusChange, sortColumn, sortOrder, counts, expandedServiceIds, setExpandedServiceIds, totalPages, rangeStart, rangeEnd, page, setPage, reload } = useServiceManagement();
+  const { categories, meta: categoriesMeta, isLoading: categoriesLoading, error: categoriesError, refetch: refetchCategories } = useServiceCategories({ limit: 4 });
   const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
 
   const services = sortedServiceList ?? [];
@@ -105,14 +112,14 @@ export const ManageServiceForm = () => {
   const resetFilters = () => { setSearch(""); setTab("all"); };
   const toggleExpanded = (serviceId: string) => setExpandedServiceIds((current) => current.includes(serviceId) ? current.filter((id) => id !== serviceId) : [...current, serviceId]);
   const statusLabel = (isActive: boolean) => isActive ? t("status.active") : t("status.hidden");
-  const categoryCount = counts.categories;
+  const categoryCount = categoriesMeta.total || counts.categories;
 
   return (
     <main className="min-h-full bg-background">
       <div className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 border-b border-border/60 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2"><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary"><Sparkles className="size-3.5" aria-hidden="true" />{t("page.eyebrow")}</div><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("page.title")}</h1><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{t("page.description")}</p></div>
-          <Button className="h-10 rounded-lg px-4" onClick={() => navigate("create")}><Plus className="size-4" aria-hidden="true" />{t("actions.add")}</Button>
+          <div className="flex flex-wrap gap-2"><Button variant="outline" className="h-10 rounded-lg px-4" onClick={() => setCategorySheetOpen(true)}><FolderPlus className="size-4" aria-hidden="true" />{t("actions.createCategory")}</Button><Button className="h-10 rounded-lg px-4" onClick={() => navigate("create")}><Plus className="size-4" aria-hidden="true" />{t("actions.add")}</Button></div>
         </header>
 
         <section aria-label={t("overview.label")} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -121,6 +128,8 @@ export const ManageServiceForm = () => {
           <StatCard label={t("overview.hidden")} value={counts.inactive} icon={<Ellipsis className="size-4" aria-hidden="true" />} />
           <StatCard label={t("overview.categories")} value={categoryCount} icon={<SlidersHorizontal className="size-4" aria-hidden="true" />} />
         </section>
+
+        <ServiceCategoriesPanel categories={categories} total={categoriesMeta.total} isLoading={categoriesLoading} error={categoriesError} onRetry={() => void refetchCategories()} />
 
         <section className="space-y-4" aria-label={t("toolbar.label")}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -141,13 +150,14 @@ export const ManageServiceForm = () => {
           {!isLoading && !error && services.length > 0 && <>
             <div className="hidden overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs md:block">
               <div className="grid grid-cols-[minmax(0,1.7fr)_130px_150px_130px_42px] items-center gap-4 border-b border-border/60 bg-muted/30 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><span>{t("fields.service")}</span><span>{t("fields.category")}</span><span>{t("fields.status")}</span><span className="text-right">{t("fields.priceDuration")}</span><span aria-hidden="true" /></div>
-              <div className="divide-y divide-border/60">{services.map((service) => { const expanded = expandedServiceIds.includes(service.id); return <div key={service.id}><div className="grid grid-cols-[minmax(0,1.7fr)_130px_150px_130px_42px] items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/25"><button type="button" onClick={() => toggleExpanded(service.id)} className="flex min-w-0 items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ServiceImage service={service} /><span className="min-w-0"><span className="flex items-center gap-2"><ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" /><span className="truncate font-semibold">{service.name}</span></span><span className="ml-6 block truncate text-xs text-muted-foreground">{service.options?.length ? t("service.optionGroups", { count: service.options.length }) : t("service.noOptions")}</span></span></button><span className="truncate text-sm text-muted-foreground">{service.categoryId ?? t("service.uncategorized")}</span><DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t("actions.changeStatus")} className="w-fit rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><StatusBadge isActive={service.isActive} label={statusLabel(service.isActive)} /></button></DropdownMenuTrigger><DropdownMenuContent align="start"><DropdownMenuItem onClick={() => handleStatusChange(service.id, true)}>{t("status.active")}</DropdownMenuItem><DropdownMenuItem onClick={() => handleStatusChange(service.id, false)}>{t("status.hidden")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu><span className="text-right text-sm tabular-nums"><span className="block font-medium">{formatCurrency(service.basePrice ?? 0, locale)}</span><span className="mt-0.5 flex items-center justify-end gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />{service.durationMin ?? 0} {t("units.minutes")}</span></span><button type="button" onClick={() => toggleExpanded(service.id)} aria-label={expanded ? t("actions.collapse") : t("actions.expand")} className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Ellipsis className="size-4" aria-hidden="true" /></button></div>{expanded && <ServiceOptions service={service} requiredLabel={t("service.required")} optionGroupLabel={t("service.optionGroups", { count: service.options?.length ?? 0 })} pricePrefix={t("units.pricePrefix")} />}</div>; })}</div>
+              <div className="divide-y divide-border/60">{services.map((service) => { const expanded = expandedServiceIds.includes(service.id); return <div key={service.id}><div className="grid grid-cols-[minmax(0,1.7fr)_130px_150px_130px_42px] items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/25"><button type="button" onClick={() => toggleExpanded(service.id)} className="flex min-w-0 items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ServiceImage service={service} /><span className="min-w-0"><span className="flex items-center gap-2"><ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" /><span className="truncate font-semibold">{service.name}</span></span><span className="ml-6 block truncate text-xs text-muted-foreground">{service.options?.length ? t("service.optionGroups", { count: service.options.length }) : t("service.noOptions")}</span></span></button><span className="truncate text-sm text-muted-foreground">{service.category?.name ?? t("service.uncategorized")}</span><DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t("actions.changeStatus")} className="w-fit rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><StatusBadge isActive={service.isActive} label={statusLabel(service.isActive)} /></button></DropdownMenuTrigger><DropdownMenuContent align="start"><DropdownMenuItem onClick={() => handleStatusChange(service.id, true)}>{t("status.active")}</DropdownMenuItem><DropdownMenuItem onClick={() => handleStatusChange(service.id, false)}>{t("status.hidden")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu><span className="text-right text-sm tabular-nums"><span className="block font-medium">{formatCurrency(service.basePrice ?? 0, locale)}</span><span className="mt-0.5 flex items-center justify-end gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />{service.durationMin ?? 0} {t("units.minutes")}</span></span><DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t("actions.edit")} className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Ellipsis className="size-4" aria-hidden="true" /></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => navigate(`${service.id}/edit`)}><Pencil className="size-4" aria-hidden="true" />{t("actions.edit")}</DropdownMenuItem><DropdownMenuItem onClick={() => toggleExpanded(service.id)}>{expanded ? t("actions.collapse") : t("actions.expand")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>{expanded && <ServiceOptions service={service} requiredLabel={t("service.required")} optionGroupLabel={t("service.optionGroups", { count: service.options?.length ?? 0 })} pricePrefix={t("units.pricePrefix")} locale={locale} minutesLabel={t("units.minutes")} />}</div>; })}</div>
             </div>
-            <div className="space-y-3 md:hidden">{services.map((service) => { const expanded = expandedServiceIds.includes(service.id); return <Card key={service.id} className="gap-0 overflow-hidden rounded-xl border-border/60 py-0 shadow-xs"><CardContent className="p-4"><div className="flex items-start gap-3"><ServiceImage service={service} /><div className="min-w-0 flex-1"><p className="truncate font-semibold">{service.name}</p><p className="mt-1 truncate text-xs text-muted-foreground">{service.categoryId ?? t("service.uncategorized")}</p></div><DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t("actions.changeStatus")}><StatusBadge isActive={service.isActive} label={statusLabel(service.isActive)} /></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => handleStatusChange(service.id, true)}>{t("status.active")}</DropdownMenuItem><DropdownMenuItem onClick={() => handleStatusChange(service.id, false)}>{t("status.hidden")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div><div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-sm"><span className="font-medium">{formatCurrency(service.basePrice ?? 0, locale)}</span><span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />{service.durationMin ?? 0} {t("units.minutes")}</span><Button variant="ghost" size="sm" className="h-8 rounded-lg px-2" onClick={() => toggleExpanded(service.id)}>{expanded ? t("actions.hideOptions") : t("actions.viewOptions")}</Button></div></CardContent>{expanded && <ServiceOptions service={service} requiredLabel={t("service.required")} optionGroupLabel={t("service.optionGroups", { count: service.options?.length ?? 0 })} pricePrefix={t("units.pricePrefix")} />}</Card>; })}</div>
-            {totalPages > 1 && <div className="flex flex-col gap-3 border-t border-border/60 pt-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>Hiển thị {rangeStart}-{rangeEnd} trong {counts[activeTab]} dịch vụ</span><div className="flex items-center gap-2"><Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Trước</Button><span className="min-w-20 text-center">Trang {page}/{totalPages}</span><Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Sau</Button></div></div>}
+            <div className="space-y-3 md:hidden">{services.map((service) => { const expanded = expandedServiceIds.includes(service.id); return <Card key={service.id} className="gap-0 overflow-hidden rounded-xl border-border/60 py-0 shadow-xs"><CardContent className="p-4"><div className="flex items-start gap-3"><ServiceImage service={service} /><div className="min-w-0 flex-1"><p className="truncate font-semibold">{service.name}</p><p className="mt-1 truncate text-xs text-muted-foreground">{service.category?.name ?? t("service.uncategorized")}</p></div><DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t("actions.changeStatus")}><StatusBadge isActive={service.isActive} label={statusLabel(service.isActive)} /></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => handleStatusChange(service.id, true)}>{t("status.active")}</DropdownMenuItem><DropdownMenuItem onClick={() => handleStatusChange(service.id, false)}>{t("status.hidden")}</DropdownMenuItem></DropdownMenuContent></DropdownMenu><Button type="button" variant="ghost" size="icon" className="size-9" aria-label={t("actions.edit")} onClick={() => navigate(`${service.id}/edit`)}><Pencil className="size-4" aria-hidden="true" /></Button></div><div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-sm"><span className="font-medium">{formatCurrency(service.basePrice ?? 0, locale)}</span><span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />{service.durationMin ?? 0} {t("units.minutes")}</span><Button variant="ghost" size="sm" className="h-8 rounded-lg px-2" onClick={() => toggleExpanded(service.id)}>{expanded ? t("actions.hideOptions") : t("actions.viewOptions")}</Button></div></CardContent>{expanded && <ServiceOptions service={service} requiredLabel={t("service.required")} optionGroupLabel={t("service.optionGroups", { count: service.options?.length ?? 0 })} pricePrefix={t("units.pricePrefix")} locale={locale} minutesLabel={t("units.minutes")} />}</Card>; })}</div>
+            {totalPages > 1 && <div className="flex flex-col gap-3 border-t border-border/60 pt-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>{t("pagination.showing", { start: rangeStart, end: rangeEnd, total: counts[activeTab] })}</span><div className="flex items-center gap-2"><Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>{t("pagination.previous")}</Button><span className="min-w-20 text-center">{t("pagination.page", { current: page, total: totalPages })}</span><Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>{t("pagination.next")}</Button></div></div>}
           </>}
         </section>
       </div>
+      <CreateServiceCategorySheet open={categorySheetOpen} onOpenChange={setCategorySheetOpen} onCreated={() => { void refetchCategories(); void reload(); }} />
     </main>
   );
 };

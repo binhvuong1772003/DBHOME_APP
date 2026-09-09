@@ -108,6 +108,14 @@ export interface UpdateStaffInput {
   isActive?: boolean;
 }
 
+export interface StaffServiceAssignment {
+  id: string;
+  shopStaffId: string;
+  serviceId: string;
+  isActive: boolean;
+  service: import("@/types/service").Service;
+}
+
 export interface StaffStats {
   total: number;
   active: number;
@@ -128,4 +136,5 @@ export type StaffDialogMode =
   | "DETAIL"
   | "SCHEDULE"
   | "DEACTIVATE"
+  | "SERVICES"
   | null;

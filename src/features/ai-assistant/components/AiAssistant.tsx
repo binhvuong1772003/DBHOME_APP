@@ -20,6 +20,7 @@ export function AiAssistant({ shopSlug }: { shopSlug: string }) {
   const launcherRef = useRef<HTMLButtonElement>(null);
   const shouldRestoreLauncherFocusRef = useRef(false);
   const chat = useAiChat(shopSlug, t("error.fallback"));
+  const { initialize, selectConversation: selectConversationChat } = chat;
 
   const dismiss = useCallback(() => {
     shouldRestoreLauncherFocusRef.current = true;
@@ -39,24 +40,57 @@ export function AiAssistant({ shopSlug }: { shopSlug: string }) {
     return () => window.cancelAnimationFrame(frame);
   }, [displayMode]);
 
+  const openAssistant = useCallback(() => {
+    setDisplayMode("compact");
+    void initialize();
+  }, [initialize]);
+
+  const selectConversation = useCallback(
+    (id: string) => {
+      setDraft("");
+      void selectConversationChat(id);
+    },
+    [selectConversationChat],
+  );
+
+  const retryHistory = useCallback(() => {
+    void initialize();
+  }, [initialize]);
+
   return (
     <TooltipProvider delayDuration={300}>
       {displayMode === "closed" ? (
         <AiAssistantLauncher
           buttonRef={launcherRef}
-          onOpen={() => setDisplayMode("compact")}
+          onOpen={openAssistant}
         />
       ) : (
         <Suspense fallback={<AiChatFallback />}>
           <AiChatWindow
             displayMode={displayMode}
             draft={draft}
+            activeConversationId={chat.conversationId}
+            conversations={chat.conversations}
+            hasMoreConversations={chat.hasMoreConversations}
+            hasOlderMessages={chat.hasOlderMessages}
+            historyError={chat.historyError}
+            isLoadingConversations={chat.isLoadingConversations}
+            isLoadingHistory={chat.isLoadingMessages}
+            isLoadingOlderMessages={chat.isLoadingOlderMessages}
             messages={chat.messages}
             isSending={chat.isSending}
             onClose={dismiss}
             onDraftChange={setDraft}
             onMinimize={dismiss}
+            onLoadMoreConversations={() => void chat.loadConversations({ append: true })}
+            onLoadOlderMessages={() => void chat.loadOlderMessages()}
+            onNewConversation={() => {
+              setDraft("");
+              chat.startNewConversation();
+            }}
             onRetry={(message) => void chat.retryMessage(message)}
+            onRetryHistory={retryHistory}
+            onSelectConversation={selectConversation}
             onSend={(prompt) => void chat.sendMessage(prompt)}
             onToggleExpanded={() =>
               setDisplayMode((current) =>

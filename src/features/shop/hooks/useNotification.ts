@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import {
   getListNotification,
   markNotificationRead,
+  markAllNotificationsRead,
   deleteNotification,
 } from '@/services/notificationService';
 interface Notification {
@@ -14,70 +15,48 @@ interface Notification {
   isRead: boolean;
   createdAt: string;
 }
-export const useNotification = () => {
+export const useNotification = (shopSlugOverride?: string) => {
   const { shopSlug } = useParams();
+  const activeShopSlug = shopSlugOverride ?? shopSlug;
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasNew, setHasNew] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (!shopSlug) return;
+    if (!activeShopSlug) return;
+    let cancelled = false;
     const fetch = async () => {
+      setLoading(true);
+      setError(false);
       try {
-        const data = await getListNotification(shopSlug);
-        setNotifications(data);
-      } catch (error) {
-        console.error(error);
+        const data = await getListNotification(activeShopSlug);
+        if (!cancelled) setNotifications(data);
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
     fetch();
-  }, [shopSlug]);
+    return () => { cancelled = true; };
+  }, [activeShopSlug, attempt]);
   useEffect(() => {
-    socket.on('off_day_request', (data) => {
+    const refreshFromSocket = () => {
+      // Socket events only invalidate the list. The authenticated API remains
+      // the source of truth so a shop-wide event cannot leak another user's
+      // notification into this account's list.
       setHasNew(true);
-      setNotifications((prev) => [
-        {
-          id: data.notificationId,
-          title: 'Yêu cầu nghỉ phép',
-          content: data.message,
-          type: 'off_day_request',
-          isRead: false,
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-    });
+      setAttempt((value) => value + 1);
+    };
 
-    socket.on('off_day_response', (data) => {
-      setHasNew(true);
-      setNotifications((prev) => [
-        {
-          id: data.notificationId,
-          title: 'Phản hồi nghỉ phép',
-          content: data.message,
-          type: 'off_day_response',
-          isRead: false,
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-    });
-    socket.on('appointment_request', (data) => {
-      setHasNew(true);
-      setNotifications((prev) => [
-        {
-          id: data.notificationId,
-          title: 'Thông báo đặt lịch',
-          content: data.message,
-          type: 'appointment_request',
-          isRead: false,
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-    });
+    socket.on('off_day_request', refreshFromSocket);
+    socket.on('off_day_response', refreshFromSocket);
+    socket.on('appointment_request', refreshFromSocket);
     return () => {
-      socket.off('off_day_request');
-      socket.off('off_day_response');
-      socket.off('appointment_request');
+      socket.off('off_day_request', refreshFromSocket);
+      socket.off('off_day_response', refreshFromSocket);
+      socket.off('appointment_request', refreshFromSocket);
     };
   }, []);
   const onOpenBell = () => setHasNew(false);
@@ -87,7 +66,7 @@ export const useNotification = () => {
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
     try {
-      await markNotificationRead(shopSlug!, id);
+      await markNotificationRead(activeShopSlug!, id);
     } catch (error) {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: false } : n))
@@ -97,9 +76,20 @@ export const useNotification = () => {
   };
   const deleteNoti = async (id: string) => {
     try {
-      await deleteNotification(shopSlug!, id);
+      await deleteNotification(activeShopSlug!, id);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
+      console.error(error);
+    }
+  };
+  const markAllRead = async () => {
+    if (!activeShopSlug) return;
+    const previous = notifications;
+    setNotifications((items) => items.map((item) => ({ ...item, isRead: true })));
+    try {
+      await markAllNotificationsRead(activeShopSlug);
+    } catch (error) {
+      setNotifications(previous);
       console.error(error);
     }
   };
@@ -110,5 +100,9 @@ export const useNotification = () => {
     unreadCount,
     markRead,
     deleteNoti,
+    markAllRead,
+    loading,
+    error,
+    retry: () => setAttempt((value) => value + 1),
   };
 };

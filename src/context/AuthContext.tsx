@@ -76,13 +76,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const logout = useCallback(async () => {
+    let serverLogoutSucceeded = true;
     try {
       await axiosClient.post("auth/logout");
-    } catch (error) {
-      void error;
+    } catch {
+      // The local session must still be cleared, but callers can surface that
+      // the server-side revoke request did not complete.
+      serverLogoutSucceeded = false;
     }
     tokenService.clear();
     setUser(null);
+    return serverLogoutSucceeded;
   }, []);
 
   return (

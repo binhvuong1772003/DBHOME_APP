@@ -16,6 +16,7 @@ import {
   Calendar,
   Scissors,
   Users,
+  ContactRound,
   Settings,
   LogOut,
   Wallet,
@@ -59,6 +60,7 @@ const financeItems = [
 ];
 
 const workforceItems = [
+  { labelKey: "customers:nav", icon: ContactRound, path: "/customers" },
   { labelKey: "nav.schedule", icon: CalendarClock, path: "/staff-schedule" },
   { labelKey: "nav.timeOff", icon: CalendarOff, path: "/time-off" },
   { labelKey: "payroll:nav", icon: WalletCards, path: "/payroll" },
@@ -85,7 +87,7 @@ const menuButtonClass =
 const iconClass = "text-foreground shrink-0";
 
 export const ShopSideBar = () => {
-  const { t } = useTranslation(["workforce", "payroll", "payments"]);
+  const { t } = useTranslation(["workforce", "payroll", "payments", "customers"]);
   const { membership } = useShopMembership();
   const { shopSlug } = useParams<{ shopSlug: string }>();
   const navigate = useNavigate();

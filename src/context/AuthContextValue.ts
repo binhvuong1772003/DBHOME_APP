@@ -7,7 +7,8 @@ export type AuthContextType = {
   setUser: React.Dispatch<React.SetStateAction<User | null>>; // ← thêm
   signIn: (data: SignInRequest) => Promise<User | null>;
   signup: (data: SignUpRequest) => Promise<void>;
-  logout: () => Promise<void>;
+  /** Clears the local session even when the server request fails. */
+  logout: () => Promise<boolean>;
   sendEmailVerification: (email: string) => Promise<void>;
   connectionError: boolean; // ← thêm
   retryAuth: () => Promise<void>; // ← thêm
