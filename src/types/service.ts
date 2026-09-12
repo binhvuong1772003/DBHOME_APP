@@ -10,7 +10,7 @@ export interface OptionValue {
   id: string;
   name: string;
   price: number;
-  duration: number;
+  duration?: number | null;
 }
 
 export interface ServiceCategory {

@@ -1,0 +1,47 @@
+{
+  "brand": { "name": "SHN APP", "home": "Về trang chủ" },
+  "toggle": "Mở hoặc thu gọn thanh điều hướng",
+  "groups": {
+    "overview": "Tổng quan",
+    "operations": "Vận hành",
+    "people": "Nhân sự",
+    "finance": "Tài chính"
+  },
+  "nav": {
+    "dashboard": "Tổng quan",
+    "appointments": "Lịch hẹn",
+    "customers": "Khách hàng",
+    "services": "Dịch vụ",
+    "staff": "Nhân viên",
+    "schedule": "Lịch làm việc",
+    "timeOff": "Nghỉ phép",
+    "payments": "Thanh toán",
+    "payroll": "Lương & hoa hồng",
+    "financialReport": "Báo cáo tài chính",
+    "settings": "Cài đặt shop"
+  },
+  "shop": {
+    "choose": "Chọn cửa hàng",
+    "noShop": "Chưa có cửa hàng",
+    "noAccess": "Không còn quyền truy cập cửa hàng này",
+    "logoAlt": "Logo của {{name}}",
+    "type": {
+      "NAIL": "Nail",
+      "SPA": "Spa",
+      "HAIR": "Tóc",
+      "COMBO": "Nail & Spa",
+      "default": "Cửa hàng làm đẹp"
+    }
+  },
+  "account": {
+    "profileLabel": "Thông tin tài khoản",
+    "role": "Vai trò: {{role}}",
+    "logout": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất…",
+    "logoutError": "Không thể đăng xuất. Vui lòng thử lại.",
+    "roleOwner": "Chủ cửa hàng",
+    "roleAdmin": "Quản lý",
+    "roleStaff": "Nhân viên"
+  },
+  "empty": "Không có cửa hàng nào để hiển thị"
+}

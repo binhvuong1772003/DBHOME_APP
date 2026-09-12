@@ -44,7 +44,7 @@ export function useEditService() {
           name: option.name,
           isRequired: option.isRequired,
           sortOrder: option.sortOrder,
-          values: (option.values ?? []).map((value) => ({ id: value.id, name: value.name, price: value.price, duration: value.duration })),
+          values: (option.values ?? []).map((value) => ({ id: value.id, name: value.name, price: value.price, duration: value.duration ?? 0 })),
         })),
       });
       setImageFiles([]);
@@ -79,7 +79,7 @@ export function useEditService() {
   const onCancel = () => navigate(`/shops/${shopSlug}/admin/services`);
   const onReset = () => {
     if (!service) return;
-    form.reset({ name: service.name, categoryId: service.categoryId ?? "", description: service.description ?? "", basePrice: service.basePrice ?? 0, durationMin: service.durationMin, sortOrder: service.sortOrder, isActive: service.isActive, imageUrl: service.imageUrl, options: (service.options ?? []).map((option) => ({ id: option.id, name: option.name, isRequired: option.isRequired, sortOrder: option.sortOrder, values: (option.values ?? []).map((value) => ({ id: value.id, name: value.name, price: value.price, duration: value.duration })) })) });
+    form.reset({ name: service.name, categoryId: service.categoryId ?? "", description: service.description ?? "", basePrice: service.basePrice ?? 0, durationMin: service.durationMin, sortOrder: service.sortOrder, isActive: service.isActive, imageUrl: service.imageUrl, options: (service.options ?? []).map((option) => ({ id: option.id, name: option.name, isRequired: option.isRequired, sortOrder: option.sortOrder, values: (option.values ?? []).map((value) => ({ id: value.id, name: value.name, price: value.price, duration: value.duration ?? 0 })) })) });
     setImageFiles([]);
     setApiError(null);
   };

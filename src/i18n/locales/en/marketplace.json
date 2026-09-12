@@ -5,7 +5,11 @@
   "closeMenu": "Close menu",
   "manageSalon": "Manage salon",
   "signIn": "Sign in",
-  "nav": { "salons": "Salons", "services": "Services", "collections": "Collections" },
+  "nav": {
+    "salons": "Salons",
+    "services": "Services",
+    "collections": "Collections"
+  },
   "eyebrow": "A more considered way to book beauty care",
   "hero": {
     "title": "Find your next feel-good ritual.",
@@ -19,11 +23,71 @@
     "primaryCta": "Explore services",
     "secondaryCta": "Find a spa"
   },
-  "search": { "serviceLabel": "Search services", "servicePlaceholder": "Service or salon", "locationLabel": "Search location", "locationPlaceholder": "City or district", "submit": "Explore" },
-  "explore": { "eyebrow": "Start with a feeling", "title": "What are you in the mood for?", "viewAll": "View all services" },
-  "categories": { "nails": "Nails", "spa": "Spa", "wellness": "Massage & wellness", "studios": "Studios" },
-  "salons": { "eyebrow": "Salon discovery", "title": "Spaces worth discovering", "description": "Explore active salons and the services they have made available.", "available": "available" },
-  "salonType": { "nail": "Nail studio", "spa": "Spa", "hair": "Hair salon", "combo": "Beauty studio" },
+  "search": {
+    "serviceLabel": "Search services",
+    "servicePlaceholder": "Service or salon",
+    "locationLabel": "Search location",
+    "locationPlaceholder": "City or district",
+    "submit": "Explore"
+  },
+  "explore": {
+    "eyebrow": "Start with a feeling",
+    "title": "What are you in the mood for?",
+    "viewAll": "View all services"
+  },
+  "categories": {
+    "nails": "Nails",
+    "spa": "Spa",
+    "wellness": "Massage & wellness",
+    "studios": "Studios"
+  },
+  "discovery": {
+    "preview": "Preview data",
+    "toggleLabel": "Choose what to explore",
+    "tabs": {
+      "services": "Services",
+      "salons": "Salons"
+    },
+    "viewAll": "View all",
+    "viewAndBook": "View & book",
+    "viewSalon": "View salon",
+    "recommendedDescription": "A considered starting point while personalized recommendations are taking shape.",
+    "popularDescription": "A curated preview of services and spaces to explore next.",
+    "recommended": {
+      "eyebrow": "Recommended for you",
+      "title": "A softer way to start exploring"
+    },
+    "popular": {
+      "eyebrow": "Popular right now",
+      "title": "What people are exploring"
+    },
+    "categories": {
+      "eyebrow": "Explore categories",
+      "title": "Find the right kind of care",
+      "description": "Browse by salon type, then compare real shops and their live menus.",
+      "explore": "Explore",
+      "items": {
+        "nails": "Nails",
+        "hair": "Hair",
+        "spa": "Spa",
+        "massage": "Massage",
+        "facial": "Facial",
+        "studios": "Beauty studios"
+      }
+    }
+  },
+  "salons": {
+    "eyebrow": "Salon discovery",
+    "title": "Spaces worth discovering",
+    "description": "Explore active salons and the services they have made available.",
+    "available": "available"
+  },
+  "salonType": {
+    "nail": "Nail studio",
+    "spa": "Spa",
+    "hair": "Hair salon",
+    "combo": "Beauty studio"
+  },
   "salonLocationNotSet": "Location not set",
   "salonCoverNotSet": "Salon cover not available",
   "serviceImageNotSet": "Service image not available",
@@ -31,13 +95,92 @@
   "salonServiceMenu": "Explore the menu",
   "exploreMenu": "Explore",
   "viewSalon": "View salon",
-  "services": { "eyebrow": "A closer look", "title": "Services to make time for", "description": "Compare duration and pricing from the live service menus in your salons.", "duration": "{{minutes}} min", "viewService": "View service", "viewAll": "View all services" },
-  "bookingPreview": { "eyebrow": "A calmer way to book", "title": "Choose your place, then your time.", "description": "Start with a real salon and service. Live availability is checked only after you continue to that shop.", "point1": "Choose the shop that feels right", "point2": "See live availability in the booking flow", "step1": "Choose a shop", "shopPlaceholder": "Select a salon", "noShops": "No salons available", "step2": "Choose a service", "servicePlaceholder": "Select a service", "noServices": "No services available", "selectShopFirst": "Choose a shop first", "step3": "Choose a time", "timePlaceholder": "Choose on the shop page", "step3Description": "Pick a date and available time on the shop page.", "cta": "Continue to shop", "note": "This preview does not reserve a slot." },
-  "beforeAfter": { "eyebrow": "The craft, up close", "title": "See the work when it is shared.", "description": "Only public before-and-after sets from participating shops appear here. We never create sample transformations.", "emptyTitle": "Before-and-after gallery coming soon", "emptyDescription": "Shops can share real, consented work here. No sample transformations are shown until data is available.", "defaultService": "Service", "before": "Before", "after": "After" },
-  "testimonials": { "eyebrow": "From the community", "title": "Real words from real visits", "description": "Public reviews from the salons in this marketplace, shown with the shop they belong to.", "available": "reviews", "stars": "stars", "noComment": "This customer left a rating without a written note.", "empty": "No public reviews are available yet.", "unavailable": "Public reviews could not be loaded right now." },
-  "collections": { "eyebrow": "Curated by mood", "title": "A little inspiration", "description": "Editorial stories to help you decide what kind of care feels right today.", "quietLuxury": { "title": "Quiet luxury", "description": "Soft spaces and considered details." }, "nailEdit": { "title": "The nail edit", "description": "A closer look at the craft." }, "resetRituals": { "title": "Reset rituals", "description": "Make space for a slower hour." } },
-  "why": { "eyebrow": "Why SHN", "title": "Less searching. More choosing.", "point1": "See the service menu and practical details before you commit.", "point2": "Move between salons without losing your sense of what matters.", "point3": "Keep discovery close to the tools you already use to run your business." },
-  "states": { "loadError": "We couldn't load salons right now.", "retry": "Try again", "noSalons": "No active salons are available yet.", "noServices": "No active services are available yet." },
-  "finalCta": { "eyebrow": "Ready when you are", "title": "Let the next appointment feel a little more intentional.", "description": "Explore real salons and services, then choose the place that feels right for your next visit.", "action": "Choose a salon", "signInAction": "Sign in to continue" },
-  "footer": { "tagline": "Beauty care, thoughtfully discovered.", "dataNote": "Details are shown from your live salon data." }
+  "services": {
+    "eyebrow": "A closer look",
+    "title": "Services to make time for",
+    "description": "Compare duration and pricing from the live service menus in your salons.",
+    "duration": "{{minutes}} min",
+    "viewService": "View service",
+    "viewAll": "View all services"
+  },
+  "bookingPreview": {
+    "eyebrow": "A calmer way to book",
+    "title": "Choose your place, then your time.",
+    "description": "Start with a real salon and service. Live availability is checked only after you continue to that shop.",
+    "point1": "Choose the shop that feels right",
+    "point2": "See live availability in the booking flow",
+    "step1": "Choose a shop",
+    "shopPlaceholder": "Select a salon",
+    "noShops": "No salons available",
+    "step2": "Choose a service",
+    "servicePlaceholder": "Select a service",
+    "noServices": "No services available",
+    "selectShopFirst": "Choose a shop first",
+    "step3": "Choose a time",
+    "timePlaceholder": "Choose on the shop page",
+    "step3Description": "Pick a date and available time on the shop page.",
+    "cta": "Continue to shop",
+    "note": "This preview does not reserve a slot."
+  },
+  "beforeAfter": {
+    "eyebrow": "The craft, up close",
+    "title": "See the work when it is shared.",
+    "description": "Only public before-and-after sets from participating shops appear here. We never create sample transformations.",
+    "emptyTitle": "Before-and-after gallery coming soon",
+    "emptyDescription": "Shops can share real, consented work here. No sample transformations are shown until data is available.",
+    "defaultService": "Service",
+    "before": "Before",
+    "after": "After"
+  },
+  "testimonials": {
+    "eyebrow": "From the community",
+    "title": "Real words from real visits",
+    "description": "Public reviews from the salons in this marketplace, shown with the shop they belong to.",
+    "available": "reviews",
+    "stars": "stars",
+    "noComment": "This customer left a rating without a written note.",
+    "empty": "No public reviews are available yet.",
+    "unavailable": "Public reviews could not be loaded right now."
+  },
+  "collections": {
+    "eyebrow": "Curated by mood",
+    "title": "A little inspiration",
+    "description": "Editorial stories to help you decide what kind of care feels right today.",
+    "quietLuxury": {
+      "title": "Quiet luxury",
+      "description": "Soft spaces and considered details."
+    },
+    "nailEdit": {
+      "title": "The nail edit",
+      "description": "A closer look at the craft."
+    },
+    "resetRituals": {
+      "title": "Reset rituals",
+      "description": "Make space for a slower hour."
+    }
+  },
+  "why": {
+    "eyebrow": "Why SHN",
+    "title": "Less searching. More choosing.",
+    "point1": "See the service menu and practical details before you commit.",
+    "point2": "Move between salons without losing your sense of what matters.",
+    "point3": "Keep discovery close to the tools you already use to run your business."
+  },
+  "states": {
+    "loadError": "We couldn't load salons right now.",
+    "retry": "Try again",
+    "noSalons": "No active salons are available yet.",
+    "noServices": "No active services are available yet."
+  },
+  "finalCta": {
+    "eyebrow": "Ready when you are",
+    "title": "Let the next appointment feel a little more intentional.",
+    "description": "Explore real salons and services, then choose the place that feels right for your next visit.",
+    "action": "Choose a salon",
+    "signInAction": "Sign in to continue"
+  },
+  "footer": {
+    "tagline": "Beauty care, thoughtfully discovered.",
+    "dataNote": "Details are shown from your live salon data."
+  }
 }

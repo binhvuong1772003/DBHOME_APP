@@ -1,0 +1,78 @@
+{
+  "eyebrow": "OPERATIONS OVERVIEW",
+  "title": "Operations overview",
+  "description": "See today's appointments, work that needs attention and real shop revenue.",
+  "dateUnavailable": "Date data unavailable",
+  "customerFallback": "CU",
+  "summary": {
+    "weeklyRevenue": "Revenue this week",
+    "todayAppointments": "Today's appointments",
+    "pendingConfirmations": "Awaiting confirmation",
+    "services": "Available services",
+    "appointmentsMeta": "{{confirmed}} confirmed · {{completed}} completed",
+    "pendingMeta": "Needs attention today",
+    "noPending": "No new requests",
+    "servicesMeta": "Services currently available",
+    "loading": "Loading",
+    "notAvailable": "No data"
+  },
+  "attention": {
+    "title": "Needs attention",
+    "description": "Today's appointments that can be handled from here.",
+    "sourceNote": "Based on the appointment statuses currently available.",
+    "pending": "Awaiting confirmation",
+    "pendingDescription": "The customer is waiting for the shop to respond.",
+    "paymentPending": "Payment pending",
+    "paymentPendingDescription": "Transactions need to be reviewed or confirmed.",
+    "paymentError": "Unable to load payment status.",
+    "paymentRetry": "Retry payment status",
+    "openAppointments": "Open appointments",
+    "emptyTitle": "Nothing needs attention.",
+    "emptyDescription": "Today's appointments are in a stable state."
+  },
+  "revenue": {
+    "title": "Revenue by day",
+    "description": "Track real revenue for {{range}}",
+    "todayTitle": "Today's revenue",
+    "todayDescription": "Revenue recorded today",
+    "periodUnavailable": "Updating period",
+    "tooltip": "Revenue",
+    "empty": "No revenue data is available for this period.",
+    "error": "Unable to load revenue.",
+    "retry": "Try again"
+  },
+  "customers": {
+    "title": "Standout customers",
+    "description": "Sorted by total spend from real data",
+    "empty": "No customer data is available.",
+    "error": "Unable to load customers.",
+    "totalSpent": "Total spend",
+    "repeatCustomer": "Returning customer",
+    "retry": "Try again"
+  },
+  "services": {
+    "title": "Service overview",
+    "description": "Services currently ready for booking",
+    "countLabel": "Services available",
+    "add": "Add a service",
+    "empty": "No service data is available.",
+    "error": "Unable to load service count.",
+    "retry": "Try again"
+  },
+  "appointments": {
+    "title": "Today's appointments",
+    "description": "Prioritize appointments that need action, then follow the schedule.",
+    "time": "Time",
+    "customer": "Customer",
+    "services": "Services",
+    "amount": "Total",
+    "actions": "Actions",
+    "noAppointments": "No appointments today",
+    "noAppointmentsDescription": "New appointments will appear here.",
+    "error": "Unable to load today's appointments.",
+    "retry": "Try again",
+    "noServices": "No services",
+    "avatarAlt": "Avatar for {{name}}",
+    "viewAll": "Open appointments"
+  }
+}

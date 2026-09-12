@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import { getCustomers } from "../services/customerService";
 import type { CustomerListItem, CustomerListMeta, CustomerListQuery, CustomerRetentionFilter, CustomerSort } from "../types/customer";
@@ -15,6 +16,7 @@ const initialMeta: CustomerListMeta = {
 };
 
 export function useCustomers() {
+  const { t } = useTranslation("customers");
   const { shopSlug = "" } = useParams<{ shopSlug: string }>();
   const [items, setItems] = useState<CustomerListItem[]>([]);
   const [meta, setMeta] = useState(initialMeta);
@@ -27,6 +29,7 @@ export function useCustomers() {
   const [lastVisitBefore, setLastVisitBefore] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 350);
@@ -45,18 +48,22 @@ export function useCustomers() {
 
   const load = useCallback(async () => {
     if (!shopSlug) return;
+    const currentRequest = ++requestId.current;
     setIsLoading(true);
     setError(null);
     try {
       const result = await getCustomers(shopSlug, query);
+      if (currentRequest !== requestId.current) return;
       setItems(result.data);
       setMeta(result.meta);
+      setPageState(result.meta.page);
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Unable to load customers"));
+      if (currentRequest !== requestId.current) return;
+      setError(getApiErrorMessage(requestError, t("loadError")));
     } finally {
-      setIsLoading(false);
+      if (currentRequest === requestId.current) setIsLoading(false);
     }
-  }, [query, shopSlug]);
+  }, [query, shopSlug, t]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -70,5 +77,7 @@ export function useCustomers() {
     setSearchState(""); setDebouncedSearch(""); setSortState("SPEND_DESC"); setRetentionState("ALL"); setHasUpcomingAppointment(undefined); setLastVisitBefore(""); setPageState(1);
   };
 
-  return { shopSlug, items, meta, query, page, setPage, search, setSearch, sort, setSort, retention, setRetention, hasUpcomingAppointment, setUpcoming, lastVisitBefore, setLastVisit, resetFilters, isLoading, error, refetch: load };
+  const hasActiveFilters = Boolean(search.trim() || retention !== "ALL" || hasUpcomingAppointment !== undefined || lastVisitBefore);
+
+  return { shopSlug, items, meta, query, page, setPage, search, setSearch, sort, setSort, retention, setRetention, hasUpcomingAppointment, setUpcoming, lastVisitBefore, setLastVisit, hasActiveFilters, resetFilters, isLoading, error, refetch: load };
 }

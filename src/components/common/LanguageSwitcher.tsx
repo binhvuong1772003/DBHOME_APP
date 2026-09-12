@@ -31,6 +31,7 @@ export function LanguageSwitcher() {
         <Button
           variant="outline"
           size="icon"
+          className="min-h-11 min-w-11"
           aria-label={t('language.change')}
           title={t('language.change')}
         >

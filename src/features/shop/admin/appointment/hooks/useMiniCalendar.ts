@@ -1,5 +1,5 @@
 import { useShopContext } from "@/context/ShopContext";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "@/lib/dayjs";
 export const useMiniCalendar = () => {
@@ -10,13 +10,31 @@ export const useMiniCalendar = () => {
     [shops, shopSlug],
   );
   const shopTimezone = currentShop?.timezone;
-  const [selectedDate, setSelectedDate] = useState("");
-  useEffect(() => {
-    if (!shopTimezone || selectedDate) return;
-
-    setSelectedDate(dayjs().tz(shopTimezone).format("YYYY-MM-DD"));
-  }, [shopTimezone, selectedDate]);
-  const currentMonth = selectedDate ? dayjs(selectedDate) : dayjs();
+  const today = useMemo(
+    () => (shopTimezone ? dayjs().tz(shopTimezone) : dayjs()),
+    [shopTimezone],
+  );
+  const todayDate = today.format("YYYY-MM-DD");
+  const [selectedDate, setSelectedDateState] = useState("");
+  const [visibleMonthValue, setVisibleMonthValue] = useState<string | null>(null);
+  const effectiveSelectedDate = selectedDate || todayDate;
+  const currentMonth = useMemo(
+    () =>
+      visibleMonthValue
+        ? dayjs(`${visibleMonthValue}-01`)
+        : dayjs(effectiveSelectedDate).startOf("month"),
+    [effectiveSelectedDate, visibleMonthValue],
+  );
+  const setSelectedDate = useCallback((date: string) => {
+    setSelectedDateState(date);
+    setVisibleMonthValue(date.slice(0, 7));
+  }, []);
+  const goToPreviousMonth = useCallback(() => {
+    setVisibleMonthValue(currentMonth.subtract(1, "month").format("YYYY-MM"));
+  }, [currentMonth]);
+  const goToNextMonth = useCallback(() => {
+    setVisibleMonthValue(currentMonth.add(1, "month").format("YYYY-MM"));
+  }, [currentMonth]);
   const startOfMonth = currentMonth.startOf("month");
   const endOfMonth = currentMonth.endOf("month");
   const startDay = (startOfMonth.day() + 6) % 7;
@@ -39,8 +57,11 @@ export const useMiniCalendar = () => {
   return {
     calendarDays,
     mutedList,
-    selectedDate,
+    selectedDate: effectiveSelectedDate,
     setSelectedDate,
     currentMonth,
+    goToPreviousMonth,
+    goToNextMonth,
+    todayDate,
   };
 };

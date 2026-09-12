@@ -4,6 +4,7 @@ import type { Appointment } from "../type/appointment";
 import { useMiniCalendar } from "./useMiniCalendar";
 import { useChangeAppointmentStatus } from "../hooks/useChangeAppointmentStatus";
 import type { AppointmentStatusUpdate } from "../constants/appointmentStatus";
+import { parseTimeToMinutes } from "../utils/scheduleUtils";
 
 export const useScheduleAppointment = () => {
   const [selectedAppointment, setSelectedAppointment] =
@@ -14,6 +15,9 @@ export const useScheduleAppointment = () => {
     selectedDate,
     setSelectedDate: setCalendarDate,
     currentMonth,
+    goToPreviousMonth,
+    goToNextMonth,
+    todayDate,
   } = useMiniCalendar();
   const setSelectedDate = (date: string) => {
     setSelectedAppointment(null);
@@ -25,6 +29,9 @@ export const useScheduleAppointment = () => {
     setAppointments,
     schedule,
     setSchedule,
+    isWorkDay,
+    timezone,
+    message,
     isLoading,
     error,
     refetch: refetchAppointments,
@@ -37,31 +44,33 @@ export const useScheduleAppointment = () => {
     if (!selectedAppointment) return false;
 
     try {
-      await changeAppointmentStatus(selectedAppointment.id, input);
+      const updatedAppointment = await changeAppointmentStatus(
+        selectedAppointment.id,
+        input,
+      );
+      const nextAppointment = updatedAppointment ?? {
+        ...selectedAppointment,
+        status: input.status,
+      };
 
       setAppointments((current) =>
         current.map((appointment) =>
           appointment.id === selectedAppointment.id
-            ? { ...appointment, status: input.status }
+            ? nextAppointment
             : appointment,
         ),
       );
 
-      setSelectedAppointment((current) =>
-        current ? { ...current, status: input.status } : current,
-      );
+      setSelectedAppointment(nextAppointment);
+      await refetchAppointments();
       return true;
     } catch {
       return false;
     }
   };
-  const openHour = Number(schedule.openTime.split(":")[0]);
-  const closeHour = Number(schedule.closeTime.split(":")[0]);
-  const slot = Array.from(
-    { length: closeHour - openHour },
-    (_, i) => openHour + i,
-  );
-  const workHour = closeHour - openHour;
+  const openMinutes = parseTimeToMinutes(schedule?.openTime) ?? 0;
+  const closeMinutes = parseTimeToMinutes(schedule?.closeTime) ?? openMinutes;
+  const hasValidSchedule = closeMinutes > openMinutes;
   const completedAppointments = appointments.filter(
     (appointment) => appointment.status === "COMPLETED",
   );
@@ -74,10 +83,12 @@ export const useScheduleAppointment = () => {
     completedAppointments,
     schedule,
     setSchedule,
-    slot,
-    workHour,
-    openHour,
-    closeHour,
+    openMinutes,
+    closeMinutes,
+    hasValidSchedule,
+    isWorkDay,
+    timezone,
+    message,
     isLoading,
     error,
     selectedAppointment,
@@ -88,6 +99,9 @@ export const useScheduleAppointment = () => {
     selectedDate,
     setSelectedDate,
     currentMonth,
+    goToPreviousMonth,
+    goToNextMonth,
+    todayDate,
     handleStatusChange,
     isChangingStatus,
     refetchAppointments,

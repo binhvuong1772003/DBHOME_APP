@@ -4,6 +4,7 @@ import { useChangeAppointmentStatus } from "@/features/shop/admin/appointment/ho
 import { useTopCustomer } from "@/features/shop/admin/dashboard/hooks/useTopCustomer";
 import { useCountService } from "@/features/shop/admin/dashboard/hooks/useCountService";
 import { useWeeklyIncomeByDay } from "@/features/shop/admin/dashboard/hooks/useWeeklyIncomeByDay";
+import { usePendingPayments } from "@/features/shop/admin/dashboard/hooks/usePendingPayments";
 import type { AppointmentStatusUpdate } from "@/features/shop/admin/appointment/constants/appointmentStatus";
 export const useShopDashBoard = () => {
   const navigate = useNavigate();
@@ -11,11 +12,13 @@ export const useShopDashBoard = () => {
     topCustomers,
     isLoading: isLoadingTopCustomer,
     error: errorTopCustomer,
+    retry: retryTopCustomer,
   } = useTopCustomer();
   const {
     countServices,
     isLoading: isLoadingCountService,
     error: errorCountService,
+    retry: retryCountService,
   } = useCountService();
   const {
     weeklyIncomeByDay,
@@ -24,17 +27,21 @@ export const useShopDashBoard = () => {
     weeklyTotal,
     weekRange,
     today,
+    retry: retryWeeklyIncome,
   } = useWeeklyIncomeByDay();
   const {
     appointments,
     isLoading: isLoadingAppointments,
     refetch,
+    error: errorAppointments,
+    date: appointmentDate,
     clearNew,
     newIds,
     updateAppointment,
   } = useGetAppointment();
   const { changeAppointmentStatus, isLoading: isChanging } =
     useChangeAppointmentStatus();
+  const pendingPayments = usePendingPayments();
 
   const handleAddService = () => {
     navigate("services/create");
@@ -96,15 +103,22 @@ export const useShopDashBoard = () => {
     topCustomers,
     isLoadingTopCustomer,
     errorTopCustomer,
+    retryTopCustomer,
     countServices,
     isLoadingCountService,
     errorCountService,
+    retryCountService,
     weeklyIncomeByDay,
     isLoadingWeeklyIncome,
     errorWeeklyIncome,
     weeklyTotal,
     weekRange,
     today,
+    appointmentDate,
+    errorAppointments,
+    retryAppointments: refetch,
+    retryWeeklyIncome,
+    pendingPayments,
     sortApointments,
     handleChangeStatus,
   };

@@ -3,6 +3,17 @@ import type { ApiSuccessResponse } from "@/api/apiResponse";
 import type { Appointment } from "../type/appointment";
 import type { AppointmentScheduleResponse } from "../type/appointmentSchedule";
 import type { AppointmentStatusUpdate } from "../constants/appointmentStatus";
+import type { CreateAppointmentInput } from "../types/createAppointment";
+
+export const createManagerAppointment = async (
+  shopSlug: string,
+  input: CreateAppointmentInput,
+) => {
+  const { data: response } = await axiosClient.post<
+    ApiSuccessResponse<Appointment>
+  >(`/api/shops/${shopSlug}/appointments`, input);
+  return response.data;
+};
 export const getAppointmentByDateWithSlot = async (
   shopSlug: string,
   params: { date: string },

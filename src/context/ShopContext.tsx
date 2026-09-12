@@ -4,13 +4,16 @@ import {
   useEffect,
   type ReactNode,
   useContext,
+  useMemo,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { getShops } from "@/services/shopService";
 
-interface Shop {
+export interface Shop {
   id: string;
   name: string;
   slug: string;
+  type?: "NAIL" | "SPA" | "HAIR" | "COMBO" | null;
   logoUrl?: string | null;
   coverUrl?: string | null;
   timezone: string;
@@ -29,6 +32,16 @@ export const ShopProvider = ({ children }: { children: ReactNode }) => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [currentShop, setCurrentShop] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const routeShopSlug = useMemo(
+    () => location.pathname.match(/^\/shops\/([^/]+)/)?.[1],
+    [location.pathname],
+  );
+  const routeShop = useMemo(
+    () => shops.find((shop) => shop.slug === routeShopSlug) ?? null,
+    [routeShopSlug, shops],
+  );
+  const resolvedCurrentShop = routeShopSlug ? routeShop : currentShop;
 
   useEffect(() => {
     let cancelled = false;
@@ -55,7 +68,12 @@ export const ShopProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ShopContext.Provider
-      value={{ shops, currentShop, setCurrentShop, loading }}
+      value={{
+        shops,
+        currentShop: resolvedCurrentShop,
+        setCurrentShop,
+        loading,
+      }}
     >
       {children}
     </ShopContext.Provider>

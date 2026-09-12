@@ -7,6 +7,7 @@ export const useCountService = (limit: number = 5) => {
   const { shopSlug } = useParams();
   const { isLoading, error, run } = useAsync();
   const [countServices, setCountServices] = useState<number>(0);
+  const [requestVersion, setRequestVersion] = useState(0);
 
   useEffect(() => {
     if (!shopSlug) return;
@@ -15,7 +16,12 @@ export const useCountService = (limit: number = 5) => {
       setCountServices(data);
       return data;
     }, "Không tải được danh sách khách hàng");
-  }, [shopSlug, limit]);
+  }, [shopSlug, limit, requestVersion, run]);
 
-  return { countServices, isLoading, error };
+  return {
+    countServices,
+    isLoading,
+    error,
+    retry: () => setRequestVersion((version) => version + 1),
+  };
 };

@@ -12,6 +12,7 @@ export const useWeeklyIncomeByDay = () => {
   const [weekRange, setWeekRange] = useState("");
   const [date, setDate] = useState("");
   const [weeklyTotal, setWeeklyTotal] = useState(0);
+  const [requestVersion, setRequestVersion] = useState(0);
   const [today, setToday] = useState<{
     fullDate: string;
     income: number;
@@ -26,7 +27,7 @@ export const useWeeklyIncomeByDay = () => {
       setToday(data.today);
       return data;
     }, "Không tải được doanh thu");
-  }, [shopSlug]);
+  }, [shopSlug, requestVersion, run]);
   return {
     weeklyIncomeByDay,
     isLoading,
@@ -36,5 +37,6 @@ export const useWeeklyIncomeByDay = () => {
     today,
     date,
     setDate,
+    retry: () => setRequestVersion((version) => version + 1),
   };
 };

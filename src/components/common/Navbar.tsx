@@ -40,7 +40,10 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  const isMarketplace = location.pathname === "/";
+  const isMarketplace =
+    location.pathname === "/" ||
+    location.pathname === "/shops";
+  const hasEditorialNav = isMarketplace || className.includes("shn-home-nav");
   const openAuth = (mode: "signin" | "signup") =>
     navigate(`/auth?mode=${mode}`);
   const handleLogout = async () => {
@@ -58,24 +61,30 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b border-border/70 bg-background/95 shadow-xs ${className ? "" : "backdrop-blur"} ${className}`.trim()}
+      className={`sticky top-0 z-40 w-full border-b border-border/70 bg-background/95 shadow-sm ${hasEditorialNav ? "backdrop-blur-none" : "backdrop-blur"} ${className}`.trim()}
     >
       <div
-        className={`relative flex min-h-16 w-full items-center gap-3 px-3 sm:px-5 lg:px-6 ${isMarketplace ? "shn-home-nav__inner" : ""}`}
+        className={`relative flex min-h-16 w-full items-center gap-3 px-3 sm:px-5 lg:px-6 ${hasEditorialNav ? "min-h-[4.5rem] gap-1 px-[0.65rem] sm:px-4" : ""}`}
       >
         <Link
           to="/"
-          className="shn-home-nav__brand group flex min-w-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className={`group flex min-w-0 items-center gap-2.5 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 ${hasEditorialNav ? "min-h-12 rounded-none border-0 p-1 pl-[0.15rem] pr-[0.35rem] transition-opacity hover:opacity-80 sm:pr-2" : "rounded-lg"}`}
           aria-label="SHN"
         >
-          <span className="shn-home-nav__brand-mark flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-xs">
+          <span
+            className={`flex shrink-0 items-center justify-center bg-primary text-sm font-bold text-primary-foreground ${hasEditorialNav ? "size-[2.35rem] rounded-[0.7rem] shadow-none tracking-[0.06em]" : "size-9 rounded-lg shadow-xs"}`}
+          >
             S
           </span>
-          <span className="shn-home-nav__brand-copy min-w-0">
-            <span className="shn-home-nav__brand-name block truncate text-base font-extrabold tracking-wide text-primary">
+          <span className="min-w-0">
+            <span
+              className={`block truncate text-base font-extrabold text-primary ${hasEditorialNav ? "tracking-[0.14em]" : "tracking-wide"}`}
+            >
               SHN APP
             </span>
-            <span className="shn-home-nav__brand-subtitle hidden truncate text-[11px] text-muted-foreground lg:block">
+            <span
+              className={`hidden truncate text-[11px] text-muted-foreground lg:block ${hasEditorialNav ? "mt-[0.1rem] max-w-60 leading-[1.3]" : ""}`}
+            >
               {t("brandSubtitle")}
             </span>
           </span>
@@ -83,38 +92,40 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
 
         {isMarketplace && (
           <nav
-            className="shn-home-nav__links hidden items-center text-sm lg:flex"
+            className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 text-sm lg:flex"
             aria-label={t("primaryNavigation")}
           >
             <Link
-              to="/#salons"
-              className="shn-home-nav__link px-3 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              to="/shops"
+              className="inline-flex min-h-10 items-center rounded-none px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground hover:underline hover:decoration-primary hover:decoration-2 hover:underline-offset-[0.45rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {t("nav.salons")}
             </Link>
             <Link
-              to="/#services"
-              className="shn-home-nav__link px-3 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              to="/#discover-recommended"
+              className="inline-flex min-h-10 items-center rounded-none px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground hover:underline hover:decoration-primary hover:decoration-2 hover:underline-offset-[0.45rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {t("nav.services")}
             </Link>
             <Link
               to="/#collections"
-              className="shn-home-nav__link px-3 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex min-h-10 items-center rounded-none px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground hover:underline hover:decoration-primary hover:decoration-2 hover:underline-offset-[0.45rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {t("nav.discover")}
             </Link>
           </nav>
         )}
 
-        <div className="shn-home-nav__actions flex items-center gap-2">
+        <div
+          className={`flex items-center ${hasEditorialNav ? "ml-auto gap-[0.35rem]" : "gap-2"}`}
+        >
           {isMarketplace && (
             <DropdownMenu open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="shn-home-nav__menu-button min-h-11 min-w-11 lg:hidden"
+                  className="min-h-11 min-w-11 rounded-none bg-transparent text-foreground hover:bg-transparent lg:hidden"
                   aria-label={t("primaryNavigation")}
                 >
                   <Menu aria-hidden="true" />
@@ -122,10 +133,10 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 lg:hidden">
                 <DropdownMenuItem asChild>
-                  <Link to="/#salons">{t("nav.salons")}</Link>
+                  <Link to="/shops">{t("nav.salons")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/#services">{t("nav.services")}</Link>
+                  <Link to="/#discover-recommended">{t("nav.services")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/#collections">{t("nav.discover")}</Link>
@@ -152,7 +163,7 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
             <Button
               asChild
               size="sm"
-              className="shn-home-nav__book-button min-h-11 px-2.5 sm:px-3"
+              className="hidden min-h-11 rounded-[0.65rem] border-0 bg-primary px-[0.9rem] text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground sm:inline-flex"
               aria-label={t("nav.book")}
             >
               <Link to="/#booking-preview">{t("nav.book")}</Link>
@@ -241,27 +252,25 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
               </DropdownMenu>
             </>
           ) : (
-            <div className="shn-home-nav__auth flex items-center gap-2">
+            <div
+              className={`flex items-center gap-2 ${hasEditorialNav ? "hidden sm:flex" : ""}`}
+            >
               <Button
                 variant="outline"
                 size="sm"
-                className="shn-home-nav__sign-in min-h-11"
+                className={`min-h-11 ${hasEditorialNav ? "rounded-none border-0 bg-transparent px-[0.65rem] text-foreground shadow-none hover:bg-transparent hover:text-primary hover:underline hover:underline-offset-[0.4rem]" : ""}`}
                 aria-label={t("auth.signIn")}
                 onClick={() => openAuth("signin")}
               >
-                <span className="shn-home-nav__auth-text">
-                  {t("auth.signIn")}
-                </span>
+                <span>{t("auth.signIn")}</span>
               </Button>
               <Button
                 size="sm"
-                className="shn-home-nav__sign-up min-h-11"
+                className={`min-h-11 ${hasEditorialNav ? "rounded-none border-0 bg-transparent px-[0.65rem] text-primary shadow-none hover:bg-transparent hover:text-primary hover:underline hover:underline-offset-[0.4rem]" : ""}`}
                 aria-label={t("auth.signUp")}
                 onClick={() => openAuth("signup")}
               >
-                <span className="shn-home-nav__auth-text">
-                  {t("auth.signUp")}
-                </span>
+                <span>{t("auth.signUp")}</span>
               </Button>
             </div>
           )}

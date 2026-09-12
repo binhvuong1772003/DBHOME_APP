@@ -1,11 +1,12 @@
 import { ThemeProvider } from "@/components/common/providers/ThemeProvider";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
   Outlet,
+  useLocation,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ShopProvider } from "./context/ShopContext";
@@ -22,6 +23,7 @@ import HomePage from "./pages/HomePage";
 import AccountPage from "./pages/AccountPage";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import PublicShopPage from "@/features/public-shop/components/PublicShopPage";
+import SalonsPage from "@/features/marketplace-search/components/SalonsPage";
 
 function AuthenticatedProviders() {
   return (
@@ -42,15 +44,39 @@ function HomeRoute() {
   );
 }
 
-function PublicShopRoute() {
+function PublicShopRoute({ booking }: { booking?: boolean }) {
   const { user } = useAuth();
   return user ? (
     <ShopProvider>
-      <PublicShopPage />
+      <PublicShopPage initialBooking={booking} />
     </ShopProvider>
   ) : (
-    <PublicShopPage />
+    <PublicShopPage initialBooking={booking} />
   );
+}
+
+function PublicBookingRoute() {
+  return <PublicShopRoute booking />;
+}
+
+function ScrollToTop() {
+  const { pathname, search, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const frame = window.requestAnimationFrame(() => {
+        document.getElementById(hash.slice(1))?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [hash, pathname, search]);
+
+  return null;
 }
 
 export function App() {
@@ -61,40 +87,49 @@ export function App() {
       <Toaster />
       <ThemeProvider>
         <Router>
+          <ScrollToTop />
           <AuthProvider>
             <Routes>
-                {/* Public */}
-                <Route
-                  path="/auth"
-                  element={
-                    <PublicRoute>
-                      <AuthPage />
-                    </PublicRoute>
-                  }
-                />
-                <Route
-                  path="/auth/google/callback"
-                  element={<GoogleCallBackPage />}
-                />
-                <Route path="/email/verify" element={<EmailVerifyPage />} />
-                <Route path="/invite/accept" element={<StaffInviteAcceptPage />} />
-                <Route
-                  path="/email/verification/resend"
-                  element={<SendVerifyEmailPage />}
-                />
+              {/* Public */}
+              <Route
+                path="/auth"
+                element={
+                  <PublicRoute>
+                    <AuthPage />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/auth/google/callback"
+                element={<GoogleCallBackPage />}
+              />
+              <Route path="/email/verify" element={<EmailVerifyPage />} />
+              <Route
+                path="/invite/accept"
+                element={<StaffInviteAcceptPage />}
+              />
+              <Route
+                path="/email/verification/resend"
+                element={<SendVerifyEmailPage />}
+              />
 
-                <Route path="/" element={<HomeRoute />} />
-                <Route path="/shops/:shopSlug" element={<PublicShopRoute />} />
+              <Route path="/" element={<HomeRoute />} />
+              <Route path="/shops" element={<SalonsPage />} />
+              <Route
+                path="/shops/:shopSlug/book"
+                element={<PublicBookingRoute />}
+              />
+              <Route path="/shops/:shopSlug" element={<PublicShopRoute />} />
 
-                {/* Protected */}
-                <Route element={<PrivateRoute />}>
-                  <Route element={<AuthenticatedProviders />}>
-                    {shopRoutesList}
-                    <Route path="/account" element={<AccountPage />} />
-                  </Route>
+              {/* Protected */}
+              <Route element={<PrivateRoute />}>
+                <Route element={<AuthenticatedProviders />}>
+                  {shopRoutesList}
+                  <Route path="/account" element={<AccountPage />} />
                 </Route>
+              </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AuthProvider>
         </Router>

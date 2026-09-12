@@ -15,3 +15,7 @@ export function formatCustomerDateTime(value: string, time: string, locale: stri
 export function getCustomerInitials(name: string) {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "?";
 }
+
+export function getCustomerStaffName(staff: { name?: string; nickname?: string | null; user?: { name?: string | null } | null } | null | undefined, fallback: string) {
+  return staff?.name || staff?.nickname || staff?.user?.name || fallback;
+}

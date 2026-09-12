@@ -12,11 +12,56 @@
     "allStatuses": "All statuses"
   },
   "newAppointment": "New appointment",
+  "title": "Appointments",
+  "description": "Plan the day, see every staff lane and resolve appointment changes quickly.",
+  "toolbar": {
+    "today": "Today",
+    "previousDay": "Previous day",
+    "nextDay": "Next day",
+    "datePicker": "Choose date",
+    "clearFilters": "Clear filters",
+    "resultCount": "{{count}} appointments",
+    "resultCount_one": "{{count}} appointment",
+    "unassigned": "Unassigned",
+    "allServices": "All services",
+    "allStatuses": "All statuses",
+    "noSchedule": "No working hours are configured for this day.",
+    "closed": "Shop closed",
+    "loadError": "Unable to load appointments.",
+    "staffLoadError": "Unable to load staff members.",
+    "serviceLoadError": "Unable to load services.",
+    "loadingServices": "Loading services…",
+    "retry": "Retry",
+    "noAppointments": "No appointments for this date.",
+    "noFilteredAppointments": "No appointments match the selected filters.",
+    "timezone": "Timezone: {{timezone}}",
+    "unassignedColumn": "Unassigned"
+  },
+  "create": {
+    "title": "Create appointment",
+    "description": "Add a customer, service and time. The server will validate availability and permissions.",
+    "customer": "Customer",
+    "customerPlaceholder": "Search by name, phone or email",
+    "loadingCustomers": "Loading customers…",
+    "noCustomers": "No customers found.",
+    "selectedCustomer": "Selected: {{name}}",
+    "date": "Date",
+    "startTime": "Start time",
+    "staff": "Staff",
+    "services": "Services",
+    "note": "Note",
+    "notePlaceholder": "Optional note for the team",
+    "validation": "Choose a customer, at least one service, date and start time.",
+    "loadCustomersError": "Unable to load customers.",
+    "submitError": "Unable to create appointment.",
+    "submit": "Create appointment",
+    "submitting": "Creating…"
+  },
   "staff": "Staff",
-  "roles": { "seniorStylist": "Senior stylist", "nailArtist": "Nail artist" },
+  "roles": { "seniorStylist": "Senior stylist", "nailArtist": "Nail artist", "owner": "Owner", "admin": "Manager", "manager": "Manager", "staff": "Staff" },
   "stats": {
     "title": "Appointment overview",
-    "today": "Today's appointments",
+    "today": "Appointments for selected date",
     "completed": "Completed",
     "remaining": "Remaining"
   },
@@ -35,7 +80,9 @@
     "noShow": "No show",
     "change": "Change status: {{status}}",
     "updated": "Status updated to {{status}}.",
-    "updateError": "Unable to update appointment status."
+    "updateError": "Unable to update appointment status.",
+    "shopMissing": "The current shop is unavailable.",
+    "unknown": "Status unavailable"
   },
   "cancelDialog": {
     "title": "Cancel appointment?",
@@ -70,7 +117,8 @@
     "total": "Total",
     "note": "Note",
     "contact": "Contact",
-    "noPhone": "No phone number"
+    "noPhone": "No phone number",
+    "minutesShort": "min"
   },
   "actions": {
     "cancel": "Cancel appointment",

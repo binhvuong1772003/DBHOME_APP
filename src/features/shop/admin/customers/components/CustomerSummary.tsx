@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import type { CustomerSummary as CustomerSummaryData } from "../types/customer";
 
-export function CustomerSummary({ summary, isLoading }: { summary: CustomerSummaryData; isLoading: boolean }) {
+export function CustomerSummary({ summary, isLoading, hasError, locale, isFiltered }: { summary: CustomerSummaryData; isLoading: boolean; hasError: boolean; locale: string; isFiltered: boolean }) {
   const { t } = useTranslation("customers");
   const metrics = [
     { key: "total", value: summary.totalCustomers, icon: Users },
@@ -12,7 +12,9 @@ export function CustomerSummary({ summary, isLoading }: { summary: CustomerSumma
     { key: "neverVisited", value: summary.neverVisited, icon: UserRound },
   ] as const;
   return (
-    <section aria-label={t("summary.title")} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <section aria-label={t("summary.title")} aria-busy={isLoading}>
+      <p className="mb-3 text-xs text-muted-foreground">{t(isFiltered ? "summary.filteredScope" : "summary.shopScope")}</p>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {metrics.map(({ key, value, icon: Icon }) => (
         <Card key={key} className="gap-0 py-0 shadow-xs">
           <CardContent className="p-4 sm:p-5">
@@ -20,10 +22,11 @@ export function CustomerSummary({ summary, isLoading }: { summary: CustomerSumma
               <p className="text-xs font-medium text-muted-foreground">{t(`summary.${key}`)}</p>
               <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
             </div>
-            {isLoading ? <div className="mt-3 h-7 w-16 animate-pulse rounded bg-muted" /> : <p className="mt-2 text-2xl font-semibold tabular-nums">{value.toLocaleString()}</p>}
+            {isLoading ? <div className="mt-3 h-7 w-16 animate-pulse rounded bg-muted" /> : hasError ? <p className="mt-2 text-2xl font-semibold text-muted-foreground" aria-label={t("summary.unavailable")}>—</p> : <p className="mt-2 text-2xl font-semibold tabular-nums">{value.toLocaleString(locale)}</p>}
           </CardContent>
         </Card>
       ))}
+      </div>
     </section>
   );
 }

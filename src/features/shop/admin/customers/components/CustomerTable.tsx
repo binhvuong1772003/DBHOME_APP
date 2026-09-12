@@ -14,15 +14,17 @@ interface CustomerTableProps {
   meta: CustomerListMeta;
   locale: string;
   isLoading: boolean;
+  hasFilters: boolean;
+  onResetFilters: () => void;
   onSelect: (customerId: string) => void;
   onPageChange: (page: number) => void;
 }
 
-export function CustomerTable({ customers, meta, locale, isLoading, onSelect, onPageChange }: CustomerTableProps) {
+export function CustomerTable({ customers, meta, locale, isLoading, hasFilters, onResetFilters, onSelect, onPageChange }: CustomerTableProps) {
   const { t } = useTranslation("customers");
   if (isLoading) return <CustomerTableSkeleton />;
   if (!customers.length) {
-    return <Card className="shadow-xs"><CardContent className="flex min-h-64 flex-col items-center justify-center px-6 text-center"><div className="flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground"><UserRound aria-hidden="true" /></div><h2 className="mt-4 font-semibold">{t("empty.title")}</h2><p className="mt-1 max-w-sm text-sm text-muted-foreground">{t("empty.description")}</p></CardContent></Card>;
+    return <Card className="shadow-xs"><CardContent className="flex min-h-64 flex-col items-center justify-center px-6 text-center"><div className="flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground"><UserRound aria-hidden="true" /></div><h2 className="mt-4 font-semibold">{hasFilters ? t("empty.filteredTitle") : t("empty.title")}</h2><p className="mt-1 max-w-sm text-muted-foreground">{hasFilters ? t("empty.filteredDescription") : t("empty.description")}</p>{hasFilters && <Button type="button" variant="outline" className="mt-4 min-h-11" onClick={onResetFilters}>{t("filters.reset")}</Button>}</CardContent></Card>;
   }
   return (
     <Card className="gap-0 overflow-hidden py-0 shadow-xs">
@@ -40,7 +42,7 @@ export function CustomerTable({ customers, meta, locale, isLoading, onSelect, on
 
 function CustomerRow({ customer, locale, onSelect }: { customer: CustomerListItem; locale: string; onSelect: (id: string) => void }) {
   const { t } = useTranslation("customers");
-  return <TableRow tabIndex={0} className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring" onClick={() => onSelect(customer.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(customer.id); } }}>
+  return <TableRow tabIndex={0} className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring" onClick={() => onSelect(customer.id)} onKeyDown={(event) => { if (event.target !== event.currentTarget) return; if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(customer.id); } }}>
     <TableCell><CustomerPerson customer={customer} /></TableCell>
     <TableCell><p className="text-sm font-medium tabular-nums">{formatCustomerDate(customer.lastVisitAt, locale)}</p>{customer.daysSinceLastVisit != null && <p className="text-xs text-muted-foreground">{t("lastVisit.daysAgo", { count: customer.daysSinceLastVisit })}</p>}</TableCell>
     <TableCell className="text-center text-sm font-semibold tabular-nums">{customer.totalVisits}</TableCell>

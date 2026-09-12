@@ -49,8 +49,8 @@ function CategoryCard({ category, activeLabel, hiddenLabel, serviceCountLabel }:
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <CategoryIcon icon={category.icon} />
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${isActive ? "bg-secondary/20 text-secondary-foreground" : "bg-muted text-muted-foreground"}`}>
-            <span className={`size-1.5 rounded-full ${isActive ? "bg-secondary-foreground" : "bg-muted-foreground"}`} aria-hidden="true" />
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${isActive ? "border-success/30 bg-success/10 text-success" : "border-border bg-muted text-muted-foreground"}`}>
+            <span className={`size-1.5 rounded-full ${isActive ? "bg-success" : "bg-muted-foreground"}`} aria-hidden="true" />
             {isActive ? activeLabel : hiddenLabel}
           </span>
         </div>

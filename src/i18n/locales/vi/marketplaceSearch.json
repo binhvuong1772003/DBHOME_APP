@@ -1,0 +1,53 @@
+{
+  "eyebrow": "Khám phá công khai",
+  "title": "Tìm shop phù hợp với bạn",
+  "description": "Tìm các shop đang hoạt động theo dịch vụ, tên và địa điểm.",
+  "search": {
+    "ariaLabel": "Tìm shop",
+    "nameLabel": "Shop hoặc dịch vụ",
+    "namePlaceholder": "Tìm tên shop hoặc dịch vụ",
+    "cityLabel": "Địa điểm",
+    "cityPlaceholder": "Tỉnh, quận hoặc địa chỉ",
+    "submit": "Tìm kiếm"
+  },
+  "filters": {
+    "typeLabel": "Loại hình",
+    "all": "Tất cả",
+    "applied": "Đang lọc",
+    "clear": "Xóa bộ lọc",
+    "remove": "Xóa {{value}}",
+    "searchValue": "Tìm: {{value}}",
+    "cityValue": "Địa điểm: {{value}}"
+  },
+  "type": {
+    "nail": "Nail",
+    "spa": "Spa",
+    "hair": "Tóc",
+    "combo": "Kết hợp"
+  },
+  "results": {
+    "count": "Tìm thấy {{count}} shop",
+    "loading": "Đang tìm shop…",
+    "page": "Trang {{page}} / {{totalPages}}",
+    "pagination": "Phân trang danh sách shop",
+    "goToPage": "Đến trang {{page}}",
+    "previous": "Trang trước",
+    "next": "Trang sau"
+  },
+  "card": {
+    "coverFallback": "Shop chưa có ảnh bìa",
+    "locationFallback": "Chưa cập nhật địa chỉ",
+    "matchedServices": "Dịch vụ phù hợp",
+    "featuredService": "Dịch vụ nổi bật",
+    "duration": "{{minutes}} phút",
+    "viewShop": "Xem shop"
+  },
+  "states": {
+    "loadError": "Chưa thể tải danh sách shop.",
+    "retry": "Thử lại",
+    "emptyTitle": "Chưa có shop đang hoạt động",
+    "emptyDescription": "Các shop sẽ xuất hiện khi họ công khai dịch vụ.",
+    "emptyFilteredTitle": "Không có shop phù hợp",
+    "emptyFilteredDescription": "Hãy thử dịch vụ, địa điểm hoặc loại hình khác."
+  }
+}

@@ -4,15 +4,27 @@ import { getAppointmentByDate } from "@/features/shop/admin/appointment/services
 import type { Appointment } from "@/features/shop/admin/appointment/type/appointment";
 import { socket } from "@/lib/socket";
 import { useAsync } from "@/hooks/common/useAsync";
+import { useOptionalShopContext } from "@/context/ShopContext";
+
+const getDateInTimezone = (timeZone?: string) =>
+  new Intl.DateTimeFormat("en-CA", timeZone ? { timeZone } : undefined).format(
+    new Date(),
+  );
+
 export const useGetAppointment = (externalDate?: string) => {
   const { shopSlug } = useParams<{ shopSlug: string }>();
+  const shopContext = useOptionalShopContext();
+  const shopTimezone = shopContext?.shops.find(
+    (shop) => shop.slug === shopSlug,
+  )?.timezone;
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const [preAppointments, setPreAppointments] = useState<Appointment[]>([]);
   const { isLoading, error, run } = useAsync<void>();
   const [internalDate, setInternalDate] = useState<string>(() =>
-    new Date().toLocaleDateString("sv-SE"),
+    getDateInTimezone(shopTimezone),
   );
+  const [hasSelectedDate, setHasSelectedDate] = useState(false);
   const newIdsRef = useRef(newIds);
   useEffect(() => {
     newIdsRef.current = newIds;
@@ -26,8 +38,15 @@ export const useGetAppointment = (externalDate?: string) => {
       audioRef.current = null;
     };
   }, []);
-  const date = externalDate ?? internalDate;
-  const setDate = setInternalDate;
+  const date =
+    externalDate ??
+    (shopTimezone && !hasSelectedDate
+      ? getDateInTimezone(shopTimezone)
+      : internalDate);
+  const setDate = useCallback((nextDate: string) => {
+    setInternalDate(nextDate);
+    setHasSelectedDate(true);
+  }, []);
 
   const prevDate = useMemo(() => {
     const currentDate = new Date(`${date}T00:00:00`);
@@ -49,7 +68,7 @@ export const useGetAppointment = (externalDate?: string) => {
       setAppointments(data ?? []);
       setPreAppointments(preData ?? []);
     }, "Không tải được dữ liệu lịch hẹn");
-  }, [shopSlug, date, prevDate]);
+  }, [shopSlug, date, prevDate, run]);
 
   const clearNew = useCallback((id: string) => {
     setNewIds((prev) => {
@@ -62,7 +81,7 @@ export const useGetAppointment = (externalDate?: string) => {
   useEffect(() => {
     if (!shopSlug) return;
     fetchAppointments();
-  }, [fetchAppointments]);
+  }, [fetchAppointments, shopSlug]);
 
   useEffect(() => {
     if (!shopSlug) return;

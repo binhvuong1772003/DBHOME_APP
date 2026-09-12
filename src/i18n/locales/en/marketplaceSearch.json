@@ -1,0 +1,53 @@
+{
+  "eyebrow": "Public marketplace",
+  "title": "Find the right shop for you",
+  "description": "Search active beauty shops by service, name and location.",
+  "search": {
+    "ariaLabel": "Search shops",
+    "nameLabel": "Shop or service",
+    "namePlaceholder": "Search a shop or service",
+    "cityLabel": "Location",
+    "cityPlaceholder": "City, district or address",
+    "submit": "Search"
+  },
+  "filters": {
+    "typeLabel": "Shop type",
+    "all": "All",
+    "applied": "Applied",
+    "clear": "Clear filters",
+    "remove": "Remove {{value}}",
+    "searchValue": "Search: {{value}}",
+    "cityValue": "Location: {{value}}"
+  },
+  "type": {
+    "nail": "Nail",
+    "spa": "Spa",
+    "hair": "Hair",
+    "combo": "Beauty studio"
+  },
+  "results": {
+    "count": "{{count}} shops found",
+    "loading": "Finding shops…",
+    "page": "Page {{page}} of {{totalPages}}",
+    "pagination": "Shop results pagination",
+    "goToPage": "Go to page {{page}}",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "card": {
+    "coverFallback": "Shop cover unavailable",
+    "locationFallback": "Location not provided",
+    "matchedServices": "Matching services",
+    "featuredService": "Featured service",
+    "duration": "{{minutes}} min",
+    "viewShop": "View shop"
+  },
+  "states": {
+    "loadError": "We couldn't load shops right now.",
+    "retry": "Try again",
+    "emptyTitle": "No active shops yet",
+    "emptyDescription": "Active shops will appear here when they publish their services.",
+    "emptyFilteredTitle": "No shops match these filters",
+    "emptyFilteredDescription": "Try a different service, location or shop type."
+  }
+}

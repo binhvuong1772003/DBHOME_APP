@@ -1,0 +1,47 @@
+{
+  "brand": { "name": "SHN APP", "home": "Go to home" },
+  "toggle": "Open or collapse navigation",
+  "groups": {
+    "overview": "Overview",
+    "operations": "Operations",
+    "people": "People",
+    "finance": "Finance"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "appointments": "Appointments",
+    "customers": "Customers",
+    "services": "Services",
+    "staff": "Staff",
+    "schedule": "Staff schedule",
+    "timeOff": "Time off",
+    "payments": "Payments",
+    "payroll": "Payroll & commissions",
+    "financialReport": "Financial report",
+    "settings": "Shop settings"
+  },
+  "shop": {
+    "choose": "Choose a shop",
+    "noShop": "No shop selected",
+    "noAccess": "You no longer have access to this shop",
+    "logoAlt": "Logo for {{name}}",
+    "type": {
+      "NAIL": "Nail",
+      "SPA": "Spa",
+      "HAIR": "Hair",
+      "COMBO": "Nail & spa",
+      "default": "Beauty shop"
+    }
+  },
+  "account": {
+    "profileLabel": "Account information",
+    "role": "Role: {{role}}",
+    "logout": "Log out",
+    "loggingOut": "Logging out…",
+    "logoutError": "We couldn't log you out. Please try again.",
+    "roleOwner": "Shop owner",
+    "roleAdmin": "Manager",
+    "roleStaff": "Staff"
+  },
+  "empty": "No shops available"
+}

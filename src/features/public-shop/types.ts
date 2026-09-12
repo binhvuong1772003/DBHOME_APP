@@ -19,6 +19,12 @@ export interface PublicShopService {
   id: string;
   shopId: string;
   categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    icon?: string | null;
+    color?: string | null;
+  } | null;
   name: string;
   description?: string | null;
   basePrice?: number | null;
@@ -95,6 +101,15 @@ export interface PublicShopAvailability {
   closeTime?: string;
   availableSlots: string[];
   message?: string;
+}
+
+export interface PublicBookingDraft {
+  shopSlug: string;
+  serviceIds: string[];
+  staffId?: string;
+  date: string;
+  startTime?: string;
+  serviceOptions?: { serviceId: string; optionValueIds: string[] }[];
 }
 
 export interface PublicBookingInput {

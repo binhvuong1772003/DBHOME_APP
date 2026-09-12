@@ -21,7 +21,7 @@ export const useChangeAppointmentStatus = () => {
     input: AppointmentStatusUpdate,
   ) => {
     if (!shopSlug) {
-      toast.error("Shop không tồn tại");
+      toast.error(t("status.shopMissing"));
       return;
     }
 

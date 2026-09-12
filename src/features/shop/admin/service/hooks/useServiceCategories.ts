@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
@@ -19,20 +19,26 @@ export function useServiceCategories({ load = true, limit = 50 }: UseServiceCate
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState({ page: 1, limit, total: 0, totalPages: 0, hasNext: false, hasPrev: false });
+  const requestId = useRef(0);
 
   const refetch = useCallback(async () => {
-    if (!shopSlug) return;
+    if (!shopSlug) {
+      setIsLoading(false);
+      return;
+    }
+    const currentRequest = ++requestId.current;
     setIsLoading(true);
     setError(null);
     try {
       const result = await getServiceCategories(shopSlug, { page, limit });
+      if (currentRequest !== requestId.current) return;
       setCategories(result.items);
       setMeta(result.meta);
       setPage(result.meta.page);
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, t("category.loadError")));
+      if (currentRequest === requestId.current) setError(getApiErrorMessage(requestError, t("category.loadError")));
     } finally {
-      setIsLoading(false);
+      if (currentRequest === requestId.current) setIsLoading(false);
     }
   }, [limit, page, shopSlug, t]);
 

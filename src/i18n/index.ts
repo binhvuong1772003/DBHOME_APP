@@ -32,11 +32,17 @@ import marketplaceEN from "./locales/en/marketplace.json";
 import marketplaceVI from "./locales/vi/marketplace.json";
 import publicShopEN from "./locales/en/publicShop.json";
 import publicShopVI from "./locales/vi/publicShop.json";
+import dashboardEN from "./locales/en/dashboard.json";
+import dashboardVI from "./locales/vi/dashboard.json";
+import sidebarEN from "./locales/en/sidebar.json";
+import sidebarVI from "./locales/vi/sidebar.json";
+import marketplaceSearchEN from "./locales/en/marketplaceSearch.json";
+import marketplaceSearchVI from "./locales/vi/marketplaceSearch.json";
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { appointment: appointmentEN, staff: staffEN, settings: settingsEN, service: serviceEN, common: commonEN, workspace: workspaceEN, workforce: workforceEN, payroll: payrollEN, staffDetail: staffDetailEN, payments: paymentsEN, aiAssistant: aiAssistantEN, customers: customersEN, marketplace: marketplaceEN, navbar: navbarEN, account: accountEN, publicShop: publicShopEN },
-    vi: { appointment: appointmentVI, staff: staffVI, settings: settingsVI, service: serviceVI, common: commonVI, workspace: workspaceVI, workforce: workforceVI, payroll: payrollVI, staffDetail: staffDetailVI, payments: paymentsVI, aiAssistant: aiAssistantVI, customers: customersVI, marketplace: marketplaceVI, navbar: navbarVI, account: accountVI, publicShop: publicShopVI },
+    en: { appointment: appointmentEN, staff: staffEN, settings: settingsEN, service: serviceEN, common: commonEN, workspace: workspaceEN, workforce: workforceEN, payroll: payrollEN, staffDetail: staffDetailEN, payments: paymentsEN, aiAssistant: aiAssistantEN, customers: customersEN, marketplace: marketplaceEN, marketplaceSearch: marketplaceSearchEN, navbar: navbarEN, account: accountEN, publicShop: publicShopEN, dashboard: dashboardEN, sidebar: sidebarEN },
+    vi: { appointment: appointmentVI, staff: staffVI, settings: settingsVI, service: serviceVI, common: commonVI, workspace: workspaceVI, workforce: workforceVI, payroll: payrollVI, staffDetail: staffDetailVI, payments: paymentsVI, aiAssistant: aiAssistantVI, customers: customersVI, marketplace: marketplaceVI, marketplaceSearch: marketplaceSearchVI, navbar: navbarVI, account: accountVI, publicShop: publicShopVI, dashboard: dashboardVI, sidebar: sidebarVI },
   },
 
   lng: localStorage.getItem("language") ?? "vi",

@@ -12,11 +12,56 @@
     "allStatuses": "Tất cả trạng thái"
   },
   "newAppointment": "Tạo lịch hẹn",
+  "title": "Lịch hẹn",
+  "description": "Theo dõi lịch theo từng nhân viên và xử lý thay đổi trong ngày.",
+  "toolbar": {
+    "today": "Hôm nay",
+    "previousDay": "Ngày trước",
+    "nextDay": "Ngày sau",
+    "datePicker": "Chọn ngày",
+    "clearFilters": "Xóa bộ lọc",
+    "resultCount": "{{count}} lịch hẹn",
+    "resultCount_one": "{{count}} lịch hẹn",
+    "unassigned": "Chưa phân công",
+    "allServices": "Tất cả dịch vụ",
+    "allStatuses": "Tất cả trạng thái",
+    "noSchedule": "Chưa có giờ làm việc cho ngày này.",
+    "closed": "Shop đóng cửa",
+    "loadError": "Không thể tải lịch hẹn.",
+    "staffLoadError": "Không thể tải danh sách nhân viên.",
+    "serviceLoadError": "Không thể tải danh sách dịch vụ.",
+    "loadingServices": "Đang tải dịch vụ…",
+    "retry": "Thử lại",
+    "noAppointments": "Không có lịch hẹn trong ngày này.",
+    "noFilteredAppointments": "Không có lịch hẹn phù hợp bộ lọc.",
+    "timezone": "Múi giờ: {{timezone}}",
+    "unassignedColumn": "Chưa phân công"
+  },
+  "create": {
+    "title": "Tạo lịch hẹn",
+    "description": "Thêm khách hàng, dịch vụ và thời gian. Backend sẽ kiểm tra quyền và xung đột lịch.",
+    "customer": "Khách hàng",
+    "customerPlaceholder": "Tìm theo tên, số điện thoại hoặc email",
+    "loadingCustomers": "Đang tải danh sách khách hàng…",
+    "noCustomers": "Không tìm thấy khách hàng.",
+    "selectedCustomer": "Đã chọn: {{name}}",
+    "date": "Ngày",
+    "startTime": "Giờ bắt đầu",
+    "staff": "Nhân viên",
+    "services": "Dịch vụ",
+    "note": "Ghi chú",
+    "notePlaceholder": "Ghi chú không bắt buộc cho đội ngũ",
+    "validation": "Hãy chọn khách hàng, ít nhất một dịch vụ, ngày và giờ bắt đầu.",
+    "loadCustomersError": "Không thể tải khách hàng.",
+    "submitError": "Không thể tạo lịch hẹn.",
+    "submit": "Tạo lịch hẹn",
+    "submitting": "Đang tạo…"
+  },
   "staff": "Nhân viên",
-  "roles": { "seniorStylist": "Chuyên viên cao cấp", "nailArtist": "Chuyên viên làm móng" },
+  "roles": { "seniorStylist": "Chuyên viên cao cấp", "nailArtist": "Chuyên viên làm móng", "owner": "Chủ cửa hàng", "admin": "Quản lý", "manager": "Quản lý", "staff": "Nhân viên" },
   "stats": {
     "title": "Thống kê lịch hẹn",
-    "today": "Lịch hẹn hôm nay",
+    "today": "Lịch theo ngày đang chọn",
     "completed": "Hoàn thành",
     "remaining": "Chưa hoàn thành"
   },
@@ -35,7 +80,9 @@
     "noShow": "Không đến",
     "change": "Thay đổi trạng thái: {{status}}",
     "updated": "Đã cập nhật trạng thái thành {{status}}.",
-    "updateError": "Không thể cập nhật trạng thái lịch hẹn."
+    "updateError": "Không thể cập nhật trạng thái lịch hẹn.",
+    "shopMissing": "Không tìm thấy cửa hàng hiện tại.",
+    "unknown": "Chưa có trạng thái"
   },
   "cancelDialog": {
     "title": "Hủy lịch hẹn?",
@@ -70,7 +117,8 @@
     "total": "Tổng cộng",
     "note": "Ghi chú",
     "contact": "Liên hệ",
-    "noPhone": "Chưa có số điện thoại"
+    "noPhone": "Chưa có số điện thoại",
+    "minutesShort": "phút"
   },
   "actions": {
     "cancel": "Hủy lịch",

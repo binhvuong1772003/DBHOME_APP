@@ -56,7 +56,13 @@ export interface CustomerAppointment {
   status: string;
   totalAmount: number;
   services: Array<{ id: string; serviceName: string; priceAtBooking: number; durationMin: number }>;
-  staff?: { id: string; name: string; avatarUrl?: string | null } | null;
+  staff?: {
+    id: string;
+    name?: string;
+    nickname?: string | null;
+    avatarUrl?: string | null;
+    user?: { name?: string | null; email?: string | null } | null;
+  } | null;
   payment?: {
     id: string;
     amount: number;
@@ -82,6 +88,11 @@ export interface CustomerDetail extends CustomerListItem {
     endTime: string;
     status: string;
     services: Array<{ id: string; serviceName: string }>;
-    staff?: { id: string; name: string } | null;
+    staff?: {
+      id: string;
+      name?: string;
+      nickname?: string | null;
+      user?: { name?: string | null } | null;
+    } | null;
   }>;
 }

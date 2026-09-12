@@ -1,9 +1,11 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { useStaffs } from "@/features/shop/admin/appointment/hooks/useStaffs";
 import { useScheduleAppointment } from "../hooks/useScheduleAppointment";
 import {
   CalendarDays,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   Mail,
   PackageOpen,
@@ -19,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -36,28 +39,13 @@ import { useParams } from "react-router-dom";
 import { useShopMembership } from "@/features/shop/membership/hooks/useShopMembership";
 import { AppointmentPaymentSection } from "./AppointmentPaymentSection";
 import { CancelAppointmentDialog } from "./CancelAppointmentDialog";
-
-function AppointmentCard({
-  children,
-  className,
-  style,
-  onClick,
-}: {
-  children: ReactNode;
-  className: string;
-  style?: CSSProperties;
-  onClick?: () => void;
-}) {
-  return (
-    <div
-      style={style}
-      className={`absolute inset-x-2 z-10 overflow-hidden rounded-lg border p-2.5 shadow-xs transition-shadow hover:shadow-md ${className}`}
-      onClick={onClick}
-    >
-      {children}
-    </div>
-  );
-}
+import { CreateAppointmentDialog } from "./CreateAppointmentDialog";
+import { ScheduleGrid } from "./ScheduleGrid";
+import { AppointmentDetailSheet } from "./AppointmentDetailSheet";
+import { MobileAppointmentList } from "./MobileAppointmentList";
+import { useScheduleServices } from "../hooks/useScheduleServices";
+import {
+} from "../utils/scheduleUtils";
 
 const formatVnd = (value: number, locale: string) =>
   new Intl.NumberFormat(locale, {
@@ -80,21 +68,24 @@ const getStaffDisplayName = (staff: {
   staff.nickname?.trim() ||
   staff.user?.name?.trim() ||
   staff.user?.email?.split("@")[0] ||
-  "Nhân viên";
+  "—";
 
 function ScheduleAppointment() {
   const { t, i18n } = useTranslation("appointment");
   const { shopSlug = "" } = useParams<{ shopSlug: string }>();
   const { membership } = useShopMembership();
+  const canManage = membership?.role === "OWNER" || membership?.role === "ADMIN";
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [staffFilter, setStaffFilter] = useState("all-staff");
+  const [serviceFilter, setServiceFilter] = useState("all-services");
+  const [statusFilter, setStatusFilter] = useState("all-statuses");
   const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
-  const { staffs } = useStaffs();
+  const { staffs, isLoading: isLoadingStaffs, error: staffError, refetch: refetchStaffs } = useStaffs();
+  const { services, isLoading: isLoadingServices, error: serviceError, refetch: refetchServices } = useScheduleServices();
   const {
     appointments,
-    completedAppointments,
-    slot,
-    workHour,
-    openHour,
     selectedAppointment,
     setSelectedAppointment,
     handleAppointmentClick,
@@ -103,10 +94,104 @@ function ScheduleAppointment() {
     selectedDate,
     setSelectedDate,
     currentMonth,
+    goToPreviousMonth,
+    goToNextMonth,
+    todayDate,
+    isWorkDay,
+    timezone,
+    message,
+    isLoading: isLoadingAppointments,
+    error: appointmentsError,
+    hasValidSchedule,
+    openMinutes,
+    closeMinutes,
     handleStatusChange,
     isChangingStatus,
     refetchAppointments,
   } = useScheduleAppointment();
+  const serviceFilterOptions = useMemo(() => {
+    if (services.length > 0) return services;
+    const values = new Map<string, string>();
+    appointments.forEach((appointment) =>
+      appointment.services.forEach((service) => values.set(service.serviceId, service.serviceName)),
+    );
+    return Array.from(values, ([id, name]) => ({ id, name }));
+  }, [appointments, services]);
+  const filteredAppointments = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return appointments.filter((appointment) => {
+      const searchable = [
+        appointment.customer.name,
+        appointment.customer.phone,
+        appointment.customer.email,
+        appointment.id,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase();
+      const matchesSearch = !query || searchable.includes(query);
+      const matchesStaff =
+        staffFilter === "all-staff" ||
+        (staffFilter === "unassigned"
+          ? !appointment.staffId || !staffs.some((staff) => staff.id === appointment.staffId)
+          : appointment.staffId === staffFilter);
+      const matchesService =
+        serviceFilter === "all-services" ||
+        appointment.services.some((service) => service.serviceId === serviceFilter);
+      const matchesStatus =
+        statusFilter === "all-statuses" || appointment.status === statusFilter;
+      return matchesSearch && matchesStaff && matchesService && matchesStatus;
+    });
+  }, [appointments, search, serviceFilter, staffFilter, statusFilter, staffs]);
+  const hasFilters = Boolean(
+    search ||
+      staffFilter !== "all-staff" ||
+      serviceFilter !== "all-services" ||
+      statusFilter !== "all-statuses",
+  );
+  const unassignedAppointments = filteredAppointments.filter(
+    (appointment) =>
+      !appointment.staffId || !staffs.some((staff) => staff.id === appointment.staffId),
+  );
+  const visibleStaffs = useMemo(
+    () =>
+      staffFilter === "unassigned"
+        ? []
+        : staffFilter === "all-staff"
+          ? staffs
+          : staffs.filter((staff) => staff.id === staffFilter),
+    [staffFilter, staffs],
+  );
+  const totalAppointments = filteredAppointments.length;
+  const completedCount = filteredAppointments.filter(
+    (appointment) => appointment.status === "COMPLETED",
+  ).length;
+  const lanes = useMemo(() => {
+    const staffLanes = visibleStaffs.map((staff) => ({
+      key: staff.id,
+      label: getStaffDisplayName(staff),
+      staff,
+      appointments: filteredAppointments.filter(
+        (appointment) => appointment.staffId === staff.id,
+      ),
+    }));
+    if (unassignedAppointments.length > 0 || staffLanes.length === 0) {
+      return [
+        {
+          key: "unassigned",
+          label: t("toolbar.unassignedColumn"),
+          staff: undefined,
+          appointments: unassignedAppointments,
+        },
+        ...staffLanes,
+      ];
+    }
+    return staffLanes;
+  }, [filteredAppointments, t, unassignedAppointments, visibleStaffs]);
+  const staffNames = useMemo(
+    () => new Map(staffs.map((staff) => [staff.id, getStaffDisplayName(staff)])),
+    [staffs],
+  );
   const selectedStaff = staffs.find(
     (staff) => staff.id === selectedAppointment?.staffId,
   );
@@ -119,62 +204,92 @@ function ScheduleAppointment() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-[1920px] space-y-4 px-4 pb-8 md:px-6 xl:px-8">
+        <header className="flex flex-col gap-4 border-b border-border/70 pb-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              {t("stats.today")}
+            </p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+              {t("title")}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("description")} {selectedDate} · {timezone ? t("toolbar.timezone", { timezone }) : t("calendar.selectDate")}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="outline" className="min-h-11" onClick={() => setSelectedDate(todayDate)}>
+              {t("toolbar.today")}
+            </Button>
+            <Button type="button" variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t("toolbar.previousDay")} onClick={() => {
+              const date = new Date(`${selectedDate}T12:00:00`);
+              date.setDate(date.getDate() - 1);
+              setSelectedDate(date.toLocaleDateString("sv-SE"));
+            }}>
+              <ChevronLeft aria-hidden="true" />
+            </Button>
+            <Button type="button" variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t("toolbar.nextDay")} onClick={() => {
+              const date = new Date(`${selectedDate}T12:00:00`);
+              date.setDate(date.getDate() + 1);
+              setSelectedDate(date.toLocaleDateString("sv-SE"));
+            }}>
+              <ChevronRight aria-hidden="true" />
+            </Button>
+            <Button type="button" className="min-h-11" onClick={() => setCreateOpen(true)} disabled={!canManage}>
+              <Plus aria-hidden="true" />
+              {t("newAppointment")}
+            </Button>
+          </div>
+        </header>
+
         <Card className="gap-0 rounded-xl py-0 shadow-xs">
-          <CardContent className="flex flex-col gap-3 p-3 md:flex-row md:items-center">
-            <div className="relative min-w-0 flex-1 md:max-w-sm">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("searchPlaceholder")}
-                className="h-10 rounded-lg bg-background pl-9"
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 md:ml-auto">
-              <Select defaultValue="all-staff">
-                <SelectTrigger className="h-10 w-full rounded-lg bg-background md:w-[150px]">
-                  <UserRound className="size-4" />
-                  <SelectValue placeholder={t("filters.staff")} />
-                </SelectTrigger>
+          <CardContent className="space-y-3 p-3">
+            <div className="grid gap-2 lg:grid-cols-[minmax(16rem,1fr)_repeat(3,minmax(10rem,auto))_auto]">
+              <div className="relative min-w-0">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("searchPlaceholder")} aria-label={t("searchPlaceholder")} className="min-h-11 rounded-lg bg-background pl-9" />
+              </div>
+              <Select value={staffFilter} onValueChange={setStaffFilter}>
+                <SelectTrigger className="min-h-11 w-full rounded-lg bg-background"><UserRound className="size-4" aria-hidden="true" /><SelectValue placeholder={t("filters.staff")} /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all-staff">{t("filters.allStaff")}</SelectItem>
-                  {staffs.map((staff) => (
-                    <SelectItem key={staff.id} value={staff.id}>
-                      {getStaffDisplayName(staff)}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="unassigned">{t("toolbar.unassigned")}</SelectItem>
+                  {staffs.map((staff) => <SelectItem key={staff.id} value={staff.id}>{getStaffDisplayName(staff)}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select defaultValue="all-services">
-                <SelectTrigger className="h-10 w-full rounded-lg bg-background md:w-[160px]">
-                  <Sparkles className="size-4" />
-                  <SelectValue placeholder={t("filters.service")} />
-                </SelectTrigger>
+              <Select value={serviceFilter} onValueChange={setServiceFilter}>
+                <SelectTrigger className="min-h-11 w-full rounded-lg bg-background"><Sparkles className="size-4" aria-hidden="true" /><SelectValue placeholder={t("filters.service")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-services">{t("filters.allServices")}</SelectItem>
-                  <SelectItem value="hair">{t("filters.hair")}</SelectItem>
-                  <SelectItem value="nails">{t("filters.nails")}</SelectItem>
-                  <SelectItem value="spa">{t("filters.spa")}</SelectItem>
+                  <SelectItem value="all-services">{t("toolbar.allServices")}</SelectItem>
+                  {serviceFilterOptions.map((service) => <SelectItem key={service.id} value={service.id}>{service.name}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select defaultValue="all-statuses">
-                <SelectTrigger className="h-10 w-full rounded-lg bg-background md:w-[150px]">
-                  <Check className="size-4" />
-                  <SelectValue placeholder={t("filters.status")} />
-                </SelectTrigger>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="min-h-11 w-full rounded-lg bg-background"><Check className="size-4" aria-hidden="true" /><SelectValue placeholder={t("filters.status")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-statuses">{t("filters.allStatuses")}</SelectItem>
-                  <SelectItem value="confirmed">{t("status.confirmed")}</SelectItem>
-                  <SelectItem value="pending">{t("status.pending")}</SelectItem>
-                  <SelectItem value="checked-in">{t("status.inProgress")}</SelectItem>
-                  <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                  <SelectItem value="all-statuses">{t("toolbar.allStatuses")}</SelectItem>
+                  {(Object.keys(appointmentStatusConfig) as Array<keyof typeof appointmentStatusConfig>).map((status) => <SelectItem key={status} value={status}>{t(appointmentStatusConfig[status].labelKey)}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Button className="rounded-lg shadow-sm">
-                <Plus />
-                {t("newAppointment")}
-              </Button>
+              {hasFilters ? <Button type="button" variant="ghost" className="min-h-11" onClick={() => { setSearch(""); setStaffFilter("all-staff"); setServiceFilter("all-services"); setStatusFilter("all-statuses"); }}>{t("toolbar.clearFilters")}</Button> : <span />}
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>{t("toolbar.resultCount", { count: totalAppointments })}</span>
+              {isLoadingServices ? <span>{t("toolbar.loadingServices")}</span> : serviceError ? <button type="button" className="text-destructive underline" onClick={() => void refetchServices()}>{t("toolbar.serviceLoadError")}</button> : null}
             </div>
           </CardContent>
         </Card>
+
+        <div className="md:hidden">
+          <MiniCalendar
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            calendarDays={calendarDays}
+            mutedList={mutedList}
+            currentMonth={currentMonth}
+            goToPreviousMonth={goToPreviousMonth}
+            goToNextMonth={goToNextMonth}
+          />
+        </div>
 
         <div className="grid items-start gap-4 md:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="hidden space-y-4 md:block">
@@ -184,14 +299,25 @@ function ScheduleAppointment() {
               calendarDays={calendarDays}
               mutedList={mutedList}
               currentMonth={currentMonth}
+              goToPreviousMonth={goToPreviousMonth}
+              goToNextMonth={goToNextMonth}
             />
             <Card className="gap-4 rounded-xl py-5 shadow-xs">
               <CardHeader className="px-5">
                 <CardTitle className="text-sm">{t("staff")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 px-5">
-                {staffs.map((staff) => (
-                  <div key={staff.id} className="flex items-center gap-3">
+                  {isLoadingStaffs ? (
+                    [1, 2, 3].map((item) => <Skeleton key={item} className="h-10 w-full" />)
+                  ) : staffError ? (
+                    <div className="space-y-2 text-sm text-destructive">
+                      <p>{t("toolbar.staffLoadError")}</p>
+                      <Button type="button" variant="outline" className="min-h-11" onClick={() => void refetchStaffs()}>{t("toolbar.retry")}</Button>
+                    </div>
+                  ) : staffs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t("toolbar.unassigned")}</p>
+                  ) : staffs.map((staff) => (
+                    <div key={staff.id} className="flex items-center gap-3">
                     <StaffAvatar
                       initials={getStaffDisplayName(staff).charAt(0).toUpperCase()}
                       avatarUrl={staff.avatarUrl ?? staff.user?.avatarUrl}
@@ -202,13 +328,11 @@ function ScheduleAppointment() {
                       <p className="truncate text-sm font-semibold">
                         {getStaffDisplayName(staff)}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t("roles.seniorStylist")}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{t(`roles.${staff.role.toLowerCase()}`, { defaultValue: t("roles.staff") })}</p>
                     </div>
-                    <span className="size-2 rounded-full bg-secondary" />
+                    <span className="size-2 rounded-full bg-muted-foreground/40" aria-hidden="true" />
                   </div>
-                ))}
+                  ))}
               </CardContent>
             </Card>
 
@@ -225,7 +349,7 @@ function ScheduleAppointment() {
                     <CalendarDays className="size-4 text-primary" />
                   </div>
                   <p className="mt-2 text-xl font-bold">
-                    {appointments.length}
+                    {totalAppointments}
                   </p>
                 </div>
                 <div className="rounded-xl border border-secondary/25 bg-secondary/10 p-3">
@@ -236,7 +360,7 @@ function ScheduleAppointment() {
                     <Check className="size-4 text-secondary" />
                   </div>
                   <p className="mt-2 text-xl font-bold">
-                    {completedAppointments.length}
+                    {completedCount}
                   </p>
                 </div>
                 <div className="rounded-xl border border-chart-3/25 bg-chart-3/10 p-3">
@@ -247,152 +371,35 @@ function ScheduleAppointment() {
                     <Clock3 className="size-4 text-chart-3" />
                   </div>
                   <p className="mt-2 text-xl font-bold">
-                    {appointments.length - completedAppointments.length}
+                    {Math.max(totalAppointments - completedCount - filteredAppointments.filter((appointment) => ["CANCELLED", "NO_SHOW"].includes(appointment.status)).length, 0)}
                   </p>
                 </div>
               </CardContent>
             </Card>
           </aside>
           <div className="flex min-w-0 items-start overflow-hidden">
-            <Card className="h-[calc(100dvh-10rem)] min-w-0 flex-1 gap-0 overflow-hidden rounded-xl py-0 shadow-xs transition-all duration-300 ease-out">
-              <div className="h-full overflow-auto">
-                <div className="flex min-h-full min-w-full flex-col">
-                  <div
-                    className="sticky top-0 z-20 grid shrink-0 border-b border-border bg-card"
-                    style={{
-                      gridTemplateColumns: `64px repeat(${staffs.length}, minmax(180px, 1fr))`,
-                    }}
-                  >
-                    <div className="flex items-center justify-center border-r border-border text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      GMT+7
-                    </div>
-                    {staffs.map((staff) => (
-                      <div
-                        className="flex h-[72px] items-center gap-3 border-r border-border px-4"
-                        key={staff.id}
-                      >
-                        <StaffAvatar
-                          initials={getStaffDisplayName(staff).charAt(0).toUpperCase()}
-                          avatarUrl={staff.avatarUrl ?? staff.user?.avatarUrl}
-                          alt={getStaffDisplayName(staff)}
-                          className="size-10"
-                        />
-                        <div>
-                          <p className="text-sm font-semibold">
-                          {getStaffDisplayName(staff)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {t("roles.nailArtist")}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div
-                    className="relative grid min-h-[800px] flex-1 bg-card"
-                    style={{
-                      gridTemplateColumns: `64px repeat(${staffs.length}, minmax(180px, 1fr))`,
-                    }}
-                  >
-                    <div
-                      className="grid border-r border-border bg-muted/15"
-                      style={{
-                        gridTemplateRows: `repeat(${slot.length}, minmax(0, 1fr))`,
-                      }}
-                    >
-                      {slot.map((hour) => (
-                        <div
-                          key={hour}
-                          className="border-b border-border/70 pr-3 pt-2 text-right font-mono text-[11px] text-muted-foreground"
-                        >
-                          {hour < 10 ? `0${hour}:00` : `${hour}:00`}
-                        </div>
-                      ))}
-                    </div>
-                    {staffs.map((staff) => {
-                      const staffAppointments = appointments.filter(
-                        (appointment) => appointment.staffId === staff.id,
-                      );
-                      return (
-                        <div
-                          className="relative grid border-r border-border"
-                          style={{
-                            gridTemplateRows: `repeat(${slot.length}, minmax(0, 1fr))`,
-                          }}
-                          key={staff.id}
-                        >
-                          {slot.map((sl) => (
-                            <div
-                              key={sl}
-                              className="border-b border-border/70 transition-colors hover:bg-muted/35"
-                            />
-                          ))}
-                          {staffAppointments.map((appointment) => {
-                            const [startHour, startMinute] =
-                              appointment.startTime.split(":").map(Number);
-                            const [endHour, endMinute] = appointment.endTime
-                              .split(":")
-                              .map(Number);
-
-                            const duration =
-                              endHour * 60 +
-                              endMinute -
-                              (startHour * 60 + startMinute);
-                            const positionTop =
-                              ((startHour - openHour) / workHour) * 100;
-                            const height = (duration / 60) * (100 / workHour);
-                            const config =
-                              appointmentStatusConfig[appointment.status] ??
-                              appointmentStatusConfig.PENDING;
-                            return (
-                              <AppointmentCard
-                                key={appointment.id}
-                                className={`${config.cardClassName} cursor-pointer transition-opacity hover:opacity-90 active:opacity-80`}
-                                style={{
-                                  top: `${positionTop}%`,
-                                  height: `${height}%`,
-                                  minHeight: "32px",
-                                }}
-                                onClick={() => {
-                                  handleAppointmentClick(appointment);
-                                }}
-                              >
-                                <div className="mb-1.5 flex items-start justify-between gap-2">
-                                  <p className="truncate text-xs font-semibold">
-                                    {appointment.customer.name}
-                                  </p>
-                                  <span
-                                    className={`${config.badgeClassName} rounded-full px-1.5 py-0.5 text-[9px] font-semibold`}
-                                  >
-                                    {t(config.labelKey)}
-                                  </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <p className="truncate text-[11px] text-muted-foreground">
-                                    {appointment.services
-                                      .map((service) => service.serviceName)
-                                      .join(", ")}
-                                  </p>
-                                  <p
-                                    className={`font-mono font-semibold text-[12px] ${config.timeClassName}`}
-                                  >
-                                    {appointment.startTime} ·{" "}
-                                    {t("details.minutes", { count: duration })}
-                                  </p>
-                                </div>
-                              </AppointmentCard>
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <div className="hidden min-w-0 flex-1 md:block">
+              <ScheduleGrid
+                lanes={lanes}
+                openMinutes={openMinutes}
+                closeMinutes={closeMinutes}
+                timezone={timezone}
+                isLoading={isLoadingAppointments}
+                error={appointmentsError}
+                isWorkDay={isWorkDay}
+                hasValidSchedule={hasValidSchedule}
+                message={message}
+                hasFilteredResults={filteredAppointments.length > 0}
+                hasFilters={hasFilters}
+                onRetry={() => void refetchAppointments()}
+                onSelect={handleAppointmentClick}
+              />
+            </div>
+            <div className="w-full md:hidden">
+              {isLoadingAppointments ? <Card className="space-y-3 p-4">{[1, 2, 3].map((item) => <Skeleton key={item} className="h-28 w-full" />)}</Card> : appointmentsError ? <Card className="space-y-3 p-4"><p className="text-sm text-destructive">{appointmentsError}</p><Button type="button" variant="outline" className="min-h-11" onClick={() => void refetchAppointments()}>{t("toolbar.retry")}</Button></Card> : !isWorkDay || !hasValidSchedule ? <Card className="flex min-h-[20rem] items-center justify-center p-6 text-center"><p className="text-sm font-medium">{isWorkDay ? t("toolbar.noSchedule") : t("toolbar.closed")}</p></Card> : <MobileAppointmentList appointments={filteredAppointments} staffNames={staffNames} hasFilters={hasFilters} onSelect={handleAppointmentClick} />}
+            </div>
             <div
-              className={`shrink-0 overflow-hidden transition-[width,margin,transform,opacity] duration-300 ease-out ${
+              className={`hidden shrink-0 overflow-hidden transition-[width,margin,transform,opacity] duration-300 ease-out md:block ${
                 selectedAppointment
                   ? "ml-4 w-[320px] translate-x-0 opacity-100"
                   : "pointer-events-none ml-0 w-0 translate-x-full opacity-0"
@@ -421,7 +428,7 @@ function ScheduleAppointment() {
                     {selectedAppointment && (
                       <AppointmentStatusDropdown
                         status={selectedAppointment.status}
-                        disabled={isChangingStatus}
+                        disabled={isChangingStatus || !canManage}
                         onStatusChange={handleStatusChange}
                       />
                     )}
@@ -718,7 +725,7 @@ function ScheduleAppointment() {
                       shopSlug={shopSlug}
                       appointment={selectedAppointment}
                       staffName={selectedStaff ? getStaffDisplayName(selectedStaff) : t("details.unassigned")}
-                      canManage={Boolean(membership && membership.role !== "STAFF")}
+                      canManage={canManage}
                       onAppointmentRefresh={refetchAppointments}
                     />
                   ) : null}
@@ -773,7 +780,7 @@ function ScheduleAppointment() {
                           type="button"
                           variant="outline"
                           className="h-10 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          disabled={isChangingStatus}
+                          disabled={isChangingStatus || !canManage}
                           onClick={() => setCancelOpen(true)}
                         >
                           <X aria-hidden="true" />
@@ -785,7 +792,7 @@ function ScheduleAppointment() {
                         <Button
                           type="button"
                           className="h-10"
-                          disabled={isChangingStatus}
+                          disabled={isChangingStatus || !canManage}
                           onClick={() =>
                             handleStatusChange({ status: "CONFIRMED" })
                           }
@@ -801,7 +808,7 @@ function ScheduleAppointment() {
                         <Button
                           type="button"
                           className="h-10"
-                          disabled={isChangingStatus}
+                          disabled={isChangingStatus || !canManage}
                           onClick={() =>
                             handleStatusChange({ status: "IN_PROGRESS" })
                           }
@@ -817,7 +824,7 @@ function ScheduleAppointment() {
                         <Button
                           type="button"
                           className="h-10 w-full"
-                          disabled={isChangingStatus}
+                          disabled={isChangingStatus || !canManage}
                           onClick={() =>
                             handleStatusChange({ status: "COMPLETED" })
                           }
@@ -834,6 +841,29 @@ function ScheduleAppointment() {
             </div>
           </div>
         </div>
+      </div>
+      <CreateAppointmentDialog
+        shopSlug={shopSlug}
+        open={createOpen}
+        selectedDate={selectedDate}
+        staffs={staffs}
+        services={services}
+        onOpenChange={setCreateOpen}
+        onCreated={async () => {
+          await refetchAppointments();
+        }}
+      />
+      <div className="md:hidden">
+        <AppointmentDetailSheet
+          appointment={selectedAppointment}
+          shopSlug={shopSlug}
+          staffName={selectedStaff ? getStaffDisplayName(selectedStaff) : t("details.unassigned")}
+          canManage={canManage}
+          isChanging={isChangingStatus}
+          onOpenChange={(open) => { if (!open) setSelectedAppointment(null); }}
+          onStatusChange={handleStatusChange}
+          onRefresh={refetchAppointments}
+        />
       </div>
       {selectedAppointment && cancelOpen ? (
         <CancelAppointmentDialog

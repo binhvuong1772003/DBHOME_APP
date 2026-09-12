@@ -1,10 +1,13 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import {
+  AlertTriangle,
   CalendarDays,
   CheckCircle2,
   Clock3,
   MoreHorizontal,
   Plus,
+  RefreshCw,
   Scissors,
   UsersRound,
   WalletCards,
@@ -19,6 +22,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,54 +30,79 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 import { AppointmentStatusDropdown } from "@/features/shop/admin/appointment/components/AppointmentStatusDropdown";
 import { CancelAppointmentDialog } from "@/features/shop/admin/appointment/components/CancelAppointmentDialog";
+import {
+  appointmentStatusConfig,
+  type AppointmentStatus,
+} from "@/features/shop/admin/appointment/constants/appointmentStatus";
 import { useShopDashBoard } from "@/features/shop/admin/dashboard/hooks/useDashboard";
-
-const todayMetrics = [
-  { label: "Sold", value: "224" },
-  { label: "Returns", value: "12" },
-  { label: "Picked", value: "210" },
-  { label: "In Transit", value: "112" },
-];
+import { cn } from "@/lib/utils";
 
 const chartConfig = {
   income: {
-    label: "Doanh thu",
+    label: "revenue",
     color: "var(--primary)",
   },
 } as const;
 
-function formatCurrency(value: number | null | undefined) {
-  return `${(value ?? 0).toLocaleString("vi-VN")} ₫`;
+const statusLabelKeys: Record<AppointmentStatus, string> = {
+  PENDING: "status.pending",
+  CONFIRMED: "status.confirmed",
+  IN_PROGRESS: "status.inProgress",
+  COMPLETED: "status.completed",
+  CANCELLED: "status.cancelled",
+  NO_SHOW: "status.noShow",
+};
+
+function formatCurrency(value: number | null | undefined, locale: string) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
-function getInitials(name: string | undefined) {
+function formatNumber(value: number, locale: string) {
+  return new Intl.NumberFormat(locale).format(value);
+}
+
+function getInitials(name: string | undefined, fallback: string) {
   return (
     name
       ?.split(" ")
       .map((part) => part[0])
       .join("")
       .slice(0, 2)
-      .toUpperCase() || "KH"
+      .toUpperCase() || fallback
   );
 }
 
-function formatDate(value: string | undefined) {
-  if (!value) return "Chưa có dữ liệu ngày";
+function formatDate(
+  value: string | undefined,
+  locale: string,
+  unavailableLabel: string,
+) {
+  if (!value) return unavailableLabel;
 
-  return new Date(value).toLocaleDateString("vi-VN", {
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(`${value}T12:00:00`)
+    : new Date(value);
+
+  if (Number.isNaN(date.getTime())) return unavailableLabel;
+
+  return new Intl.DateTimeFormat(locale, {
     weekday: "long",
     year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+    month: "long",
+    day: "numeric",
+  }).format(date);
 }
 
 function SectionHeading({
@@ -88,9 +117,9 @@ function SectionHeading({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <CardTitle className="text-base font-semibold tracking-tight">
+        <h2 className="text-base font-semibold tracking-tight">
           {title}
-        </CardTitle>
+        </h2>
         {description && (
           <CardDescription className="mt-1">{description}</CardDescription>
         )}
@@ -124,7 +153,10 @@ function SummaryCard({
             </p>
           </div>
           <div
-            className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${iconClassName}`}
+            className={cn(
+              "flex size-10 shrink-0 items-center justify-center rounded-lg",
+              iconClassName,
+            )}
           >
             <Icon className="size-5" aria-hidden="true" />
           </div>
@@ -135,7 +167,24 @@ function SummaryCard({
   );
 }
 
+function StatusBadge({ status, label }: { status: AppointmentStatus; label: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "w-fit rounded-full px-2.5 py-1 text-xs font-semibold",
+        appointmentStatusConfig[status].statusClassName,
+      )}
+    >
+      {label}
+    </Badge>
+  );
+}
+
 export const DashBoard = () => {
+  const { t: tDashboard, i18n } = useTranslation("dashboard");
+  const { t: tAppointment } = useTranslation("appointment");
+  const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi-VN" : "en-US";
   const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(
     null,
   );
@@ -148,26 +197,33 @@ export const DashBoard = () => {
     appointments,
     isLoadingAppointments,
     isChanging,
+    errorAppointments,
+    retryAppointments,
     topCustomers,
     isLoadingTopCustomer,
     errorTopCustomer,
+    retryTopCustomer,
     countServices,
     isLoadingCountService,
+    errorCountService,
+    retryCountService,
     weeklyIncomeByDay,
     isLoadingWeeklyIncome,
     errorWeeklyIncome,
+    retryWeeklyIncome,
     weeklyTotal,
     weekRange,
     today,
+    appointmentDate: requestedAppointmentDate,
     sortApointments,
     handleChangeStatus,
+    pendingPayments,
   } = useShopDashBoard();
 
   const appointmentSummary = useMemo(
     () => ({
-      pending: appointments.filter(
-        (appointment) => appointment.status === "PENDING",
-      ).length,
+      pending: appointments.filter((appointment) => appointment.status === "PENDING")
+        .length,
       confirmed: appointments.filter(
         (appointment) => appointment.status === "CONFIRMED",
       ).length,
@@ -177,160 +233,384 @@ export const DashBoard = () => {
     }),
     [appointments],
   );
+  const hasAppointmentData = !isLoadingAppointments && !errorAppointments;
+  const hasRevenueData = !isLoadingWeeklyIncome && !errorWeeklyIncome;
+  const hasServiceData = !isLoadingCountService && !errorCountService;
+  const hasAttentionItems =
+    appointmentSummary.pending > 0 ||
+    (pendingPayments.canViewPayments && (pendingPayments.pendingCount ?? 0) > 0);
+  const displayDate = formatDate(
+    today?.fullDate ?? requestedAppointmentDate,
+    locale,
+    tDashboard("dateUnavailable"),
+  );
 
   return (
     <main className="min-h-full bg-background">
-      <div className="mx-auto w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:space-y-8 lg:p-8">
+      <div className="mx-auto w-full max-w-[1360px] space-y-6 p-4 sm:p-6 lg:space-y-8 lg:p-8">
         <header className="flex flex-col gap-4 border-b border-border/70 pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-primary">
-              Business overview
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              {tDashboard("eyebrow")}
             </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Tổng quan vận hành
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {tDashboard("title")}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Nắm nhanh tình hình cửa hàng và các lịch hẹn cần xử lý hôm nay.
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              {tDashboard("description")}
             </p>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CalendarDays className="size-4" aria-hidden="true" />
-            <span>{formatDate(today?.fullDate)}</span>
+            <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+            <span>{displayDate}</span>
           </div>
         </header>
 
         <section aria-labelledby="summary-heading">
-          <div className="sr-only" id="summary-heading">
-            Chỉ số tổng quan
-          </div>
+          <h2 className="sr-only" id="summary-heading">
+            {tDashboard("title")}
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryCard
-              title="Doanh thu tuần này"
-              value={formatCurrency(weeklyTotal)}
-              description={weekRange || "Đang cập nhật khoảng thời gian"}
+              title={tDashboard("summary.weeklyRevenue")}
+              value={hasRevenueData ? formatCurrency(weeklyTotal, locale) : "—"}
+              description={
+                isLoadingWeeklyIncome
+                  ? tDashboard("summary.loading")
+                  : errorWeeklyIncome
+                    ? tDashboard("summary.notAvailable")
+                    : weekRange || tDashboard("revenue.periodUnavailable")
+              }
               icon={WalletCards}
               iconClassName="bg-primary/10 text-primary"
             />
             <SummaryCard
-              title="Lịch hẹn hôm nay"
-              value={appointments.length.toLocaleString("vi-VN")}
-              description={`${appointmentSummary.confirmed} đã xác nhận · ${appointmentSummary.completed} đã hoàn tất`}
+              title={tDashboard("summary.todayAppointments")}
+              value={hasAppointmentData ? formatNumber(appointments.length, locale) : "—"}
+              description={
+                hasAppointmentData
+                  ? tDashboard("summary.appointmentsMeta", {
+                      confirmed: appointmentSummary.confirmed,
+                      completed: appointmentSummary.completed,
+                    })
+                  : tDashboard("summary.notAvailable")
+              }
               icon={CalendarDays}
-              iconClassName="bg-secondary/15 text-secondary"
+              iconClassName="bg-secondary/15 text-secondary-foreground"
             />
             <SummaryCard
-              title="Yêu cầu chờ xác nhận"
-              value={appointmentSummary.pending.toLocaleString("vi-VN")}
+              title={tDashboard("summary.pendingConfirmations")}
+              value={hasAppointmentData ? formatNumber(appointmentSummary.pending, locale) : "—"}
               description={
-                appointmentSummary.pending
-                  ? "Cần được xử lý trong hôm nay"
-                  : "Không có yêu cầu mới"
+                !hasAppointmentData
+                  ? tDashboard("summary.notAvailable")
+                  : appointmentSummary.pending
+                    ? tDashboard("summary.pendingMeta")
+                    : tDashboard("summary.noPending")
               }
               icon={Clock3}
-              iconClassName="bg-chart-3/15 text-chart-3"
+              iconClassName="bg-chart-5/15 text-chart-5"
             />
             <SummaryCard
-              title="Dịch vụ đang cung cấp"
-              value={
-                isLoadingCountService
-                  ? "—"
-                  : countServices.toLocaleString("vi-VN")
+              title={tDashboard("summary.services")}
+              value={hasServiceData ? formatNumber(countServices, locale) : "—"}
+              description={
+                hasServiceData
+                  ? tDashboard("summary.servicesMeta")
+                  : tDashboard("summary.notAvailable")
               }
-              description="Tổng số dịch vụ đang có tại cửa hàng"
               icon={Scissors}
-              iconClassName="bg-chart-4/15 text-chart-4"
+              iconClassName="bg-muted text-muted-foreground"
             />
           </div>
         </section>
 
         <section
-          className="grid gap-6 xl:grid-cols-5"
-          aria-label="Tổng quan doanh thu và cửa hàng"
+          className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(19rem,0.8fr)]"
+          aria-label={tDashboard("appointments.title")}
         >
-          <Card className="overflow-hidden border-border/80 bg-gradient-to-br from-gradient-card-start via-gradient-card-mid to-gradient-card-end text-background xl:col-span-2">
-            <CardHeader className="gap-1 pb-3">
-              <div className="flex items-center justify-between gap-4">
-                <CardTitle className="text-lg font-bold text-background/90">
-                  Lịch hôm nay
-                </CardTitle>
-                <Badge className="border-background/20 bg-background/15 text-background">
-                  Hôm nay
-                </Badge>
-              </div>
-              <CardDescription className="text-background/65">
-                {formatDate(today?.fullDate)}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold tracking-tight tabular-nums text-background sm:text-4xl">
-                {formatCurrency(today?.income)}
-              </p>
-              <p className="mt-1 text-sm text-background/70">
-                Doanh thu ghi nhận trong ngày
-              </p>
-            </CardContent>
-            <Separator className="bg-background/20" />
-            <CardFooter className="grid grid-cols-2 gap-x-4 gap-y-5 px-6 pt-5 sm:grid-cols-4">
-              {todayMetrics.map((metric) => (
-                <div key={metric.label} className="text-center">
-                  <div className="text-xs text-background/65">
-                    {metric.label}
-                  </div>
-                  <div className="mt-1 text-lg font-bold tabular-nums text-background">
-                    {metric.value}
-                  </div>
-                </div>
-              ))}
-            </CardFooter>
-          </Card>
-
-          <Card className="border-border/80 shadow-xs xl:col-span-3">
-            <CardHeader>
+          <Card className="overflow-hidden border-border/80 shadow-xs">
+            <CardHeader className="border-b border-border/70">
               <SectionHeading
-                title="Doanh thu tuần"
-                description={
-                  weekRange || "Theo dõi tổng doanh thu theo từng ngày"
-                }
+                title={tDashboard("appointments.title")}
+                description={tDashboard("appointments.description")}
                 action={
-                  <div className="flex items-center gap-2">
-                    <Badge className="border-secondary/20 bg-secondary/10 text-secondary">
-                      14% Increase
-                    </Badge>
-                    <WalletCards
-                      className="size-5 text-primary"
-                      aria-hidden="true"
-                    />
-                  </div>
+                  <Button asChild variant="outline" size="sm" className="min-h-11 shrink-0">
+                    <Link to="appointments">{tDashboard("appointments.viewAll")}</Link>
+                  </Button>
                 }
               />
             </CardHeader>
-            <CardContent className="h-56 px-4 sm:h-64 sm:px-6">
+            <CardContent className="p-0">
+              {isLoadingAppointments ? (
+                <div className="space-y-1 p-4 sm:p-6" aria-label={tDashboard("summary.loading")}>
+                  {[1, 2, 3].map((item) => (
+                    <div key={item} className="flex items-center gap-4 rounded-lg p-3">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="size-10 rounded-full" />
+                      <Skeleton className="h-4 flex-1" />
+                      <Skeleton className="h-10 w-24" />
+                    </div>
+                  ))}
+                </div>
+              ) : errorAppointments ? (
+                <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+                  <AlertTriangle className="size-8 text-destructive" aria-hidden="true" />
+                  <p className="font-medium text-foreground">{tDashboard("appointments.error")}</p>
+                  <Button variant="outline" className="min-h-11" onClick={() => void retryAppointments()}>
+                    <RefreshCw aria-hidden="true" />
+                    {tDashboard("appointments.retry")}
+                  </Button>
+                </div>
+              ) : sortApointments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-2 px-6 py-14 text-center">
+                  <CheckCircle2 className="size-8 text-secondary" aria-hidden="true" />
+                  <p className="font-medium text-foreground">{tDashboard("appointments.noAppointments")}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {tDashboard("appointments.noAppointmentsDescription")}
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border/70">
+                  {sortApointments.map((appointment) => {
+                    const isPending = appointment.status === "PENDING";
+                    const isNew = newIds.has(appointment.id);
+                    const statusLabel = tAppointment(statusLabelKeys[appointment.status]);
+                    const serviceNames = appointment.services
+                      .map((service) => service.serviceName)
+                      .join(", ");
+
+                    return (
+                      <div
+                        key={appointment.id}
+                        className={cn(
+                          "grid gap-3 px-4 py-4 transition-colors hover:bg-muted/40 sm:px-6 lg:grid-cols-[7.5rem_minmax(0,1.25fr)_minmax(0,1.5fr)_auto_auto] lg:items-center",
+                          isPending && "bg-chart-5/5",
+                          isNew && "animate-blink motion-reduce:animate-none",
+                        )}
+                      >
+                        <div className="flex items-center gap-2 text-sm font-semibold tabular-nums text-foreground">
+                          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground lg:hidden">
+                            {tDashboard("appointments.time")}
+                          </span>
+                          <Clock3 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                          <span>{appointment.startTime} - {appointment.endTime}</span>
+                        </div>
+                        <div className="flex min-w-0 items-center gap-3">
+                          <Avatar>
+                            <AvatarImage
+                              src={appointment.customer.avatarUrl ?? undefined}
+                              alt={tDashboard("appointments.avatarAlt", {
+                                name: appointment.customer.name,
+                              })}
+                            />
+                            <AvatarFallback>
+                              {getInitials(
+                                appointment.customer.name,
+                                tDashboard("customerFallback"),
+                              )}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground lg:hidden">
+                              {tDashboard("appointments.customer")}
+                            </span>
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {appointment.customer.name}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground lg:hidden">
+                            {tDashboard("appointments.services")}
+                          </span>
+                          <p className="truncate text-sm text-muted-foreground">
+                            {serviceNames || tDashboard("appointments.noServices")}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 lg:justify-start">
+                          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground lg:hidden">
+                            {tDashboard("appointments.amount")}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold tabular-nums text-foreground">
+                              {formatCurrency(appointment.totalAmount, locale)}
+                            </span>
+                            <StatusBadge status={appointment.status} label={statusLabel} />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-start gap-2 lg:justify-end">
+                          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground lg:hidden">
+                            {tDashboard("appointments.actions")}
+                          </span>
+                          {isPending ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="min-h-11 text-xs"
+                                disabled={isChanging}
+                                onClick={() => setCancelAppointmentId(appointment.id)}
+                              >
+                                {tAppointment("actions.cancel")}
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="min-h-11 text-xs"
+                                disabled={isChanging}
+                                onClick={() => {
+                                  clearNew(appointment.id);
+                                  void handleConfirm(appointment.id)();
+                                }}
+                              >
+                                {tAppointment("actions.confirm")}
+                              </Button>
+                            </>
+                          ) : (
+                            <AppointmentStatusDropdown
+                              status={appointment.status}
+                              disabled={isChanging}
+                              className="min-h-11"
+                              onStatusChange={(status) =>
+                                handleChangeStatus(appointment.id, status)
+                              }
+                            />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/80 shadow-xs">
+            <CardHeader>
+              <SectionHeading
+                title={tDashboard("attention.title")}
+                description={tDashboard("attention.description")}
+                action={<AlertTriangle className="size-5 text-chart-5" aria-hidden="true" />}
+              />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs leading-5 text-muted-foreground">
+                {tDashboard("attention.sourceNote")}
+              </p>
+              {isLoadingAppointments ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-11 w-full" />
+                </div>
+              ) : errorAppointments ? (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                  {tDashboard("appointments.error")}
+                </div>
+              ) : !hasAttentionItems && !pendingPayments.isLoading && !pendingPayments.error ? (
+                <div className="rounded-xl border border-dashed border-border p-5">
+                  <p className="font-medium text-foreground">{tDashboard("attention.emptyTitle")}</p>
+                  <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                    {tDashboard("attention.emptyDescription")}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {appointmentSummary.pending > 0 ? (
+                    <div className="rounded-xl border border-chart-5/30 bg-chart-5/5 p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {tDashboard("attention.pending")}
+                          </p>
+                          <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                            {tDashboard("attention.pendingDescription")}
+                          </p>
+                        </div>
+                        <span className="text-2xl font-bold tabular-nums text-chart-5">
+                          {formatNumber(appointmentSummary.pending, locale)}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+                  {pendingPayments.isLoading ? (
+                    <Skeleton className="h-20 w-full" />
+                  ) : pendingPayments.error ? (
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                      <p className="text-sm text-destructive">
+                        {tDashboard("attention.paymentError")}
+                      </p>
+                      <Button
+                        variant="outline"
+                        className="mt-3 min-h-11"
+                        onClick={() => pendingPayments.retry()}
+                      >
+                        <RefreshCw aria-hidden="true" />
+                        {tDashboard("attention.paymentRetry")}
+                      </Button>
+                    </div>
+                  ) : pendingPayments.canViewPayments && (pendingPayments.pendingCount ?? 0) > 0 ? (
+                    <div className="rounded-xl border border-chart-5/30 bg-chart-5/5 p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {tDashboard("attention.paymentPending")}
+                          </p>
+                          <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                            {tDashboard("attention.paymentPendingDescription")}
+                          </p>
+                        </div>
+                        <span className="text-2xl font-bold tabular-nums text-chart-5">
+                          {formatNumber(pendingPayments.pendingCount ?? 0, locale)}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+              <Button asChild variant="outline" className="min-h-11 w-full">
+                <Link to="appointments">{tDashboard("attention.openAppointments")}</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section
+          className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.8fr)]"
+          aria-label={tDashboard("revenue.title")}
+        >
+          <Card className="border-border/80 shadow-xs">
+            <CardHeader>
+              <SectionHeading
+                title={tDashboard("revenue.title")}
+                description={tDashboard("revenue.description", {
+                  range: weekRange || tDashboard("revenue.periodUnavailable"),
+                })}
+                action={<WalletCards className="size-5 text-primary" aria-hidden="true" />}
+              />
+            </CardHeader>
+            <CardContent className="h-60 px-4 sm:h-64 sm:px-6">
               {isLoadingWeeklyIncome ? (
-                <div className="flex h-full items-end gap-3 px-2 pb-2">
+                <div className="flex h-full items-end gap-3 px-2 pb-2" aria-label={tDashboard("summary.loading")}>
                   {[48, 72, 56, 86, 64, 80, 60].map((height, index) => (
-                    <Skeleton
-                      key={index}
-                      className="flex-1"
-                      style={{ height: `${height}%` }}
-                    />
+                    <Skeleton key={index} className="flex-1" style={{ height: `${height}%` }} />
                   ))}
                 </div>
               ) : errorWeeklyIncome ? (
-                <div className="flex h-full items-center justify-center text-sm text-destructive">
-                  {errorWeeklyIncome}
+                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+                  <p className="text-sm text-destructive">{tDashboard("revenue.error")}</p>
+                  <Button variant="outline" className="min-h-11" onClick={() => void retryWeeklyIncome()}>
+                    <RefreshCw aria-hidden="true" />
+                    {tDashboard("revenue.retry")}
+                  </Button>
                 </div>
               ) : weeklyIncomeByDay.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                  Chưa có dữ liệu doanh thu trong tuần này.
+                <div className="flex h-full items-center justify-center text-center text-sm text-muted-foreground">
+                  {tDashboard("revenue.empty")}
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyIncomeByDay} accessibilityLayer>
-                    <CartesianGrid
-                      vertical={false}
-                      stroke="var(--border)"
-                      strokeDasharray="4 4"
-                    />
+                    <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="4 4" />
                     <XAxis
                       dataKey="day"
                       axisLine={false}
@@ -348,47 +628,63 @@ export const DashBoard = () => {
                         color: "var(--popover-foreground)",
                       }}
                       formatter={(value) => [
-                        formatCurrency(Number(value)),
-                        chartConfig.income.label,
+                        formatCurrency(Number(value), locale),
+                        tDashboard("revenue.tooltip"),
                       ]}
-                      labelFormatter={(_, payload) =>
-                        payload?.[0]?.payload?.date ?? ""
-                      }
+                      labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ""}
                     />
                     <Bar
                       dataKey="income"
                       fill={chartConfig.income.color}
                       radius={[5, 5, 0, 0]}
                       maxBarSize={34}
-                      name={chartConfig.income.label}
+                      name={tDashboard("revenue.tooltip")}
                     />
                   </BarChart>
                 </ResponsiveContainer>
               )}
             </CardContent>
           </Card>
+
+          <Card className="border-primary/20 bg-primary/[0.04] shadow-xs">
+            <CardHeader>
+              <SectionHeading
+                title={tDashboard("revenue.todayTitle")}
+                description={displayDate}
+                action={<CalendarDays className="size-5 text-primary" aria-hidden="true" />}
+              />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground">
+                {hasRevenueData ? formatCurrency(today?.income, locale) : "—"}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {tDashboard("revenue.todayDescription")}
+              </p>
+            </CardContent>
+            <CardFooter className="border-t border-primary/10 px-6 py-4">
+              <span className="text-xs text-muted-foreground">
+                {weekRange || tDashboard("revenue.periodUnavailable")}
+              </span>
+            </CardFooter>
+          </Card>
         </section>
 
         <section
-          className="grid gap-6 xl:grid-cols-5"
-          aria-label="Tổng quan khách hàng và dịch vụ"
+          className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.8fr)]"
+          aria-label={tDashboard("customers.title")}
         >
-          <Card className="border-border/80 shadow-xs xl:col-span-3">
+          <Card className="border-border/80 shadow-xs">
             <CardHeader>
               <SectionHeading
-                title="Khách hàng chi tiêu cao"
-                description="Những khách hàng có tổng chi tiêu nổi bật"
-                action={
-                  <UsersRound
-                    className="size-5 text-secondary"
-                    aria-hidden="true"
-                  />
-                }
+                title={tDashboard("customers.title")}
+                description={tDashboard("customers.description")}
+                action={<UsersRound className="size-5 text-secondary-foreground" aria-hidden="true" />}
               />
             </CardHeader>
             <CardContent>
               {isLoadingTopCustomer ? (
-                <div className="space-y-4">
+                <div className="space-y-4" aria-label={tDashboard("summary.loading")}>
                   {[1, 2, 3].map((item) => (
                     <div key={item} className="flex items-center gap-3">
                       <Skeleton className="size-10 rounded-full" />
@@ -401,41 +697,42 @@ export const DashBoard = () => {
                   ))}
                 </div>
               ) : errorTopCustomer ? (
-                <p className="text-sm text-destructive">{errorTopCustomer}</p>
+                <div className="flex flex-col items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                  <p className="text-sm text-destructive">{tDashboard("customers.error")}</p>
+                  <Button variant="outline" className="min-h-11" onClick={() => void retryTopCustomer()}>
+                    <RefreshCw aria-hidden="true" />
+                    {tDashboard("customers.retry")}
+                  </Button>
+                </div>
               ) : topCustomers.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                  Chưa có dữ liệu khách hàng.
+                  {tDashboard("customers.empty")}
                 </div>
               ) : (
                 <div className="divide-y divide-border/70">
                   {topCustomers.map((customer) => (
                     <div
-                      key={
-                        customer.id?.$oid ??
-                        customer.id?.toString?.() ??
-                        customer.id
-                      }
+                      key={customer.id}
                       className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                     >
                       <Avatar size="lg">
                         <AvatarImage
                           src={customer.avatarUrl ?? undefined}
-                          alt={`Ảnh đại diện của ${customer.name}`}
+                          alt={tDashboard("appointments.avatarAlt", { name: customer.name })}
                         />
                         <AvatarFallback>
-                          {getInitials(customer.name)}
+                          {getInitials(customer.name, tDashboard("customerFallback"))}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {customer.name}
-                        </p>
+                        <p className="truncate text-sm font-semibold text-foreground">{customer.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Khách hàng thân thiết
+                          {tDashboard("customers.repeatCustomer")}
                         </p>
                       </div>
                       <p className="text-right text-sm font-semibold tabular-nums text-foreground">
-                        {formatCurrency(customer.totalSpent)}
+                        <span className="sr-only">{tDashboard("customers.totalSpent")}: </span>
+                        {formatCurrency(customer.totalSpent, locale)}
                       </p>
                     </div>
                   ))}
@@ -444,193 +741,63 @@ export const DashBoard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-border/80 shadow-xs xl:col-span-2">
+          <Card className="border-border/80 shadow-xs">
             <CardHeader>
               <SectionHeading
-                title="Tổng quan cửa hàng"
-                description="Các thông tin cần biết để vận hành"
-                action={
-                  <MoreHorizontal
-                    className="size-5 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                }
+                title={tDashboard("services.title")}
+                description={tDashboard("services.description")}
+                action={<MoreHorizontal className="size-5 text-muted-foreground" aria-hidden="true" />}
               />
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/60 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-background text-primary shadow-xs">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-background text-primary shadow-xs">
                     <Scissors className="size-5" aria-hidden="true" />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Tổng dịch vụ của Shop
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {tDashboard("services.countLabel")}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Sẵn sàng cho khách đặt lịch
+                      {errorCountService
+                        ? tDashboard("services.error")
+                        : hasServiceData
+                          ? tDashboard("services.description")
+                          : tDashboard("summary.loading")}
                     </p>
                   </div>
                 </div>
                 <span className="text-xl font-bold tabular-nums text-foreground">
-                  {isLoadingCountService ? "—" : countServices}
+                  {hasServiceData ? formatNumber(countServices, locale) : "—"}
                 </span>
               </div>
-              <Button className="w-full" onClick={handleAddService}>
-                <Plus aria-hidden="true" />
-                Thêm dịch vụ mới
-              </Button>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section aria-labelledby="appointments-heading">
-          <Card className="overflow-hidden border-border/80 shadow-xs">
-            <CardHeader className="border-b border-border/70">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <CardTitle
-                    id="appointments-heading"
-                    className="text-lg font-semibold tracking-tight"
-                  >
-                    Lịch hẹn hôm nay
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Xem nhanh lịch làm việc và cập nhật trạng thái từng lịch
-                    hẹn.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              {isLoadingAppointments ? (
-                <div className="space-y-1 p-4 sm:p-6">
-                  {[1, 2, 3].map((item) => (
-                    <div
-                      key={item}
-                      className="flex items-center gap-4 rounded-lg p-3"
-                    >
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="size-10 rounded-full" />
-                      <Skeleton className="h-4 flex-1" />
-                      <Skeleton className="h-8 w-24" />
-                    </div>
-                  ))}
-                </div>
-              ) : sortApointments.length === 0 ? (
-                <div className="flex flex-col items-center justify-center gap-2 px-6 py-14 text-center">
-                  <CheckCircle2
-                    className="size-8 text-secondary"
-                    aria-hidden="true"
-                  />
-                  <p className="font-medium text-foreground">
-                    Hôm nay chưa có lịch hẹn
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Lịch hẹn mới sẽ xuất hiện tại đây.
-                  </p>
-                </div>
+              {errorCountService ? (
+                <Button variant="outline" className="min-h-11 w-full" onClick={() => void retryCountService()}>
+                  <RefreshCw aria-hidden="true" />
+                  {tDashboard("services.retry")}
+                </Button>
               ) : (
-                <div className="divide-y divide-border/70">
-                  {sortApointments.map((appointment) => {
-                    const isPending = appointment.status === "PENDING";
-                    const isNew = newIds.has(appointment.id);
-
-                    return (
-                      <div
-                        key={appointment.id}
-                        className={`grid items-center gap-4 px-4 py-4 transition-colors sm:px-6 lg:grid-cols-[7.5rem_minmax(0,1.25fr)_minmax(0,1.5fr)_auto_auto] ${
-                          isPending ? "bg-brand-light/60" : "hover:bg-muted/40"
-                        } ${isNew ? "animate-blink motion-reduce:animate-none" : ""}`}
-                      >
-                        <div className="flex items-center gap-2 text-sm font-semibold tabular-nums text-foreground">
-                          <Clock3
-                            className="size-4 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                          <span>
-                            {appointment.startTime} - {appointment.endTime}
-                          </span>
-                        </div>
-                        <div className="flex min-w-0 items-center gap-3">
-                          <Avatar>
-                            <AvatarImage
-                              src={appointment.customer.avatarUrl ?? undefined}
-                              alt={`Ảnh đại diện của ${appointment.customer.name}`}
-                            />
-                            <AvatarFallback>
-                              {getInitials(appointment.customer.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="truncate text-sm font-medium text-foreground">
-                            {appointment.customer.name}
-                          </span>
-                        </div>
-                        <span className="truncate text-sm text-muted-foreground">
-                          {appointment.services
-                            .map((service) => service.serviceName)
-                            .join(", ") || "Chưa có dịch vụ"}
-                        </span>
-                        <span className="text-sm font-semibold tabular-nums text-foreground">
-                          {formatCurrency(appointment.totalAmount)}
-                        </span>
-                        <div className="flex items-center justify-start gap-2 lg:justify-end">
-                          {isPending ? (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                                disabled={isChanging}
-                                onClick={() => {
-                                  setCancelAppointmentId(appointment.id);
-                                }}
-                              >
-                                Từ chối
-                              </Button>
-                              <Button
-                                size="sm"
-                                className="text-xs"
-                                disabled={isChanging}
-                                onClick={() => {
-                                  clearNew(appointment.id);
-                                  void handleConfirm(appointment.id)();
-                                }}
-                              >
-                                Xác nhận
-                              </Button>
-                            </>
-                          ) : (
-                            <AppointmentStatusDropdown
-                              status={appointment.status}
-                              disabled={isChanging}
-                              onStatusChange={(status) =>
-                                handleChangeStatus(appointment.id, status)
-                              }
-                            />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <Button className="min-h-11 w-full" onClick={handleAddService}>
+                  <Plus aria-hidden="true" />
+                  {tDashboard("services.add")}
+                </Button>
               )}
             </CardContent>
           </Card>
         </section>
-        {cancelAppointmentId ? (
-          <CancelAppointmentDialog
-            open
-            isSubmitting={isChanging}
-            onOpenChange={(open) => {
-              if (!open) setCancelAppointmentId(null);
-            }}
-            onConfirm={(cancelReason) =>
-              handleReject(cancelAppointmentId, cancelReason)()
-            }
-          />
-        ) : null}
       </div>
+
+      {cancelAppointmentId ? (
+        <CancelAppointmentDialog
+          open
+          isSubmitting={isChanging}
+          onOpenChange={(open) => {
+            if (!open) setCancelAppointmentId(null);
+          }}
+          onConfirm={(cancelReason) => handleReject(cancelAppointmentId, cancelReason)()}
+        />
+      ) : null}
     </main>
   );
 };

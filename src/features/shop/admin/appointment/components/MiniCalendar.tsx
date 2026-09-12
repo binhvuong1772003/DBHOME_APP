@@ -13,19 +13,23 @@ interface MiniCalendarProps {
   mutedList: boolean[];
   currentMonth: dayjs.Dayjs;
   setSelectedDate: (date: string) => void;
+  goToPreviousMonth: () => void;
+  goToNextMonth: () => void;
 }
 
-function CalendarDay({ children, selected = false, muted = false, onClick }: {
+function CalendarDay({ children, selected = false, muted = false, onClick, ariaLabel }: {
   children: ReactNode;
   selected?: boolean;
   muted?: boolean;
   onClick?: () => void;
+  ariaLabel?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
+      aria-label={ariaLabel}
       className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium ${
         selected
           ? "bg-primary text-primary-foreground shadow-sm"
@@ -44,6 +48,8 @@ export function MiniCalendar({
   selectedDate,
   currentMonth,
   setSelectedDate,
+  goToPreviousMonth,
+  goToNextMonth,
 }: MiniCalendarProps) {
   const { t, i18n } = useTranslation("appointment");
   const weekdays = t("calendar.weekdays", { returnObjects: true }) as string[];
@@ -61,10 +67,22 @@ export function MiniCalendar({
           </p>
         </div>
         <div className="flex gap-1">
-          <Button variant="ghost" size="icon-xs" aria-label={t("calendar.previousMonth")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="min-h-11 min-w-11"
+            aria-label={t("calendar.previousMonth")}
+            onClick={goToPreviousMonth}
+          >
             <ChevronLeft />
           </Button>
-          <Button variant="ghost" size="icon-xs" aria-label={t("calendar.nextMonth")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="min-h-11 min-w-11"
+            aria-label={t("calendar.nextMonth")}
+            onClick={goToNextMonth}
+          >
             <ChevronRight />
           </Button>
         </div>
@@ -83,6 +101,7 @@ export function MiniCalendar({
                 key={date}
                 selected={date === selectedDate}
                 muted={day.month() !== currentMonth.month()}
+                ariaLabel={day.locale(calendarLocale).format("dddd, D MMMM YYYY")}
                 onClick={() => setSelectedDate(date)}
               >
                 {day.date()}

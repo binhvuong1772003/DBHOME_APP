@@ -1,0 +1,78 @@
+{
+  "eyebrow": "TỔNG QUAN VẬN HÀNH",
+  "title": "Tổng quan vận hành",
+  "description": "Nắm nhanh lịch hẹn, việc cần xử lý và doanh thu của cửa hàng.",
+  "dateUnavailable": "Chưa có dữ liệu ngày",
+  "customerFallback": "KH",
+  "summary": {
+    "weeklyRevenue": "Doanh thu tuần này",
+    "todayAppointments": "Lịch hẹn hôm nay",
+    "pendingConfirmations": "Chờ xác nhận",
+    "services": "Dịch vụ đang cung cấp",
+    "appointmentsMeta": "{{confirmed}} đã xác nhận · {{completed}} hoàn tất",
+    "pendingMeta": "Cần xử lý trong hôm nay",
+    "noPending": "Không có yêu cầu mới",
+    "servicesMeta": "Số dịch vụ đang mở bán",
+    "loading": "Đang tải",
+    "notAvailable": "Chưa có dữ liệu"
+  },
+  "attention": {
+    "title": "Cần xử lý",
+    "description": "Các lịch hẹn hôm nay có thể xử lý ngay từ đây.",
+    "sourceNote": "Đang theo dõi theo trạng thái lịch hẹn hiện có.",
+    "pending": "Chờ xác nhận",
+    "pendingDescription": "Khách đang chờ cửa hàng phản hồi.",
+    "paymentPending": "Thanh toán đang chờ",
+    "paymentPendingDescription": "Có giao dịch cần được kiểm tra hoặc xác nhận.",
+    "paymentError": "Không thể tải trạng thái thanh toán.",
+    "paymentRetry": "Thử lại trạng thái thanh toán",
+    "openAppointments": "Mở danh sách lịch hẹn",
+    "emptyTitle": "Không có việc cần xử lý.",
+    "emptyDescription": "Mọi lịch hẹn hôm nay đang ở trạng thái ổn định."
+  },
+  "revenue": {
+    "title": "Doanh thu theo ngày",
+    "description": "Theo dõi doanh thu thực tế trong {{range}}",
+    "todayTitle": "Doanh thu hôm nay",
+    "todayDescription": "Doanh thu đã ghi nhận trong ngày",
+    "periodUnavailable": "Đang cập nhật khoảng thời gian",
+    "tooltip": "Doanh thu",
+    "empty": "Chưa có dữ liệu doanh thu trong kỳ này.",
+    "error": "Không thể tải doanh thu.",
+    "retry": "Thử lại"
+  },
+  "customers": {
+    "title": "Khách hàng nổi bật",
+    "description": "Xếp theo tổng chi tiêu từ dữ liệu thực tế",
+    "empty": "Chưa có dữ liệu khách hàng.",
+    "error": "Không thể tải danh sách khách hàng.",
+    "totalSpent": "Tổng chi tiêu",
+    "repeatCustomer": "Khách hàng quay lại",
+    "retry": "Thử lại"
+  },
+  "services": {
+    "title": "Tổng quan dịch vụ",
+    "description": "Các dịch vụ đang sẵn sàng cho khách đặt lịch",
+    "countLabel": "Dịch vụ đang mở bán",
+    "add": "Thêm dịch vụ mới",
+    "empty": "Chưa có dữ liệu dịch vụ.",
+    "error": "Không thể tải số lượng dịch vụ.",
+    "retry": "Thử lại"
+  },
+  "appointments": {
+    "title": "Lịch hẹn hôm nay",
+    "description": "Ưu tiên lịch cần xử lý, sau đó đến các lịch theo thời gian.",
+    "time": "Thời gian",
+    "customer": "Khách hàng",
+    "services": "Dịch vụ",
+    "amount": "Tổng tiền",
+    "actions": "Thao tác",
+    "noAppointments": "Hôm nay chưa có lịch hẹn",
+    "noAppointmentsDescription": "Lịch hẹn mới sẽ xuất hiện tại đây.",
+    "error": "Không thể tải lịch hẹn hôm nay.",
+    "retry": "Thử lại",
+    "noServices": "Chưa có dịch vụ",
+    "avatarAlt": "Ảnh đại diện của {{name}}",
+    "viewAll": "Mở lịch hẹn"
+  }
+}
